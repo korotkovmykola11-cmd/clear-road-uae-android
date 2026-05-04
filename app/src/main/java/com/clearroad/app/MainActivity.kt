@@ -67,6 +67,17 @@ fun ClearRoadScreen(modifier: Modifier = Modifier) {
     } else {
         null
     }
+    val choiceText = when (selectedMode) {
+        PreferenceMode.FASTEST -> "Best route via Sheikh Zayed Road"
+        PreferenceMode.NO_TOLLS -> "Easiest on tolls via Emirates Road"
+        PreferenceMode.CALM -> "Calmer drive via Emirates Road"
+    }
+    val fullChoiceText =
+        if (originText.isNotBlank() && destinationText.isNotBlank()) {
+            "$choiceText from $originText to $destinationText"
+        } else {
+            "Enter a route"
+        }
     Column(modifier = modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
         Text(
             text = "Clear Road",
@@ -132,11 +143,7 @@ fun ClearRoadScreen(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = if (decision != null) {
-                "${decision.choice} from $originText to $destinationText"
-            } else {
-                "Enter a route"
-            },
+            text = fullChoiceText,
             style = MaterialTheme.typography.bodyLarge
         )
         Spacer(modifier = Modifier.height(24.dp))
