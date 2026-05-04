@@ -54,14 +54,9 @@ object RouteDecisionEngine {
                 )
         }
 
-        val choice = when (mode) {
-            PreferenceMode.FASTEST -> "Best route for time: ${best.name}"
-            PreferenceMode.NO_TOLLS -> "Best route to limit tolls: ${best.name}"
-            PreferenceMode.CALM -> "Calmer drive: ${best.name}"
-        }
-
+        val choice = buildChoice(best, mode)
         val why = buildWhy(best, mode)
-        val tip = buildTip(best)
+        val tip = buildTip(best, mode)
 
         return DecisionResult(
             bestRoute = best,
@@ -73,40 +68,80 @@ object RouteDecisionEngine {
         )
     }
 
-    private fun buildWhy(route: RouteOption, mode: PreferenceMode): String {
-        val parts = mutableListOf<String>()
-        parts += "${route.durationMin} minutes, ${route.distanceKm} km."
-        when (mode) {
-            PreferenceMode.FASTEST -> {
-                if (route.tollAed > 0.0) {
-                    parts += "Tolls about AED ${route.tollAed.toInt()}."
-                } else {
-                    parts += "No toll line items on this option."
-                }
-            }
-            PreferenceMode.NO_TOLLS -> {
-                parts += if (route.tollAed == 0.0) {
-                    "Keeps toll spend at zero."
-                } else {
-                    "Lowest toll among choices at AED ${String.format("%.0f", route.tollAed)}."
-                }
-            }
-            PreferenceMode.CALM -> {
-                parts += "${route.salikGates} Salik gate(s), tolls about AED ${route.tollAed.toInt()}."
-            }
+    private fun buildChoice(route: RouteOption, mode: PreferenceMode): String {
+        val via = friendlyVia(route)
+        return when (mode) {
+            PreferenceMode.FASTEST -> "Best route via $via"
+            PreferenceMode.NO_TOLLS -> "Easiest on tolls via $via"
+            PreferenceMode.CALM -> "Calmer drive via $via"
         }
-        return parts.joinToString(" ")
     }
 
-    private fun buildTip(route: RouteOption): String {
-        val hints = mutableListOf<String>()
-        hints += "Avoid Dubai rush peaks around 17:00–19:00 when you can."
+    private fun friendlyVia(route: RouteOption): String =
+        route.name.substringBefore("(").trim()
+
+    private fun approximateTime(minutes: Int): String {
+        val rounded = ((minutes + 5) / 10) * 10
+        if (rounded < 60) return "About $rounded minutes"
+        val h = rounded / 60
+        val m = rounded % 60
+        if (m == 0) return if (h == 1) "About an hour" else "About $h hours"
+        return if (h == 1) "About 1 hr $m min" else "About ${h} hr $m min"
+    }
+
+    private fun buildWhy(route: RouteOption, mode: PreferenceMode): String {
+        val time = approximateTime(route.durationMin)
+        return when (mode) {
+            PreferenceMode.FASTEST -> buildWhyFastest(route, time)
+            PreferenceMode.NO_TOLLS -> buildWhyNoTolls(route, time)
+            PreferenceMode.CALM -> buildWhyCalm(route, time)
+        }
+    }
+
+    private fun buildWhyFastest(route: RouteOption, time: String): String =
+        when {
+            route.tollAed == 0.0 ->
+                "$time, no tolls — great when you need to shave minutes."
+            route.salikGates >= 4 ->
+                "$time, fastest option — expect several toll gates."
+            else ->
+                "$time, quickest here with some tolls along the way."
+        }
+
+    private fun buildWhyNoTolls(route: RouteOption, time: String): String =
+        when {
+            route.tollAed == 0.0 ->
+                "$time, no tolls — kinder on the wallet."
+            else ->
+                "Least toll spend among these — still expect a small Salik bite."
+        }
+
+    private fun buildWhyCalm(route: RouteOption, time: String): String =
+        when {
+            route.salikGates == 0 ->
+                "$time, skips Salik — usually feels steadier."
+            route.salikGates <= 2 ->
+                "Slightly longer, lighter toll hops than the big motorways."
+            else ->
+                "$time, fewer merges than the busiest sprint — still some tolls."
+        }
+
+    private fun buildTip(route: RouteOption, mode: PreferenceMode): String {
         if (route.passesAbuDhabi) {
-            hints += "Carry your Abu Dhabi toll/DARB registration if you cross into the emirate."
+            return "Sort DARB before driving into Abu Dhabi."
         }
         if (route.parkingMayBePaid) {
-            hints += "Budget a little extra for paid parking at the destination."
+            return "Allow a little extra for paid parking at the end."
         }
-        return hints.joinToString(" ")
+        return when (mode) {
+            PreferenceMode.FASTEST ->
+                if (route.tollAed > 0.0 || route.salikGates > 0) {
+                    "Keep Salik topped up before using toll roads."
+                } else {
+                    "Avoid Dubai rush hour around 5–7 pm."
+                }
+            PreferenceMode.NO_TOLLS -> "Avoid Dubai rush hour around 5–7 pm."
+            PreferenceMode.CALM -> "Good choice if you want a calmer drive."
+        }
     }
 }
