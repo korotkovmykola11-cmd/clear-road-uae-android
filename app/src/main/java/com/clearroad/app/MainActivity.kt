@@ -78,6 +78,8 @@ fun ClearRoadScreen(
         mutableStateOf<List<AutocompletePrediction>>(emptyList())
     }
     var placesDebugText by remember { mutableStateOf("Places: idle") }
+    var selectedFromPlaceId by remember { mutableStateOf<String?>(null) }
+    var selectedToPlaceId by remember { mutableStateOf<String?>(null) }
     val hasRouteInput =
         originText.isNotBlank() && destinationText.isNotBlank()
     val decision = if (hasRouteInput) {
@@ -129,6 +131,7 @@ fun ClearRoadScreen(
         OutlinedTextField(
             value = originText,
             onValueChange = { newText ->
+                selectedFromPlaceId = null
                 originText = newText
                 if (newText.length < 2) {
                     fromPredictions = emptyList()
@@ -171,6 +174,7 @@ fun ClearRoadScreen(
                             .clickable {
                                 originText = label
                                 fromPredictions = emptyList()
+                                selectedFromPlaceId = prediction.placeId
                                 placesDebugText = "Places: selected"
                             }
                             .padding(vertical = 4.dp, horizontal = 4.dp),
@@ -183,6 +187,7 @@ fun ClearRoadScreen(
         OutlinedTextField(
             value = destinationText,
             onValueChange = { newText ->
+                selectedToPlaceId = null
                 destinationText = newText
                 if (newText.length < 2) {
                     toPredictions = emptyList()
@@ -225,6 +230,7 @@ fun ClearRoadScreen(
                             .clickable {
                                 destinationText = label
                                 toPredictions = emptyList()
+                                selectedToPlaceId = prediction.placeId
                                 placesDebugText = "Places: selected"
                             }
                             .padding(vertical = 4.dp, horizontal = 4.dp),
