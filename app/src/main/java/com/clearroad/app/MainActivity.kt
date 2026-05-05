@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -531,8 +532,15 @@ fun ClearRoadScreen(
     }
     Column(
         modifier = modifier
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .verticalScroll(rememberScrollState()),
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(
+                start = 24.dp,
+                top = 16.dp,
+                end = 24.dp,
+                bottom = 32.dp,
+            )
+            .navigationBarsPadding(),
     ) {
         Text(
             text = "Clear Road",
@@ -801,12 +809,22 @@ fun ClearRoadScreen(
                 )
             }
             if (realRouteDebugDataList.isNotEmpty()) {
+                val debugRoutes = realRouteDebugDataList
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Real route options: ${realRouteDebugDataList.size}",
+                    text = "Real route options: ${debugRoutes.size}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                for (index in debugRoutes.indices) {
+                    val item = debugRoutes[index]
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Route ${index + 1}: ${item.durationText}, ${item.distanceText}, fake toll ${index * 20} AED",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
