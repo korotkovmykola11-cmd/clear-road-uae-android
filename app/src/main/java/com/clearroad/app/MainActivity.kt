@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +39,11 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.text.Charsets
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +98,196 @@ private fun fetchLatLng(
         }
 }
 
+private fun latLngToCommaString(latLng: LatLng): String =
+    "${latLng.latitude},${latLng.longitude}"
+
+private fun directionsRequestPreview(
+    selectedFromLatLng: LatLng?,
+    selectedToLatLng: LatLng?,
+): String? {
+    val from = selectedFromLatLng ?: return null
+    val to = selectedToLatLng ?: return null
+    return buildString {
+        appendLine("Directions request ready:")
+        appendLine("origin=${latLngToCommaString(from)}")
+        appendLine("destination=${latLngToCommaString(to)}")
+    }.trimEnd()
+}
+
+private fun buildDirectionsUrl(origin: LatLng, destination: LatLng): String {
+    val o = latLngToCommaString(origin)
+    val d = latLngToCommaString(destination)
+    val key = BuildConfig.PLACES_API_KEY
+    return "https://maps.googleapis.com/maps/api/directions/json?origin=$o&destination=$d&mode=driving&key=$key"
+}
+
+private suspend fun fetchDirectionsRaw(url: String): String? =
+    withContext(Dispatchers.IO) {
+        var conn: HttpURLConnection? = null
+        try {
+            conn = (URL(url).openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = 20_000
+                readTimeout = 20_000
+            }
+            val code = conn.responseCode
+            if (code !in 200..299) return@withContext null
+            conn.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        } catch (_: Exception) {
+            null
+        } finally {
+            conn?.disconnect()
+        }
+    }
+
+private fun extractDirectionsStatus(json: String): String? {
+    val marker = "\"status\""
+    val keyIdx = json.indexOf(marker)
+    if (keyIdx == -1) return null
+    val colon = json.indexOf(':', keyIdx + marker.length)
+    if (colon == -1) return null
+    var i = colon + 1
+    while (i < json.length && json[i].isWhitespace()) i++
+    if (i >= json.length || json[i] != '"') return null
+    val start = i + 1
+    val end = json.indexOf('"', start)
+    if (end == -1) return null
+    return json.substring(start, end)
+}
+
+private fun extractFirstLegDistanceDuration(json: String): Pair<String, String>? {
+    fun textFromDistanceOrDurationKey(keyIndex: Int): String? {
+        val colon = json.indexOf(':', keyIndex)
+        if (colon == -1) return null
+        var i = colon + 1
+        while (i < json.length && json[i].isWhitespace()) i++
+        if (i >= json.length || json[i] != '{') return null
+        val innerStart = i + 1
+        val innerClose = json.indexOf('}', innerStart)
+        if (innerClose == -1) return null
+        val textMarker = "\"text\""
+        val textIdx = json.indexOf(textMarker, innerStart)
+        if (textIdx == -1 || textIdx >= innerClose) return null
+        val textColon = json.indexOf(':', textIdx + textMarker.length)
+        if (textColon == -1 || textColon >= innerClose) return null
+        var j = textColon + 1
+        while (j < innerClose && json[j].isWhitespace()) j++
+        if (j >= innerClose || json[j] != '"') return null
+        val strStart = j + 1
+        val strEnd = json.indexOf('"', strStart)
+        if (strEnd == -1 || strEnd > innerClose) return null
+        return json.substring(strStart, strEnd)
+    }
+
+    val routesIdx = json.indexOf("\"routes\"")
+    if (routesIdx == -1) return null
+    val routesBracket = json.indexOf('[', routesIdx)
+    if (routesBracket == -1) return null
+    val firstRouteBrace = json.indexOf('{', routesBracket)
+    if (firstRouteBrace == -1) return null
+    val legsIdx = json.indexOf("\"legs\"", firstRouteBrace)
+    if (legsIdx == -1) return null
+    val legsBracket = json.indexOf('[', legsIdx)
+    if (legsBracket == -1) return null
+    val firstLegBrace = json.indexOf('{', legsBracket)
+    if (firstLegBrace == -1) return null
+
+    val stepsIdx = json.indexOf("\"steps\"", firstLegBrace)
+    val legScanEnd = if (stepsIdx == -1) json.length else stepsIdx
+
+    val distanceIdx = json.indexOf("\"distance\"", firstLegBrace)
+    if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
+    val durationIdx = json.indexOf("\"duration\"", firstLegBrace)
+    if (durationIdx == -1 || durationIdx >= legScanEnd) return null
+
+    val distanceText = textFromDistanceOrDurationKey(distanceIdx) ?: return null
+    val durationText = textFromDistanceOrDurationKey(durationIdx) ?: return null
+    return Pair(distanceText, durationText)
+}
+
+private fun extractFirstLegDistanceDurationValues(json: String): Pair<Int, Int>? {
+    fun intValueFromDistanceOrDurationKey(keyIndex: Int): Int? {
+        val colon = json.indexOf(':', keyIndex)
+        if (colon == -1) return null
+        var i = colon + 1
+        while (i < json.length && json[i].isWhitespace()) i++
+        if (i >= json.length || json[i] != '{') return null
+        val innerStart = i + 1
+        val innerClose = json.indexOf('}', innerStart)
+        if (innerClose == -1) return null
+        val valueMarker = "\"value\""
+        val valueIdx = json.indexOf(valueMarker, innerStart)
+        if (valueIdx == -1 || valueIdx >= innerClose) return null
+        val valueColon = json.indexOf(':', valueIdx + valueMarker.length)
+        if (valueColon == -1 || valueColon >= innerClose) return null
+        var j = valueColon + 1
+        while (j < innerClose && json[j].isWhitespace()) j++
+        val numStart = j
+        while (j < innerClose && json[j].isDigit()) j++
+        if (j == numStart) return null
+        return json.substring(numStart, j).toIntOrNull()
+    }
+
+    val routesIdx = json.indexOf("\"routes\"")
+    if (routesIdx == -1) return null
+    val routesBracket = json.indexOf('[', routesIdx)
+    if (routesBracket == -1) return null
+    val firstRouteBrace = json.indexOf('{', routesBracket)
+    if (firstRouteBrace == -1) return null
+    val legsIdx = json.indexOf("\"legs\"", firstRouteBrace)
+    if (legsIdx == -1) return null
+    val legsBracket = json.indexOf('[', legsIdx)
+    if (legsBracket == -1) return null
+    val firstLegBrace = json.indexOf('{', legsBracket)
+    if (firstLegBrace == -1) return null
+
+    val stepsIdx = json.indexOf("\"steps\"", firstLegBrace)
+    val legScanEnd = if (stepsIdx == -1) json.length else stepsIdx
+
+    val distanceIdx = json.indexOf("\"distance\"", firstLegBrace)
+    if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
+    val durationIdx = json.indexOf("\"duration\"", firstLegBrace)
+    if (durationIdx == -1 || durationIdx >= legScanEnd) return null
+
+    val distanceValue = intValueFromDistanceOrDurationKey(distanceIdx) ?: return null
+    val durationValue = intValueFromDistanceOrDurationKey(durationIdx) ?: return null
+    return Pair(distanceValue, durationValue)
+}
+
+private fun isDirectionsDataValid(
+    status: String?,
+    distanceDuration: Pair<String, String>?,
+    distanceDurationValues: Pair<Int, Int>?,
+): Boolean {
+    if (status != "OK") return false
+    if (distanceDuration == null) return false
+    if (distanceDurationValues == null) return false
+    val (distanceMeters, durationSeconds) = distanceDurationValues
+    return distanceMeters > 0 && durationSeconds > 0
+}
+
+private data class RealRouteDebugData(
+    val distanceText: String,
+    val durationText: String,
+    val distanceMeters: Int,
+    val durationSeconds: Int,
+)
+
+private fun buildRealRouteDebugData(
+    distanceDuration: Pair<String, String>?,
+    distanceDurationValues: Pair<Int, Int>?,
+): RealRouteDebugData? {
+    if (distanceDuration == null || distanceDurationValues == null) return null
+    val (distanceText, durationText) = distanceDuration
+    val (distanceMeters, durationSeconds) = distanceDurationValues
+    return RealRouteDebugData(
+        distanceText = distanceText,
+        durationText = durationText,
+        distanceMeters = distanceMeters,
+        durationSeconds = durationSeconds,
+    )
+}
+
 @Composable
 fun ClearRoadScreen(
     modifier: Modifier = Modifier,
@@ -112,6 +310,18 @@ fun ClearRoadScreen(
     var selectedToLatLng by remember {
         mutableStateOf<LatLng?>(null)
     }
+    var directionsResponse by remember { mutableStateOf<String?>(null) }
+    var directionsStatus by remember { mutableStateOf<String?>(null) }
+    var directionsDistanceDuration by remember {
+        mutableStateOf<Pair<String, String>?>(null)
+    }
+    var directionsDistanceDurationValues by remember {
+        mutableStateOf<Pair<Int, Int>?>(null)
+    }
+    var realRouteDebugData by remember {
+        mutableStateOf<RealRouteDebugData?>(null)
+    }
+    var directionsLoading by remember { mutableStateOf(false) }
     val isRouteReady =
         selectedFromLatLng != null && selectedToLatLng != null
     val decision = if (isRouteReady) {
@@ -122,32 +332,35 @@ fun ClearRoadScreen(
     } else {
         null
     }
-    val choiceText = when (selectedMode) {
-        PreferenceMode.FASTEST -> "Best route via Sheikh Zayed Road"
-        PreferenceMode.NO_TOLLS -> "Easiest on tolls via Emirates Road"
-        PreferenceMode.CALM -> "Calmer drive via Emirates Road"
+    LaunchedEffect(selectedFromLatLng, selectedToLatLng) {
+        realRouteDebugData = null
+        directionsResponse = null
+        directionsStatus = null
+        directionsDistanceDuration = null
+        directionsDistanceDurationValues = null
+        directionsLoading = false
+        val from = selectedFromLatLng
+        val to = selectedToLatLng
+        if (from == null || to == null) return@LaunchedEffect
+        directionsLoading = true
+        val raw = fetchDirectionsRaw(buildDirectionsUrl(from, to))
+        directionsResponse = raw
+        directionsStatus = raw?.let { extractDirectionsStatus(it) }
+        directionsDistanceDuration =
+            raw?.let { extractFirstLegDistanceDuration(it) }
+        directionsDistanceDurationValues =
+            raw?.let { extractFirstLegDistanceDurationValues(it) }
+        realRouteDebugData = buildRealRouteDebugData(
+            directionsDistanceDuration,
+            directionsDistanceDurationValues,
+        )
+        directionsLoading = false
     }
-    val fullChoiceText =
-        if (isRouteReady) {
-            "$choiceText from $originText to $destinationText"
-        } else {
-            "Enter a route"
-        }
-    val whyText = when (selectedMode) {
-        PreferenceMode.FASTEST ->
-            "Fastest option for this route, but expect toll roads."
-        PreferenceMode.NO_TOLLS ->
-            "A little longer, but avoids tolls and keeps cost lower."
-        PreferenceMode.CALM ->
-            "Usually steadier and less stressful, but not the fastest."
-    }
-    val fullWhyText =
-        if (isRouteReady) {
-            whyText
-        } else {
-            "Add starting point and destination to get a recommendation."
-        }
-    Column(modifier = modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+    Column(
+        modifier = modifier
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .verticalScroll(rememberScrollState()),
+    ) {
         Text(
             text = "Clear Road",
             style = MaterialTheme.typography.headlineMedium
@@ -297,7 +510,7 @@ fun ClearRoadScreen(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = fullChoiceText,
+            text = decision?.choice ?: "Enter a route",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -310,7 +523,8 @@ fun ClearRoadScreen(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = fullWhyText,
+            text = decision?.why
+                ?: "Add starting point and destination to get a recommendation.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -327,6 +541,93 @@ fun ClearRoadScreen(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
+        val fromCoords = selectedFromLatLng
+        val toCoords = selectedToLatLng
+        if (fromCoords != null && toCoords != null) {
+            directionsRequestPreview(fromCoords, toCoords)?.let { preview ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = preview,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Directions URL ready",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = when {
+                    directionsLoading -> "Directions API loading..."
+                    directionsResponse != null -> "Directions API OK"
+                    else -> "Directions API failed"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            directionsStatus?.let { status ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Directions status: $status",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            directionsDistanceDuration?.let { (distance, duration) ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Distance: $distance",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Duration: $duration",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            directionsDistanceDurationValues?.let { (distanceValue, durationValue) ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Distance value: $distanceValue m",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Duration value: $durationValue sec",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            val directionsDataValid = isDirectionsDataValid(
+                directionsStatus,
+                directionsDistanceDuration,
+                directionsDistanceDurationValues,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = if (directionsDataValid) {
+                    "Directions data valid"
+                } else {
+                    "Directions data not valid"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            realRouteDebugData?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Real route debug data ready",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
 }
 
