@@ -29,8 +29,11 @@ import androidx.compose.ui.unit.dp
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.ui.theme.ClearRoad2Theme
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 
@@ -63,6 +66,30 @@ private fun preferenceModeLabel(mode: PreferenceMode): String =
         PreferenceMode.CALM -> "Calm"
     }
 
+private fun fetchLatLng(
+    client: PlacesClient?,
+    placeId: String?,
+    onResult: (LatLng?) -> Unit,
+) {
+    if (placeId == null || client == null) {
+        onResult(null)
+        return
+    }
+
+    client.fetchPlace(
+        FetchPlaceRequest.builder(
+            placeId,
+            listOf(Place.Field.LOCATION),
+        ).build(),
+    )
+        .addOnSuccessListener { response ->
+            onResult(response.place.location)
+        }
+        .addOnFailureListener {
+            onResult(null)
+        }
+}
+
 @Composable
 fun ClearRoadScreen(
     modifier: Modifier = Modifier,
@@ -77,12 +104,17 @@ fun ClearRoadScreen(
     var toPredictions by remember {
         mutableStateOf<List<AutocompletePrediction>>(emptyList())
     }
-    var placesDebugText by remember { mutableStateOf("Places: idle") }
     var selectedFromPlaceId by remember { mutableStateOf<String?>(null) }
     var selectedToPlaceId by remember { mutableStateOf<String?>(null) }
-    val hasRouteInput =
-        originText.isNotBlank() && destinationText.isNotBlank()
-    val decision = if (hasRouteInput) {
+    var selectedFromLatLng by remember {
+        mutableStateOf<LatLng?>(null)
+    }
+    var selectedToLatLng by remember {
+        mutableStateOf<LatLng?>(null)
+    }
+    val isRouteReady =
+        selectedFromLatLng != null && selectedToLatLng != null
+    val decision = if (isRouteReady) {
         RouteDecisionEngine.choose(
             RouteDecisionEngine.sampleRoutes,
             selectedMode,
@@ -96,7 +128,7 @@ fun ClearRoadScreen(
         PreferenceMode.CALM -> "Calmer drive via Emirates Road"
     }
     val fullChoiceText =
-        if (originText.isNotBlank() && destinationText.isNotBlank()) {
+        if (isRouteReady) {
             "$choiceText from $originText to $destinationText"
         } else {
             "Enter a route"
@@ -110,7 +142,7 @@ fun ClearRoadScreen(
             "Usually steadier and less stressful, but not the fastest."
     }
     val fullWhyText =
-        if (originText.isNotBlank() && destinationText.isNotBlank()) {
+        if (isRouteReady) {
             whyText
         } else {
             "Add starting point and destination to get a recommendation."
@@ -132,15 +164,13 @@ fun ClearRoadScreen(
             value = originText,
             onValueChange = { newText ->
                 selectedFromPlaceId = null
+                selectedFromLatLng = null
                 originText = newText
                 if (newText.length < 2) {
                     fromPredictions = emptyList()
-                    placesDebugText = "Places: waiting for 2 letters"
                 } else if (placesClient == null) {
                     fromPredictions = emptyList()
-                    placesDebugText = "Places: client is null"
                 } else {
-                    placesDebugText = "Places: requesting..."
                     val request = FindAutocompletePredictionsRequest.builder()
                         .setQuery(newText)
                         .setCountries(listOf("AE"))
@@ -148,12 +178,9 @@ fun ClearRoadScreen(
                     placesClient.findAutocompletePredictions(request)
                         .addOnSuccessListener { response ->
                             fromPredictions = response.autocompletePredictions
-                            placesDebugText =
-                                "Places: predictions = ${response.autocompletePredictions.size}"
                         }
                         .addOnFailureListener {
                             fromPredictions = emptyList()
-                            placesDebugText = "Places error: ${it.message}"
                         }
                 }
             },
@@ -175,7 +202,9 @@ fun ClearRoadScreen(
                                 originText = label
                                 fromPredictions = emptyList()
                                 selectedFromPlaceId = prediction.placeId
-                                placesDebugText = "Places: selected"
+                                fetchLatLng(placesClient, prediction.placeId) { result ->
+                                    selectedFromLatLng = result
+                                }
                             }
                             .padding(vertical = 4.dp, horizontal = 4.dp),
                         style = MaterialTheme.typography.bodySmall,
@@ -188,15 +217,13 @@ fun ClearRoadScreen(
             value = destinationText,
             onValueChange = { newText ->
                 selectedToPlaceId = null
+                selectedToLatLng = null
                 destinationText = newText
                 if (newText.length < 2) {
                     toPredictions = emptyList()
-                    placesDebugText = "Places: waiting for 2 letters"
                 } else if (placesClient == null) {
                     toPredictions = emptyList()
-                    placesDebugText = "Places: client is null"
                 } else {
-                    placesDebugText = "Places: requesting..."
                     val request = FindAutocompletePredictionsRequest.builder()
                         .setQuery(newText)
                         .setCountries(listOf("AE"))
@@ -204,12 +231,9 @@ fun ClearRoadScreen(
                     placesClient.findAutocompletePredictions(request)
                         .addOnSuccessListener { response ->
                             toPredictions = response.autocompletePredictions
-                            placesDebugText =
-                                "Places: predictions = ${response.autocompletePredictions.size}"
                         }
                         .addOnFailureListener {
                             toPredictions = emptyList()
-                            placesDebugText = "Places error: ${it.message}"
                         }
                 }
             },
@@ -231,7 +255,9 @@ fun ClearRoadScreen(
                                 destinationText = label
                                 toPredictions = emptyList()
                                 selectedToPlaceId = prediction.placeId
-                                placesDebugText = "Places: selected"
+                                fetchLatLng(placesClient, prediction.placeId) { result ->
+                                    selectedToLatLng = result
+                                }
                             }
                             .padding(vertical = 4.dp, horizontal = 4.dp),
                         style = MaterialTheme.typography.bodySmall,
