@@ -29,16 +29,26 @@ import androidx.compose.ui.unit.dp
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.ui.theme.ClearRoad2Theme
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (!Places.isInitialized() && BuildConfig.PLACES_API_KEY.isNotBlank()) {
+            Places.initialize(applicationContext, BuildConfig.PLACES_API_KEY)
+        }
+        val placesClient =
+            if (Places.isInitialized()) Places.createClient(this) else null
         setContent {
             ClearRoad2Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ClearRoadScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        placesClient = placesClient,
                     )
                 }
             }
@@ -54,10 +64,20 @@ private fun preferenceModeLabel(mode: PreferenceMode): String =
     }
 
 @Composable
-fun ClearRoadScreen(modifier: Modifier = Modifier) {
+fun ClearRoadScreen(
+    modifier: Modifier = Modifier,
+    placesClient: PlacesClient? = null,
+) {
     var originText by remember { mutableStateOf("") }
     var destinationText by remember { mutableStateOf("") }
     var selectedMode by remember { mutableStateOf(PreferenceMode.FASTEST) }
+    var fromPredictions by remember {
+        mutableStateOf<List<AutocompletePrediction>>(emptyList())
+    }
+    var toPredictions by remember {
+        mutableStateOf<List<AutocompletePrediction>>(emptyList())
+    }
+    var placesDebugText by remember { mutableStateOf("Places: idle") }
     val hasRouteInput =
         originText.isNotBlank() && destinationText.isNotBlank()
     val decision = if (hasRouteInput) {
@@ -108,23 +128,111 @@ fun ClearRoadScreen(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = originText,
-            onValueChange = { originText = it },
+            onValueChange = { newText ->
+                originText = newText
+                if (newText.length < 2) {
+                    fromPredictions = emptyList()
+                    placesDebugText = "Places: waiting for 2 letters"
+                } else if (placesClient == null) {
+                    fromPredictions = emptyList()
+                    placesDebugText = "Places: client is null"
+                } else {
+                    placesDebugText = "Places: requesting..."
+                    val request = FindAutocompletePredictionsRequest.builder()
+                        .setQuery(newText)
+                        .setCountries(listOf("AE"))
+                        .build()
+                    placesClient.findAutocompletePredictions(request)
+                        .addOnSuccessListener { response ->
+                            fromPredictions = response.autocompletePredictions
+                            placesDebugText =
+                                "Places: predictions = ${response.autocompletePredictions.size}"
+                        }
+                        .addOnFailureListener {
+                            fromPredictions = emptyList()
+                            placesDebugText = "Places error: ${it.message}"
+                        }
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("From") },
             placeholder = { Text("Enter starting point") },
             singleLine = true,
             maxLines = 1,
         )
+        if (fromPredictions.isNotEmpty()) {
+            Column(modifier = Modifier.padding(top = 4.dp)) {
+                fromPredictions.take(5).forEach { prediction ->
+                    val label = prediction.getFullText(null).toString()
+                    Text(
+                        text = label,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                originText = label
+                                fromPredictions = emptyList()
+                                placesDebugText = "Places: selected"
+                            }
+                            .padding(vertical = 4.dp, horizontal = 4.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = destinationText,
-            onValueChange = { destinationText = it },
+            onValueChange = { newText ->
+                destinationText = newText
+                if (newText.length < 2) {
+                    toPredictions = emptyList()
+                    placesDebugText = "Places: waiting for 2 letters"
+                } else if (placesClient == null) {
+                    toPredictions = emptyList()
+                    placesDebugText = "Places: client is null"
+                } else {
+                    placesDebugText = "Places: requesting..."
+                    val request = FindAutocompletePredictionsRequest.builder()
+                        .setQuery(newText)
+                        .setCountries(listOf("AE"))
+                        .build()
+                    placesClient.findAutocompletePredictions(request)
+                        .addOnSuccessListener { response ->
+                            toPredictions = response.autocompletePredictions
+                            placesDebugText =
+                                "Places: predictions = ${response.autocompletePredictions.size}"
+                        }
+                        .addOnFailureListener {
+                            toPredictions = emptyList()
+                            placesDebugText = "Places error: ${it.message}"
+                        }
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("To") },
             placeholder = { Text("Enter destination") },
             singleLine = true,
             maxLines = 1,
         )
+        if (toPredictions.isNotEmpty()) {
+            Column(modifier = Modifier.padding(top = 4.dp)) {
+                toPredictions.take(5).forEach { prediction ->
+                    val label = prediction.getFullText(null).toString()
+                    Text(
+                        text = label,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                destinationText = label
+                                toPredictions = emptyList()
+                                placesDebugText = "Places: selected"
+                            }
+                            .padding(vertical = 4.dp, horizontal = 4.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(modifier = Modifier.fillMaxWidth()) {

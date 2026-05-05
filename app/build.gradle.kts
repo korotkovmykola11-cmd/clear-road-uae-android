@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
+
+// Places API key: add PLACES_API_KEY=<your_key> to local.properties (not committed).
+val placesApiKey: String =
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { stream ->
+        Properties().apply { load(stream) }.getProperty("PLACES_API_KEY") ?: ""
+    } ?: ""
 
 android {
     namespace = "com.clearroad.app"
@@ -19,6 +27,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["PLACES_API_KEY"] = placesApiKey
+        buildConfigField("String", "PLACES_API_KEY", "\"${placesApiKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     }
 
     buildTypes {
@@ -36,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -47,6 +59,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.google.places)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
