@@ -41,8 +41,13 @@ object RouteDecisionEngine {
         val best = when (mode) {
             PreferenceMode.FASTEST ->
                 routes.minWith(compareBy({ it.durationMin }, { it.id }))
-            PreferenceMode.NO_TOLLS ->
-                routes.minWith(compareBy({ it.tollAed }, { it.durationMin }, { it.id }))
+            PreferenceMode.NO_TOLLS -> {
+                val minToll = routes.minOfOrNull { it.tollAed } ?: 0.0
+
+                routes
+                    .filter { it.tollAed == minToll }
+                    .minBy { it.durationMin }
+            }
             PreferenceMode.CALM ->
                 routes.minWith(
                     compareBy(

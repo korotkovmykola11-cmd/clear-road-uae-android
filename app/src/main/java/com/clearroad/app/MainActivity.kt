@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteDecisionEngine
+import com.clearroad.app.domain.RouteOption
 import com.clearroad.app.ui.theme.ClearRoad2Theme
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
@@ -118,7 +119,7 @@ private fun buildDirectionsUrl(origin: LatLng, destination: LatLng): String {
     val o = latLngToCommaString(origin)
     val d = latLngToCommaString(destination)
     val key = BuildConfig.PLACES_API_KEY
-    return "https://maps.googleapis.com/maps/api/directions/json?origin=$o&destination=$d&mode=driving&key=$key"
+    return "https://maps.googleapis.com/maps/api/directions/json?origin=$o&destination=$d&mode=driving&alternatives=true&key=$key"
 }
 
 private suspend fun fetchDirectionsRaw(url: String): String? =
@@ -288,6 +289,143 @@ private fun buildRealRouteDebugData(
     )
 }
 
+private fun skipJsonStringContent(json: String, openQuoteIndex: Int): Int {
+    var i = openQuoteIndex + 1
+    while (i < json.length) {
+        when (json[i]) {
+            '\\' -> i += 2
+            '"' -> return i + 1
+            else -> i++
+        }
+    }
+    return json.length
+}
+
+private fun findMatchingClosingBrace(json: String, openBraceIndex: Int): Int? {
+    if (openBraceIndex >= json.length || json[openBraceIndex] != '{') return null
+    var depth = 0
+    var i = openBraceIndex
+    while (i < json.length) {
+        when (json[i]) {
+            '"' -> i = skipJsonStringContent(json, i)
+            '{' -> {
+                depth++
+                i++
+            }
+            '}' -> {
+                depth--
+                if (depth == 0) return i
+                i++
+            }
+            else -> i++
+        }
+    }
+    return null
+}
+
+private fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
+    fun textFromDistanceOrDurationKey(routeJson: String, keyIndex: Int): String? {
+        val colon = routeJson.indexOf(':', keyIndex)
+        if (colon == -1) return null
+        var i = colon + 1
+        while (i < routeJson.length && routeJson[i].isWhitespace()) i++
+        if (i >= routeJson.length || routeJson[i] != '{') return null
+        val innerStart = i + 1
+        val innerClose = routeJson.indexOf('}', innerStart)
+        if (innerClose == -1) return null
+        val textMarker = "\"text\""
+        val textIdx = routeJson.indexOf(textMarker, innerStart)
+        if (textIdx == -1 || textIdx >= innerClose) return null
+        val textColon = routeJson.indexOf(':', textIdx + textMarker.length)
+        if (textColon == -1 || textColon >= innerClose) return null
+        var j = textColon + 1
+        while (j < innerClose && routeJson[j].isWhitespace()) j++
+        if (j >= innerClose || routeJson[j] != '"') return null
+        val strStart = j + 1
+        val strEnd = routeJson.indexOf('"', strStart)
+        if (strEnd == -1 || strEnd > innerClose) return null
+        return routeJson.substring(strStart, strEnd)
+    }
+
+    fun intValueFromDistanceOrDurationKey(routeJson: String, keyIndex: Int): Int? {
+        val colon = routeJson.indexOf(':', keyIndex)
+        if (colon == -1) return null
+        var i = colon + 1
+        while (i < routeJson.length && routeJson[i].isWhitespace()) i++
+        if (i >= routeJson.length || routeJson[i] != '{') return null
+        val innerStart = i + 1
+        val innerClose = routeJson.indexOf('}', innerStart)
+        if (innerClose == -1) return null
+        val valueMarker = "\"value\""
+        val valueIdx = routeJson.indexOf(valueMarker, innerStart)
+        if (valueIdx == -1 || valueIdx >= innerClose) return null
+        val valueColon = routeJson.indexOf(':', valueIdx + valueMarker.length)
+        if (valueColon == -1 || valueColon >= innerClose) return null
+        var j = valueColon + 1
+        while (j < innerClose && routeJson[j].isWhitespace()) j++
+        val numStart = j
+        while (j < innerClose && routeJson[j].isDigit()) j++
+        if (j == numStart) return null
+        return routeJson.substring(numStart, j).toIntOrNull()
+    }
+
+    fun firstLegDebugFromRouteObject(routeJson: String): RealRouteDebugData? {
+        val legsIdx = routeJson.indexOf("\"legs\"")
+        if (legsIdx == -1) return null
+        val legsBracket = routeJson.indexOf('[', legsIdx)
+        if (legsBracket == -1) return null
+        val firstLegBrace = routeJson.indexOf('{', legsBracket)
+        if (firstLegBrace == -1) return null
+
+        val stepsIdx = routeJson.indexOf("\"steps\"", firstLegBrace)
+        val legScanEnd = if (stepsIdx == -1) routeJson.length else stepsIdx
+
+        val distanceIdx = routeJson.indexOf("\"distance\"", firstLegBrace)
+        if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
+        val durationIdx = routeJson.indexOf("\"duration\"", firstLegBrace)
+        if (durationIdx == -1 || durationIdx >= legScanEnd) return null
+
+        val distanceText =
+            textFromDistanceOrDurationKey(routeJson, distanceIdx) ?: return null
+        val durationText =
+            textFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
+        val distanceMeters =
+            intValueFromDistanceOrDurationKey(routeJson, distanceIdx) ?: return null
+        val durationSeconds =
+            intValueFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
+
+        return RealRouteDebugData(
+            distanceText = distanceText,
+            durationText = durationText,
+            distanceMeters = distanceMeters,
+            durationSeconds = durationSeconds,
+        )
+    }
+
+    val routesIdx = json.indexOf("\"routes\"")
+    if (routesIdx == -1) return emptyList()
+    val routesBracket = json.indexOf('[', routesIdx)
+    if (routesBracket == -1) return emptyList()
+
+    val results = mutableListOf<RealRouteDebugData>()
+    var i = routesBracket + 1
+    while (i < json.length) {
+        while (i < json.length && (json[i].isWhitespace() || json[i] == ',')) i++
+        if (i >= json.length) break
+        if (json[i] == ']') break
+        if (json[i] != '{') {
+            i++
+            continue
+        }
+        val routeStart = i
+        val routeEnd = findMatchingClosingBrace(json, routeStart) ?: break
+        val routeJson = json.substring(routeStart, routeEnd + 1)
+        firstLegDebugFromRouteObject(routeJson)?.let { results.add(it) }
+        i = routeEnd + 1
+    }
+    return results
+}
+
 @Composable
 fun ClearRoadScreen(
     modifier: Modifier = Modifier,
@@ -321,12 +459,44 @@ fun ClearRoadScreen(
     var realRouteDebugData by remember {
         mutableStateOf<RealRouteDebugData?>(null)
     }
+    var realRouteDebugDataList by remember {
+        mutableStateOf<List<RealRouteDebugData>>(emptyList())
+    }
     var directionsLoading by remember { mutableStateOf(false) }
     val isRouteReady =
         selectedFromLatLng != null && selectedToLatLng != null
+    val routeList = realRouteDebugDataList
+    val data = realRouteDebugData
+    val routesForDecision = when {
+        routeList.isNotEmpty() -> routeList.mapIndexed { index, item ->
+            RouteOption(
+                id = "real_route_$index",
+                name = "Real route ${index + 1}",
+                durationMin = item.durationSeconds / 60,
+                distanceKm = item.distanceMeters / 1000.0,
+                tollAed = index * 20.0,
+                salikGates = index * 2,
+                passesAbuDhabi = false,
+                parkingMayBePaid = false,
+            )
+        }
+        data != null -> listOf(
+            RouteOption(
+                id = "real_route",
+                name = "Real route",
+                durationMin = data.durationSeconds / 60,
+                distanceKm = data.distanceMeters / 1000.0,
+                tollAed = 0.0,
+                salikGates = 0,
+                passesAbuDhabi = false,
+                parkingMayBePaid = false,
+            ),
+        )
+        else -> RouteDecisionEngine.sampleRoutes
+    }
     val decision = if (isRouteReady) {
         RouteDecisionEngine.choose(
-            RouteDecisionEngine.sampleRoutes,
+            routesForDecision,
             selectedMode,
         )
     } else {
@@ -334,6 +504,7 @@ fun ClearRoadScreen(
     }
     LaunchedEffect(selectedFromLatLng, selectedToLatLng) {
         realRouteDebugData = null
+        realRouteDebugDataList = emptyList()
         directionsResponse = null
         directionsStatus = null
         directionsDistanceDuration = null
@@ -354,6 +525,8 @@ fun ClearRoadScreen(
             directionsDistanceDuration,
             directionsDistanceDurationValues,
         )
+        realRouteDebugDataList =
+            raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
         directionsLoading = false
     }
     Column(
@@ -623,6 +796,14 @@ fun ClearRoadScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Real route debug data ready",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (realRouteDebugDataList.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Real route options: ${realRouteDebugDataList.size}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
