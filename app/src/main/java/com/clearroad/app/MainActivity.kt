@@ -4,10 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -26,8 +32,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.clearroad.app.domain.PreferenceMode
@@ -35,6 +43,7 @@ import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.domain.RouteOption
 import com.clearroad.app.ui.theme.ClearRoad2Theme
 import com.google.android.gms.maps.model.LatLng
+import kotlin.math.roundToInt
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
@@ -74,6 +83,51 @@ private fun preferenceModeLabel(mode: PreferenceMode): String =
         PreferenceMode.FASTEST -> "Fastest"
         PreferenceMode.NO_TOLLS -> "No tolls"
         PreferenceMode.CALM -> "Calm"
+    }
+
+private fun manualRouteChoice(mode: PreferenceMode, routeIndex: Int): String =
+    when (mode) {
+        PreferenceMode.FASTEST -> when (routeIndex) {
+            0 -> "Best route"
+            1 -> "Alternative fast route"
+            else -> "Longer option"
+        }
+        PreferenceMode.NO_TOLLS -> when (routeIndex) {
+            0 -> "Easiest on tolls"
+            1 -> "Moderate toll route"
+            else -> "Higher toll option"
+        }
+        PreferenceMode.CALM -> "Balanced route"
+    }
+
+private fun manualRouteWhy(mode: PreferenceMode, routeIndex: Int): String =
+    when (mode) {
+        PreferenceMode.FASTEST -> when (routeIndex) {
+            0 -> "Uses the shortest-time option among these directions."
+            1 -> "Comparable corridor with a bit more time on the road."
+            else -> "Takes longer — compare toll and comfort before you go."
+        }
+        PreferenceMode.NO_TOLLS -> when (routeIndex) {
+            0 -> "Keeps toll spend lowest among these paths."
+            1 -> "Balances toll cost with time somewhat evenly."
+            else -> "Expect higher toll lines along this path."
+        }
+        PreferenceMode.CALM -> "Balances driving time and road cost."
+    }
+
+private fun manualRouteTip(mode: PreferenceMode, routeIndex: Int): String =
+    when (mode) {
+        PreferenceMode.FASTEST -> when (routeIndex) {
+            0 -> "Stick with this if minutes matter most."
+            1 -> "Good middle ground when traffic shifts."
+            else -> "Review toll totals before committing."
+        }
+        PreferenceMode.NO_TOLLS -> when (routeIndex) {
+            0 -> "Kindest on Salik spend among these."
+            1 -> "Carry tag balance for occasional gates."
+            else -> "Keep Salik topped up if you pick this one."
+        }
+        PreferenceMode.CALM -> "Good when you want a smoother overall drive."
     }
 
 private fun fetchLatLng(
@@ -273,20 +327,27 @@ private data class RealRouteDebugData(
     val durationText: String,
     val distanceMeters: Int,
     val durationSeconds: Int,
+    val tollAED: Int,
+    val hasToll: Boolean,
 )
 
 private fun buildRealRouteDebugData(
     distanceDuration: Pair<String, String>?,
     distanceDurationValues: Pair<Int, Int>?,
+    routeJsonForToll: String? = null,
 ): RealRouteDebugData? {
     if (distanceDuration == null || distanceDurationValues == null) return null
     val (distanceText, durationText) = distanceDuration
     val (distanceMeters, durationSeconds) = distanceDurationValues
+    val tollPair =
+        routeJsonForToll?.let { deriveTollAedFromRouteJson(it) } ?: Pair(0, false)
     return RealRouteDebugData(
         distanceText = distanceText,
         durationText = durationText,
         distanceMeters = distanceMeters,
         durationSeconds = durationSeconds,
+        tollAED = tollPair.first,
+        hasToll = tollPair.second,
     )
 }
 
@@ -300,6 +361,82 @@ private fun skipJsonStringContent(json: String, openQuoteIndex: Int): Int {
         }
     }
     return json.length
+}
+
+private fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): String? {
+    val colon = json.indexOf(':', searchFrom)
+    if (colon == -1) return null
+    var j = colon + 1
+    while (j < json.length && json[j].isWhitespace()) j++
+    if (j >= json.length || json[j] != '"') return null
+    val start = j + 1
+    val end = json.indexOf('"', start)
+    if (end == -1) return null
+    return json.substring(start, end)
+}
+
+private fun extractJsonNumberFollowingKey(json: String, searchFrom: Int): Double? {
+    val colon = json.indexOf(':', searchFrom)
+    if (colon == -1) return null
+    var j = colon + 1
+    while (j < json.length && json[j].isWhitespace()) j++
+    val start = j
+    while (j < json.length && (json[j].isDigit() || json[j] == '.' || json[j] == '-')) j++
+    if (j == start) return null
+    return json.substring(start, j).toDoubleOrNull()
+}
+
+private fun tryExtractFareAed(routeJson: String): Int? {
+    val fareKey = "\"fare\""
+    val fi = routeJson.indexOf(fareKey)
+    if (fi == -1) return null
+    val open = routeJson.indexOf('{', fi + fareKey.length)
+    if (open == -1) return null
+    val close = findMatchingClosingBrace(routeJson, open) ?: return null
+    val fareObj = routeJson.substring(open, close + 1)
+    val currencyLabel = "\"currency\""
+    val ci = fareObj.indexOf(currencyLabel)
+    if (ci == -1) return null
+    val currency =
+        extractJsonQuotedStringFollowingKey(fareObj, ci + currencyLabel.length)
+            ?: return null
+    if (!currency.trim().equals("AED", ignoreCase = true)) return null
+    val valueLabel = "\"value\""
+    val vi = fareObj.indexOf(valueLabel)
+    if (vi == -1) return null
+    val num = extractJsonNumberFollowingKey(fareObj, vi + valueLabel.length) ?: return null
+    return num.roundToInt().coerceAtLeast(0)
+}
+
+private fun deriveTollAedFromRouteJson(routeJson: String): Pair<Int, Boolean> {
+    val fare = tryExtractFareAed(routeJson)
+    return when {
+        fare == null -> Pair(0, false)
+        fare > 0 -> Pair(fare, true)
+        else -> Pair(0, false)
+    }
+}
+
+private fun firstRouteObjectJson(directionsJson: String): String? {
+    val routesIdx = directionsJson.indexOf("\"routes\"")
+    if (routesIdx == -1) return null
+    val routesBracket = directionsJson.indexOf('[', routesIdx)
+    if (routesBracket == -1) return null
+    var i = routesBracket + 1
+    while (i < directionsJson.length) {
+        while (i < directionsJson.length &&
+            (directionsJson[i].isWhitespace() || directionsJson[i] == ',')) i++
+        if (i >= directionsJson.length) break
+        if (directionsJson[i] == ']') break
+        if (directionsJson[i] != '{') {
+            i++
+            continue
+        }
+        val routeStart = i
+        val routeEnd = findMatchingClosingBrace(directionsJson, routeStart) ?: return null
+        return directionsJson.substring(routeStart, routeEnd + 1)
+    }
+    return null
 }
 
 private fun findMatchingClosingBrace(json: String, openBraceIndex: Int): Int? {
@@ -395,11 +532,15 @@ private fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
         val durationSeconds =
             intValueFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
 
+        val tollPair = deriveTollAedFromRouteJson(routeJson)
+
         return RealRouteDebugData(
             distanceText = distanceText,
             durationText = durationText,
             distanceMeters = distanceMeters,
             durationSeconds = durationSeconds,
+            tollAED = tollPair.first,
+            hasToll = tollPair.second,
         )
     }
 
@@ -463,6 +604,7 @@ fun ClearRoadScreen(
     var realRouteDebugDataList by remember {
         mutableStateOf<List<RealRouteDebugData>>(emptyList())
     }
+    var selectedRouteIndex by remember { mutableStateOf(0) }
     var directionsLoading by remember { mutableStateOf(false) }
     val isRouteReady =
         selectedFromLatLng != null && selectedToLatLng != null
@@ -475,8 +617,8 @@ fun ClearRoadScreen(
                 name = "Real route ${index + 1}",
                 durationMin = item.durationSeconds / 60,
                 distanceKm = item.distanceMeters / 1000.0,
-                tollAed = index * 20.0,
-                salikGates = index * 2,
+                tollAed = item.tollAED.toDouble(),
+                salikGates = if (item.hasToll) 1 else 0,
                 passesAbuDhabi = false,
                 parkingMayBePaid = false,
             )
@@ -487,8 +629,8 @@ fun ClearRoadScreen(
                 name = "Real route",
                 durationMin = data.durationSeconds / 60,
                 distanceKm = data.distanceMeters / 1000.0,
-                tollAed = 0.0,
-                salikGates = 0,
+                tollAed = data.tollAED.toDouble(),
+                salikGates = if (data.hasToll) 1 else 0,
                 passesAbuDhabi = false,
                 parkingMayBePaid = false,
             ),
@@ -503,7 +645,49 @@ fun ClearRoadScreen(
     } else {
         null
     }
+    val showRouteCardOverrides = realRouteDebugDataList.isNotEmpty()
+    val calmRouteIndex = when {
+        realRouteDebugDataList.size >= 3 -> 1
+        realRouteDebugDataList.size == 2 -> 1
+        else -> 0
+    }
+    val recommendedRouteIndex =
+        if (!showRouteCardOverrides) {
+            0
+        } else if (selectedMode == PreferenceMode.CALM) {
+            calmRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
+        } else {
+            val id = decision?.bestRoute?.id
+            if (id != null && id.startsWith("real_route_")) {
+                val ri = id.removePrefix("real_route_").toIntOrNull()
+                if (ri != null && ri in realRouteDebugDataList.indices) ri else 0
+            } else {
+                0
+            }
+        }
+    val routeCardSelectionIndex =
+        if (showRouteCardOverrides) {
+            selectedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
+        } else {
+            0
+        }
+    LaunchedEffect(selectedMode, realRouteDebugDataList.size, decision?.bestRoute?.id) {
+        if (
+            realRouteDebugDataList.isNotEmpty() &&
+            selectedMode == PreferenceMode.CALM
+        ) {
+            selectedRouteIndex =
+                calmRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
+            return@LaunchedEffect
+        }
+        val id = decision?.bestRoute?.id ?: return@LaunchedEffect
+        if (!id.startsWith("real_route_")) return@LaunchedEffect
+        val ri = id.removePrefix("real_route_").toIntOrNull() ?: return@LaunchedEffect
+        if (ri !in realRouteDebugDataList.indices) return@LaunchedEffect
+        selectedRouteIndex = ri
+    }
     LaunchedEffect(selectedFromLatLng, selectedToLatLng) {
+        selectedRouteIndex = 0
         realRouteDebugData = null
         realRouteDebugDataList = emptyList()
         directionsResponse = null
@@ -525,6 +709,7 @@ fun ClearRoadScreen(
         realRouteDebugData = buildRealRouteDebugData(
             directionsDistanceDuration,
             directionsDistanceDurationValues,
+            raw?.let(::firstRouteObjectJson),
         )
         realRouteDebugDataList =
             raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
@@ -556,13 +741,18 @@ fun ClearRoadScreen(
 
         OutlinedTextField(
             value = originText,
-            onValueChange = { newText ->
+            onValueChange = stopFrom@{ newText ->
+                if (newText.isBlank() || newText.length < 2) {
+                    fromPredictions = emptyList()
+                    selectedFromPlaceId = null
+                    selectedFromLatLng = null
+                    originText = newText
+                    return@stopFrom
+                }
                 selectedFromPlaceId = null
                 selectedFromLatLng = null
                 originText = newText
-                if (newText.length < 2) {
-                    fromPredictions = emptyList()
-                } else if (placesClient == null) {
+                if (placesClient == null) {
                     fromPredictions = emptyList()
                 } else {
                     val request = FindAutocompletePredictionsRequest.builder()
@@ -571,7 +761,14 @@ fun ClearRoadScreen(
                         .build()
                     placesClient.findAutocompletePredictions(request)
                         .addOnSuccessListener { response ->
-                            fromPredictions = response.autocompletePredictions
+                            if (originText == newText &&
+                                originText.length >= 2 &&
+                                originText.isNotBlank()
+                            ) {
+                                fromPredictions = response.autocompletePredictions
+                            } else {
+                                fromPredictions = emptyList()
+                            }
                         }
                         .addOnFailureListener {
                             fromPredictions = emptyList()
@@ -584,7 +781,10 @@ fun ClearRoadScreen(
             singleLine = true,
             maxLines = 1,
         )
-        if (fromPredictions.isNotEmpty()) {
+        if (fromPredictions.isNotEmpty() &&
+            originText.length >= 2 &&
+            originText.isNotBlank()
+        ) {
             Column(modifier = Modifier.padding(top = 4.dp)) {
                 fromPredictions.take(5).forEach { prediction ->
                     val label = prediction.getFullText(null).toString()
@@ -609,13 +809,18 @@ fun ClearRoadScreen(
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = destinationText,
-            onValueChange = { newText ->
+            onValueChange = stopTo@{ newText ->
+                if (newText.isBlank() || newText.length < 2) {
+                    toPredictions = emptyList()
+                    selectedToPlaceId = null
+                    selectedToLatLng = null
+                    destinationText = newText
+                    return@stopTo
+                }
                 selectedToPlaceId = null
                 selectedToLatLng = null
                 destinationText = newText
-                if (newText.length < 2) {
-                    toPredictions = emptyList()
-                } else if (placesClient == null) {
+                if (placesClient == null) {
                     toPredictions = emptyList()
                 } else {
                     val request = FindAutocompletePredictionsRequest.builder()
@@ -624,7 +829,14 @@ fun ClearRoadScreen(
                         .build()
                     placesClient.findAutocompletePredictions(request)
                         .addOnSuccessListener { response ->
-                            toPredictions = response.autocompletePredictions
+                            if (destinationText == newText &&
+                                destinationText.length >= 2 &&
+                                destinationText.isNotBlank()
+                            ) {
+                                toPredictions = response.autocompletePredictions
+                            } else {
+                                toPredictions = emptyList()
+                            }
                         }
                         .addOnFailureListener {
                             toPredictions = emptyList()
@@ -637,7 +849,10 @@ fun ClearRoadScreen(
             singleLine = true,
             maxLines = 1,
         )
-        if (toPredictions.isNotEmpty()) {
+        if (toPredictions.isNotEmpty() &&
+            destinationText.length >= 2 &&
+            destinationText.isNotBlank()
+        ) {
             Column(modifier = Modifier.padding(top = 4.dp)) {
                 toPredictions.take(5).forEach { prediction ->
                     val label = prediction.getFullText(null).toString()
@@ -669,15 +884,24 @@ fun ClearRoadScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clickable { selectedMode = mode }
-                        .padding(vertical = 12.dp, horizontal = 4.dp),
+                        .background(
+                            color = if (selected) {
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            } else {
+                                Color.Transparent
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                        )
+                        .padding(vertical = 11.dp, horizontal = 6.dp),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                         color = if (selected) {
-                            MaterialTheme.colorScheme.primary
+                            MaterialTheme.colorScheme.onSurface
                         } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         },
+                        textDecoration = TextDecoration.None,
                     ),
                 )
             }
@@ -691,7 +915,11 @@ fun ClearRoadScreen(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = decision?.choice ?: "Enter a route",
+            text = when {
+                showRouteCardOverrides ->
+                    manualRouteChoice(selectedMode, routeCardSelectionIndex)
+                else -> decision?.choice ?: "Enter a route"
+            },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -704,8 +932,13 @@ fun ClearRoadScreen(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = decision?.why
-                ?: "Add starting point and destination to get a recommendation.",
+            text = when {
+                showRouteCardOverrides ->
+                    manualRouteWhy(selectedMode, routeCardSelectionIndex)
+                else ->
+                    decision?.why
+                        ?: "Add starting point and destination to get a recommendation."
+            },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -718,112 +951,121 @@ fun ClearRoadScreen(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = decision?.tip ?: "Start with a common UAE route.",
+            text = when {
+                showRouteCardOverrides ->
+                    manualRouteTip(selectedMode, routeCardSelectionIndex)
+                else -> decision?.tip ?: "Start with a common UAE route."
+            },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
         val fromCoords = selectedFromLatLng
         val toCoords = selectedToLatLng
         if (fromCoords != null && toCoords != null) {
-            directionsRequestPreview(fromCoords, toCoords)?.let { preview ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = preview,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Directions URL ready",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = when {
-                    directionsLoading -> "Directions API loading..."
-                    directionsResponse != null -> "Directions API OK"
-                    else -> "Directions API failed"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            directionsStatus?.let { status ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Directions status: $status",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            directionsDistanceDuration?.let { (distance, duration) ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Distance: $distance",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Duration: $duration",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            directionsDistanceDurationValues?.let { (distanceValue, durationValue) ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Distance value: $distanceValue m",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Duration value: $durationValue sec",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            val directionsDataValid = isDirectionsDataValid(
-                directionsStatus,
-                directionsDistanceDuration,
-                directionsDistanceDurationValues,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = if (directionsDataValid) {
-                    "Directions data valid"
-                } else {
-                    "Directions data not valid"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            realRouteDebugData?.let {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Real route debug data ready",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
             if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Real route options: ${debugRoutes.size}",
+                    text = "Available routes: ${debugRoutes.size}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 for (index in debugRoutes.indices) {
                     val item = debugRoutes[index]
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Route ${index + 1}: ${item.durationText}, ${item.distanceText}, fake toll ${index * 20} AED",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    val isUserSelected = index == routeCardSelectionIndex
+                    val isRecommended = index == recommendedRouteIndex
+                    val outline = MaterialTheme.colorScheme.outline
+                    val containerAlpha = when {
+                        isUserSelected && isRecommended -> 0.88f
+                        isUserSelected -> 0.86f
+                        isRecommended -> 0.56f
+                        else -> 0.48f
+                    }
+                    val cardBorder = when {
+                        isUserSelected && isRecommended ->
+                            BorderStroke(
+                                width = 2.5.dp,
+                                color = outline.copy(alpha = 0.92f),
+                            )
+                        isUserSelected ->
+                            BorderStroke(
+                                width = 2.dp,
+                                color = outline.copy(alpha = 0.82f),
+                            )
+                        else -> null
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedRouteIndex = index },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor =
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = containerAlpha),
+                        ),
+                        border = cardBorder,
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(
+                                horizontal = 6.dp,
+                                vertical = 4.dp,
+                            ),
+                        ) {
+                            if (isRecommended) {
+                                Text(
+                                    text = "Recommended",
+                                    modifier = Modifier
+                                        .background(
+                                            color = MaterialTheme.colorScheme.onSurface.copy(
+                                                alpha = 0.06f,
+                                            ),
+                                            shape = RoundedCornerShape(6.dp),
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Medium,
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                        alpha = 0.72f,
+                                    ),
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                            Text(
+                                text = "Route ${index + 1}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(0.5.dp),
+                            ) {
+                                Text(
+                                    text = item.durationText,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.Medium,
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text = item.distanceText,
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        fontWeight = FontWeight.Light,
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text = "Toll: ${item.tollAED} AED",
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

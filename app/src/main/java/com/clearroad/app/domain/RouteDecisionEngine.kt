@@ -48,15 +48,7 @@ object RouteDecisionEngine {
                     .filter { it.tollAed == minToll }
                     .minBy { it.durationMin }
             }
-            PreferenceMode.CALM ->
-                routes.minWith(
-                    compareBy(
-                        { it.salikGates },
-                        { it.tollAed },
-                        { it.durationMin },
-                        { it.id },
-                    ),
-                )
+            PreferenceMode.CALM -> chooseCalmBalanced(routes)
         }
 
         val choice = buildChoice(best, mode)
@@ -73,14 +65,39 @@ object RouteDecisionEngine {
         )
     }
 
-    private fun buildChoice(route: RouteOption, mode: PreferenceMode): String {
-        val via = friendlyVia(route)
-        return when (mode) {
-            PreferenceMode.FASTEST -> "Best route via $via"
-            PreferenceMode.NO_TOLLS -> "Easiest on tolls via $via"
-            PreferenceMode.CALM -> "Calmer drive via $via"
+    /** Drop shortest/longest by duration when 3+ routes; 2 routes pick rank-sum nearest balance. */
+    private fun chooseCalmBalanced(routes: List<RouteOption>): RouteOption {
+        require(routes.isNotEmpty())
+        val sortedByDur = routes.sortedWith(compareBy({ it.durationMin }, { it.id }))
+        return when (sortedByDur.size) {
+            1 -> sortedByDur.first()
+            2 -> chooseCalmTwoRoutes(routes)
+            else -> {
+                val trimmed = sortedByDur.drop(1).dropLast(1)
+                trimmed[trimmed.size / 2]
+            }
         }
     }
+
+    private fun chooseCalmTwoRoutes(routes: List<RouteOption>): RouteOption {
+        val durOrder = routes.sortedWith(compareBy({ it.durationMin }, { it.id }))
+        val tollOrder = routes.sortedWith(compareBy({ it.tollAed }, { it.id }))
+        fun durRank(r: RouteOption): Int = durOrder.indexOf(r)
+        fun tollRank(r: RouteOption): Int = tollOrder.indexOf(r)
+        val targetRankSum = 1.0
+        return routes.minWith(
+            compareBy<RouteOption> {
+                kotlin.math.abs(durRank(it) + tollRank(it) - targetRankSum)
+            }.thenBy { it.id },
+        )
+    }
+
+    private fun buildChoice(route: RouteOption, mode: PreferenceMode): String =
+        when (mode) {
+            PreferenceMode.FASTEST -> "Best route via ${friendlyVia(route)}"
+            PreferenceMode.NO_TOLLS -> "Easiest on tolls via ${friendlyVia(route)}"
+            PreferenceMode.CALM -> "Balanced route"
+        }
 
     private fun friendlyVia(route: RouteOption): String =
         route.name.substringBefore("(").trim()
@@ -94,14 +111,12 @@ object RouteDecisionEngine {
         return if (h == 1) "About 1 hr $m min" else "About ${h} hr $m min"
     }
 
-    private fun buildWhy(route: RouteOption, mode: PreferenceMode): String {
-        val time = approximateTime(route.durationMin)
-        return when (mode) {
-            PreferenceMode.FASTEST -> buildWhyFastest(route, time)
-            PreferenceMode.NO_TOLLS -> buildWhyNoTolls(route, time)
-            PreferenceMode.CALM -> buildWhyCalm(route, time)
+    private fun buildWhy(route: RouteOption, mode: PreferenceMode): String =
+        when (mode) {
+            PreferenceMode.FASTEST -> buildWhyFastest(route, approximateTime(route.durationMin))
+            PreferenceMode.NO_TOLLS -> buildWhyNoTolls(route, approximateTime(route.durationMin))
+            PreferenceMode.CALM -> "Balances driving time and road cost."
         }
-    }
 
     private fun buildWhyFastest(route: RouteOption, time: String): String =
         when {
@@ -121,16 +136,6 @@ object RouteDecisionEngine {
                 "Least toll spend among these — still expect a small Salik bite."
         }
 
-    private fun buildWhyCalm(route: RouteOption, time: String): String =
-        when {
-            route.salikGates == 0 ->
-                "$time, skips Salik — usually feels steadier."
-            route.salikGates <= 2 ->
-                "Slightly longer, lighter toll hops than the big motorways."
-            else ->
-                "$time, fewer merges than the busiest sprint — still some tolls."
-        }
-
     private fun buildTip(route: RouteOption, mode: PreferenceMode): String {
         if (route.passesAbuDhabi) {
             return "Sort DARB before driving into Abu Dhabi."
@@ -146,7 +151,7 @@ object RouteDecisionEngine {
                     "Avoid Dubai rush hour around 5–7 pm."
                 }
             PreferenceMode.NO_TOLLS -> "Avoid Dubai rush hour around 5–7 pm."
-            PreferenceMode.CALM -> "Good choice if you want a calmer drive."
+            PreferenceMode.CALM -> "Good when you want a smoother overall drive."
         }
     }
 }
