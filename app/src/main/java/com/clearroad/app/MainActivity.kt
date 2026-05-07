@@ -78,11 +78,22 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+private const val UAE_FUEL_PRICE_PER_LITER = 2.8
+private const val AVERAGE_CAR_KM_PER_LITER = 12.0
+
 private fun preferenceModeLabel(mode: PreferenceMode): String =
     when (mode) {
         PreferenceMode.FASTEST -> "Fastest"
         PreferenceMode.NO_TOLLS -> "No tolls"
         PreferenceMode.CALM -> "Calm"
+    }
+
+private fun getTollLevel(tollAED: Int): String =
+    when {
+        tollAED == 0 -> "none"
+        tollAED in 1..8 -> "low"
+        tollAED in 9..20 -> "medium"
+        else -> "high"
     }
 
 private fun manualRouteChoice(mode: PreferenceMode, routeIndex: Int): String =
@@ -100,35 +111,68 @@ private fun manualRouteChoice(mode: PreferenceMode, routeIndex: Int): String =
         PreferenceMode.CALM -> "Balanced route"
     }
 
-private fun manualRouteWhy(mode: PreferenceMode, routeIndex: Int): String =
-    when (mode) {
-        PreferenceMode.FASTEST -> when (routeIndex) {
-            0 -> "Uses the shortest-time option among these directions."
-            1 -> "Comparable corridor with a bit more time on the road."
-            else -> "Takes longer — compare toll and comfort before you go."
+private fun manualRouteWhy(
+    mode: PreferenceMode,
+    routeIndex: Int,
+    tollAED: Int? = null,
+): String {
+    val level = tollAED?.let(::getTollLevel)
+    return when (mode) {
+        PreferenceMode.FASTEST -> when {
+            level == "high" -> "Saves time despite higher toll usage."
+            else -> when (routeIndex) {
+                0 -> "Uses the shortest-time option among these directions."
+                1 -> "Comparable corridor with a bit more time on the road."
+                else -> "Takes longer — compare toll and comfort before you go."
+            }
         }
-        PreferenceMode.NO_TOLLS -> when (routeIndex) {
-            0 -> "Keeps toll spend lowest among these paths."
-            1 -> "Balances toll cost with time somewhat evenly."
-            else -> "Expect higher toll lines along this path."
+        PreferenceMode.NO_TOLLS -> when {
+            level == "none" -> "Avoids toll spending completely."
+            level == "low" -> "Keeps toll spending minimal."
+            else -> when (routeIndex) {
+                0 -> "Keeps toll spend lowest among these paths."
+                1 -> "Balances toll cost with time somewhat evenly."
+                else -> "Expect higher toll lines along this path."
+            }
         }
-        PreferenceMode.CALM -> "Balances driving time and road cost."
+        PreferenceMode.CALM -> when {
+            level == "medium" || level == "high" ->
+                "Balances travel time with overall road cost."
+            else -> "Balances driving time and road cost."
+        }
     }
+}
 
-private fun manualRouteTip(mode: PreferenceMode, routeIndex: Int): String =
-    when (mode) {
-        PreferenceMode.FASTEST -> when (routeIndex) {
-            0 -> "Stick with this if minutes matter most."
-            1 -> "Good middle ground when traffic shifts."
-            else -> "Review toll totals before committing."
+private fun manualRouteTip(
+    mode: PreferenceMode,
+    routeIndex: Int,
+    tollAED: Int? = null,
+): String {
+    val level = tollAED?.let(::getTollLevel)
+    return when (mode) {
+        PreferenceMode.FASTEST -> when {
+            level == "high" ->
+                "Good if arriving faster matters more than road cost."
+            else -> when (routeIndex) {
+                0 -> "Stick with this if minutes matter most."
+                1 -> "Good middle ground when traffic shifts."
+                else -> "Review toll totals before committing."
+            }
         }
-        PreferenceMode.NO_TOLLS -> when (routeIndex) {
-            0 -> "Kindest on Salik spend among these."
-            1 -> "Carry tag balance for occasional gates."
-            else -> "Keep Salik topped up if you pick this one."
+        PreferenceMode.NO_TOLLS -> when {
+            level == "none" ->
+                "Best if you want to keep driving costs predictable."
+            level == "low" ->
+                "Useful for balancing savings and travel time."
+            else -> when (routeIndex) {
+                0 -> "Kindest on Salik spend among these."
+                1 -> "Carry tag balance for occasional gates."
+                else -> "Keep Salik topped up if you pick this one."
+            }
         }
         PreferenceMode.CALM -> "Good when you want a smoother overall drive."
     }
+}
 
 private fun fetchLatLng(
     client: PlacesClient?,
@@ -349,6 +393,47 @@ private fun buildRealRouteDebugData(
         tollAED = tollPair.first,
         hasToll = tollPair.second,
     )
+}
+
+private fun estimateFuelCostAed(distanceKm: Double): Int {
+    val litersUsed = distanceKm / AVERAGE_CAR_KM_PER_LITER
+    val fuelCost = litersUsed * UAE_FUEL_PRICE_PER_LITER
+    return fuelCost.roundToInt()
+}
+
+private fun estimateTotalRouteCostAed(
+    tollAED: Int,
+    fuelAED: Int,
+): Int =
+    tollAED + fuelAED
+
+private fun calculateAedPerMinute(
+    totalCostAed: Double,
+    durationMinutes: Int,
+): Double =
+    if (durationMinutes <= 0) totalCostAed
+    else totalCostAed / durationMinutes
+
+private fun calculateRouteScore(
+    mode: PreferenceMode,
+    durationMinutes: Int,
+    distanceKm: Double,
+    tollAED: Double,
+    totalCostAED: Double,
+): Double {
+    val aedPerMinute =
+        calculateAedPerMinute(totalCostAED, durationMinutes)
+    return when (mode) {
+        PreferenceMode.FASTEST ->
+            durationMinutes + totalCostAED * 0.15 + distanceKm * 0.05 +
+                aedPerMinute * 0.2
+        PreferenceMode.NO_TOLLS ->
+            totalCostAED * 4.0 + tollAED * 6.0 + durationMinutes * 0.35 +
+                aedPerMinute * 0.4
+        PreferenceMode.CALM ->
+            durationMinutes * 0.6 + totalCostAED * 1.2 + distanceKm * 0.15 +
+                aedPerMinute * 0.3
+    }
 }
 
 private fun skipJsonStringContent(json: String, openQuoteIndex: Int): Int {
@@ -646,24 +731,29 @@ fun ClearRoadScreen(
         null
     }
     val showRouteCardOverrides = realRouteDebugDataList.isNotEmpty()
-    val calmRouteIndex = when {
-        realRouteDebugDataList.size >= 3 -> 1
-        realRouteDebugDataList.size == 2 -> 1
-        else -> 0
-    }
     val recommendedRouteIndex =
-        if (!showRouteCardOverrides) {
+        if (!showRouteCardOverrides || realRouteDebugDataList.isEmpty()) {
             0
-        } else if (selectedMode == PreferenceMode.CALM) {
-            calmRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
         } else {
-            val id = decision?.bestRoute?.id
-            if (id != null && id.startsWith("real_route_")) {
-                val ri = id.removePrefix("real_route_").toIntOrNull()
-                if (ri != null && ri in realRouteDebugDataList.indices) ri else 0
-            } else {
-                0
-            }
+            realRouteDebugDataList.indices.minWith(
+                compareBy(
+                    { idx ->
+                        val item = realRouteDebugDataList[idx]
+                        val distanceKm = item.distanceMeters / 1000.0
+                        val fuelAed = estimateFuelCostAed(distanceKm)
+                        val totalCostAed =
+                            estimateTotalRouteCostAed(item.tollAED, fuelAed).toDouble()
+                        calculateRouteScore(
+                            selectedMode,
+                            item.durationSeconds / 60,
+                            distanceKm,
+                            item.tollAED.toDouble(),
+                            totalCostAed,
+                        )
+                    },
+                    { it },
+                ),
+            )
         }
     val routeCardSelectionIndex =
         if (showRouteCardOverrides) {
@@ -671,20 +761,18 @@ fun ClearRoadScreen(
         } else {
             0
         }
-    LaunchedEffect(selectedMode, realRouteDebugDataList.size, decision?.bestRoute?.id) {
-        if (
-            realRouteDebugDataList.isNotEmpty() &&
-            selectedMode == PreferenceMode.CALM
-        ) {
-            selectedRouteIndex =
-                calmRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
-            return@LaunchedEffect
+    val recommendationTollAed =
+        if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
+            realRouteDebugDataList[
+                recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex),
+            ].tollAED
+        } else {
+            null
         }
-        val id = decision?.bestRoute?.id ?: return@LaunchedEffect
-        if (!id.startsWith("real_route_")) return@LaunchedEffect
-        val ri = id.removePrefix("real_route_").toIntOrNull() ?: return@LaunchedEffect
-        if (ri !in realRouteDebugDataList.indices) return@LaunchedEffect
-        selectedRouteIndex = ri
+    LaunchedEffect(selectedMode, realRouteDebugDataList.size, recommendedRouteIndex) {
+        if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
+        selectedRouteIndex =
+            recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
     }
     LaunchedEffect(selectedFromLatLng, selectedToLatLng) {
         selectedRouteIndex = 0
@@ -917,7 +1005,13 @@ fun ClearRoadScreen(
         Text(
             text = when {
                 showRouteCardOverrides ->
-                    manualRouteChoice(selectedMode, routeCardSelectionIndex)
+                    manualRouteChoice(
+                        selectedMode,
+                        recommendedRouteIndex.coerceIn(
+                            0,
+                            realRouteDebugDataList.lastIndex,
+                        ),
+                    )
                 else -> decision?.choice ?: "Enter a route"
             },
             style = MaterialTheme.typography.bodyLarge,
@@ -934,7 +1028,14 @@ fun ClearRoadScreen(
         Text(
             text = when {
                 showRouteCardOverrides ->
-                    manualRouteWhy(selectedMode, routeCardSelectionIndex)
+                    manualRouteWhy(
+                        selectedMode,
+                        recommendedRouteIndex.coerceIn(
+                            0,
+                            realRouteDebugDataList.lastIndex,
+                        ),
+                        recommendationTollAed,
+                    )
                 else ->
                     decision?.why
                         ?: "Add starting point and destination to get a recommendation."
@@ -953,7 +1054,14 @@ fun ClearRoadScreen(
         Text(
             text = when {
                 showRouteCardOverrides ->
-                    manualRouteTip(selectedMode, routeCardSelectionIndex)
+                    manualRouteTip(
+                        selectedMode,
+                        recommendedRouteIndex.coerceIn(
+                            0,
+                            realRouteDebugDataList.lastIndex,
+                        ),
+                        recommendationTollAed,
+                    )
                 else -> decision?.tip ?: "Start with a common UAE route."
             },
             style = MaterialTheme.typography.bodyLarge,
@@ -1009,7 +1117,7 @@ fun ClearRoadScreen(
                         Column(
                             modifier = Modifier.padding(
                                 horizontal = 6.dp,
-                                vertical = 4.dp,
+                                vertical = 3.dp,
                             ),
                         ) {
                             if (isRecommended) {
@@ -1022,7 +1130,7 @@ fun ClearRoadScreen(
                                             ),
                                             shape = RoundedCornerShape(6.dp),
                                         )
-                                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                                        .padding(horizontal = 8.dp, vertical = 2.dp),
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontWeight = FontWeight.Medium,
                                     ),
@@ -1030,7 +1138,7 @@ fun ClearRoadScreen(
                                         alpha = 0.72f,
                                     ),
                                 )
-                                Spacer(modifier = Modifier.height(2.dp))
+                                Spacer(modifier = Modifier.height(1.dp))
                             }
                             Text(
                                 text = "Route ${index + 1}",
@@ -1038,9 +1146,9 @@ fun ClearRoadScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.height(1.dp))
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(0.5.dp),
+                                verticalArrangement = Arrangement.spacedBy(0.dp),
                             ) {
                                 Text(
                                     text = item.durationText,
@@ -1057,7 +1165,13 @@ fun ClearRoadScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
-                                    text = "Toll: ${item.tollAED} AED",
+                                    text = run {
+                                        val fuelAed =
+                                            estimateFuelCostAed(item.distanceMeters / 1000.0)
+                                        val totalAed =
+                                            estimateTotalRouteCostAed(item.tollAED, fuelAed)
+                                        "Cost: $totalAed AED · Toll ${item.tollAED} · Fuel $fuelAed"
+                                    },
                                     style = MaterialTheme.typography.bodySmall.copy(
                                         fontWeight = FontWeight.SemiBold,
                                     ),
