@@ -55,6 +55,7 @@ import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.text.Charsets
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,6 +82,45 @@ class MainActivity : ComponentActivity() {
 private const val UAE_FUEL_PRICE_PER_LITER = 2.8
 private const val AVERAGE_CAR_KM_PER_LITER = 12.0
 
+private enum class UaeCorridorTollHint {
+    HIGH_LIKELIHOOD,
+    LOW_LIKELIHOOD,
+    NEUTRAL,
+}
+
+private val uaeHighTollCorridorKeywords = listOf(
+    "sheikh zayed road",
+    "szr",
+    "e11",
+    "al garhoud",
+    "downtown dubai",
+    "business bay",
+    "financial centre",
+    "financial center",
+    "dubai marina",
+)
+
+private val uaeLowerTollCorridorKeywords = listOf(
+    "mohammed bin zayed road",
+    "mbz road",
+    "e311",
+    "emirates road",
+    "e611",
+    "ajman",
+    "sharjah",
+)
+
+private fun corridorTollHintFromScan(scanText: String): UaeCorridorTollHint {
+    val lc = scanText.lowercase(Locale.US)
+    val highHits = uaeHighTollCorridorKeywords.count { lc.contains(it) }
+    val lowHits = uaeLowerTollCorridorKeywords.count { lc.contains(it) }
+    return when {
+        highHits > lowHits -> UaeCorridorTollHint.HIGH_LIKELIHOOD
+        lowHits > highHits -> UaeCorridorTollHint.LOW_LIKELIHOOD
+        else -> UaeCorridorTollHint.NEUTRAL
+    }
+}
+
 private fun preferenceModeLabel(mode: PreferenceMode): String =
     when (mode) {
         PreferenceMode.FASTEST -> "Fastest"
@@ -96,20 +136,126 @@ private fun getTollLevel(tollAED: Int): String =
         else -> "high"
     }
 
-private fun manualRouteChoice(mode: PreferenceMode, routeIndex: Int): String =
-    when (mode) {
+private fun tollPhraseForCard(
+    item: RealRouteDebugData,
+    routeIndex: Int,
+    selectedMode: PreferenceMode,
+    recommendedRouteIndex: Int,
+    routes: List<RealRouteDebugData>,
+): String {
+    if (
+        selectedMode == PreferenceMode.NO_TOLLS &&
+        routeIndex == recommendedRouteIndex
+    ) {
+        return "Lowest toll route"
+    }
+    val minDurIdx =
+        routes.indices.minByOrNull { routes[it].durationSeconds } ?: routeIndex
+    val fastest = routes[minDurIdx]
+    val thisTotal =
+        estimateTotalRouteCostAed(
+            item.tollAED,
+            estimateFuelCostAed(item.distanceMeters / 1000.0),
+        )
+    val fastestTotal =
+        estimateTotalRouteCostAed(
+            fastest.tollAED,
+            estimateFuelCostAed(fastest.distanceMeters / 1000.0),
+        )
+    if (
+        item.durationSeconds > fastest.durationSeconds &&
+        thisTotal < fastestTotal
+    ) {
+        return when (selectedMode) {
+            PreferenceMode.NO_TOLLS -> "Lower toll likelihood"
+            else -> "Lower-cost corridor"
+        }
+    }
+    if (item.durationSeconds <= 0 || item.distanceMeters <= 0) {
+        return "Toll estimate"
+    }
+    val corridorHint = corridorTollHintFromScan(item.corridorScanText)
+    val isFastestTimeRoute = routeIndex == minDurIdx
+    val durationStretchVsFastest =
+        if (fastest.durationSeconds <= 0) {
+            0f
+        } else {
+            (item.durationSeconds - fastest.durationSeconds).toFloat() /
+                fastest.durationSeconds.toFloat()
+        }
+    val tollBand = getTollLevel(item.tollAED)
+
+    return when (selectedMode) {
+        PreferenceMode.FASTEST ->
+            when {
+                isFastestTimeRoute &&
+                    (
+                        corridorHint == UaeCorridorTollHint.HIGH_LIKELIHOOD ||
+                            tollBand == "medium" ||
+                            tollBand == "high"
+                        ) ->
+                    "Fast toll route"
+                isFastestTimeRoute -> "Faster Dubai entry"
+                corridorHint == UaeCorridorTollHint.HIGH_LIKELIHOOD ->
+                    "Toll-heavy corridor"
+                corridorHint == UaeCorridorTollHint.LOW_LIKELIHOOD ->
+                    "Lower-cost corridor"
+                durationStretchVsFastest > 0.12f -> "Longer quieter route"
+                tollBand == "none" -> "Direct Dubai corridor"
+                tollBand == "low" -> "SZR-style route"
+                routeIndex % 2 == 0 -> "Main highway route"
+                else -> "Toll-heavy corridor"
+            }
+        PreferenceMode.NO_TOLLS ->
+            when (corridorHint) {
+                UaeCorridorTollHint.HIGH_LIKELIHOOD ->
+                    if (item.tollAED >= fastest.tollAED) {
+                        "Higher toll option"
+                    } else {
+                        "Toll-heavy corridor"
+                    }
+                UaeCorridorTollHint.LOW_LIKELIHOOD -> "Toll-free likely"
+                UaeCorridorTollHint.NEUTRAL ->
+                    when (tollBand) {
+                        "none" -> "Toll-light pick"
+                        "low" -> "Lower toll likelihood"
+                        else -> if (routeIndex % 2 == 0) "Main highway route" else "Toll-heavy corridor"
+                    }
+            }
+        PreferenceMode.CALM ->
+            when {
+                durationStretchVsFastest > 0.1f -> "Longer quieter route"
+                corridorHint == UaeCorridorTollHint.LOW_LIKELIHOOD -> "Toll-free likely"
+                corridorHint == UaeCorridorTollHint.HIGH_LIKELIHOOD -> "Toll-heavy corridor"
+                else -> "Lower-cost corridor"
+            }
+    }
+}
+
+private fun manualRouteChoice(
+    mode: PreferenceMode,
+    routeIndex: Int,
+    tollAED: Int? = null,
+): String {
+    val level = tollAED?.let(::getTollLevel)
+    return when (mode) {
         PreferenceMode.FASTEST -> when (routeIndex) {
             0 -> "Best route"
             1 -> "Alternative fast route"
             else -> "Longer option"
         }
-        PreferenceMode.NO_TOLLS -> when (routeIndex) {
-            0 -> "Easiest on tolls"
-            1 -> "Moderate toll route"
-            else -> "Higher toll option"
+        PreferenceMode.NO_TOLLS -> when {
+            level == "none" -> "Lowest toll option"
+            level == "low" -> "Light toll route"
+            else -> when (routeIndex) {
+                0 -> "Easiest on tolls"
+                1 -> "Moderate toll route"
+                else -> "Higher toll option"
+            }
         }
         PreferenceMode.CALM -> "Balanced route"
     }
+}
 
 private fun manualRouteWhy(
     mode: PreferenceMode,
@@ -127,19 +273,18 @@ private fun manualRouteWhy(
             }
         }
         PreferenceMode.NO_TOLLS -> when {
-            level == "none" -> "Avoids toll spending completely."
-            level == "low" -> "Keeps toll spending minimal."
+            level == "none" ->
+                "Chooses the lowest toll option among these routes."
+            level == "low" ->
+                "Keeps toll spending low."
             else -> when (routeIndex) {
                 0 -> "Keeps toll spend lowest among these paths."
                 1 -> "Balances toll cost with time somewhat evenly."
                 else -> "Expect higher toll lines along this path."
             }
         }
-        PreferenceMode.CALM -> when {
-            level == "medium" || level == "high" ->
-                "Balances travel time with overall road cost."
-            else -> "Balances driving time and road cost."
-        }
+        PreferenceMode.CALM ->
+            "Balances travel time with overall road cost."
     }
 }
 
@@ -161,9 +306,9 @@ private fun manualRouteTip(
         }
         PreferenceMode.NO_TOLLS -> when {
             level == "none" ->
-                "Best if you want to keep driving costs predictable."
+                "Best when you want predictable road costs."
             level == "low" ->
-                "Useful for balancing savings and travel time."
+                "Good for lighter tolls and predictable spend."
             else -> when (routeIndex) {
                 0 -> "Kindest on Salik spend among these."
                 1 -> "Carry tag balance for occasional gates."
@@ -373,6 +518,7 @@ private data class RealRouteDebugData(
     val durationSeconds: Int,
     val tollAED: Int,
     val hasToll: Boolean,
+    val corridorScanText: String = "",
 )
 
 private fun buildRealRouteDebugData(
@@ -385,6 +531,8 @@ private fun buildRealRouteDebugData(
     val (distanceMeters, durationSeconds) = distanceDurationValues
     val tollPair =
         routeJsonForToll?.let { deriveTollAedFromRouteJson(it) } ?: Pair(0, false)
+    val corridorScanText =
+        routeJsonForToll?.let(::buildCorridorScanText).orEmpty()
     return RealRouteDebugData(
         distanceText = distanceText,
         durationText = durationText,
@@ -392,7 +540,18 @@ private fun buildRealRouteDebugData(
         durationSeconds = durationSeconds,
         tollAED = tollPair.first,
         hasToll = tollPair.second,
+        corridorScanText = corridorScanText,
     )
+}
+
+private fun routeConfidenceLabel(
+    directionsStatus: String?,
+    item: RealRouteDebugData,
+): String {
+    if (item.durationSeconds <= 0 || item.distanceMeters <= 0) return "Limited"
+    if (directionsStatus != "OK") return "Limited"
+    val tollKnownFromFare = item.hasToll || item.tollAED > 0
+    return if (tollKnownFromFare) "Reliable" else "Estimated"
 }
 
 private fun estimateFuelCostAed(distanceKm: Double): Int {
@@ -470,6 +629,39 @@ private fun extractJsonNumberFollowingKey(json: String, searchFrom: Int): Double
     if (j == start) return null
     return json.substring(start, j).toDoubleOrNull()
 }
+
+private val stripHtmlTagRegex = Regex("<[^>]+>")
+
+private fun stripHtmlTags(raw: String): String =
+    stripHtmlTagRegex.replace(raw, " ")
+
+private fun extractRouteSummaryPlain(routeJson: String): String? {
+    val key = "\"summary\""
+    val idx = routeJson.indexOf(key)
+    if (idx == -1) return null
+    return extractJsonQuotedStringFollowingKey(routeJson, idx + key.length)?.let(::stripHtmlTags)
+}
+
+private fun appendHtmlInstructionPlainTexts(routeJson: String, budget: Int): String {
+    val key = "\"html_instructions\""
+    val sb = StringBuilder()
+    var from = 0
+    while (sb.length < budget && from < routeJson.length) {
+        val idx = routeJson.indexOf(key, from)
+        if (idx == -1) break
+        val chunk =
+            extractJsonQuotedStringFollowingKey(routeJson, idx + key.length)?.let(::stripHtmlTags)
+        if (chunk != null) sb.append(chunk).append(' ')
+        from = idx + key.length
+    }
+    return sb.toString().take(budget)
+}
+
+private fun buildCorridorScanText(routeJson: String): String =
+    buildString {
+        extractRouteSummaryPlain(routeJson)?.let { append(it).append(' ') }
+        append(appendHtmlInstructionPlainTexts(routeJson, 6000))
+    }.trim()
 
 private fun tryExtractFareAed(routeJson: String): Int? {
     val fareKey = "\"fare\""
@@ -618,6 +810,7 @@ private fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
             intValueFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
 
         val tollPair = deriveTollAedFromRouteJson(routeJson)
+        val corridorScanText = buildCorridorScanText(routeJson)
 
         return RealRouteDebugData(
             distanceText = distanceText,
@@ -626,6 +819,7 @@ private fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
             durationSeconds = durationSeconds,
             tollAED = tollPair.first,
             hasToll = tollPair.second,
+            corridorScanText = corridorScanText,
         )
     }
 
@@ -811,7 +1005,7 @@ fun ClearRoadScreen(
                 start = 24.dp,
                 top = 16.dp,
                 end = 24.dp,
-                bottom = 32.dp,
+                bottom = 44.dp,
             )
             .navigationBarsPadding(),
     ) {
@@ -1011,13 +1205,14 @@ fun ClearRoadScreen(
                             0,
                             realRouteDebugDataList.lastIndex,
                         ),
+                        recommendationTollAed,
                     )
                 else -> decision?.choice ?: "Enter a route"
             },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Text(
             text = "Why",
@@ -1043,7 +1238,7 @@ fun ClearRoadScreen(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Text(
             text = "Tip",
@@ -1072,7 +1267,7 @@ fun ClearRoadScreen(
         if (fromCoords != null && toCoords != null) {
             if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = "Available routes: ${debugRoutes.size}",
                     style = MaterialTheme.typography.bodySmall,
@@ -1102,7 +1297,7 @@ fun ClearRoadScreen(
                             )
                         else -> null
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(11.dp))
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1165,12 +1360,13 @@ fun ClearRoadScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
+                                    modifier = Modifier.fillMaxWidth(),
                                     text = run {
                                         val fuelAed =
                                             estimateFuelCostAed(item.distanceMeters / 1000.0)
                                         val totalAed =
                                             estimateTotalRouteCostAed(item.tollAED, fuelAed)
-                                        "Cost: $totalAed AED · Toll ${item.tollAED} · Fuel $fuelAed"
+                                        "$totalAed AED · ${tollPhraseForCard(item, index, selectedMode, recommendedRouteIndex, debugRoutes)} · Fuel $fuelAed · ${routeConfidenceLabel(directionsStatus, item)}"
                                     },
                                     style = MaterialTheme.typography.bodySmall.copy(
                                         fontWeight = FontWeight.SemiBold,

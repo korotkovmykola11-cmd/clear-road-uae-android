@@ -5,136 +5,234 @@
 Clear Road is a route decision assistant for drivers in the UAE.
 
 Goal:
-Not just navigation (like Google Maps), but a **decision engine** that explains:
+Not just navigation (like Google Maps), but a lightweight decision engine that explains:
 
 * which route to choose
 * why it is better
-* what to expect (traffic, tolls, timing)
+* what to expect (cost, tolls, timing)
+
+The app must stay:
+
+* simple
+* fast
+* minimal
+* human-readable
+
+It must NOT become:
+
+* a Google Maps clone
+* a complex navigation platform
+* an overengineered architecture project
 
 ---
 
-## 2. Current Stage (IMPORTANT)
+## 2. Current Project Status
 
-The project is at **Stage 1 — Domain Logic Implemented (Mock Data)**
+CURRENT STAGE:
+Stage 10 — Foundation Route Intelligence Engine
 
-What is DONE:
+Implemented:
 
-* Android app runs successfully on emulator
-
-* Basic UI screen exists (Clear Road screen)
-
-* Domain layer created:
-
-    * RouteOption
-    * PreferenceMode (FASTEST, NO_TOLLS, CALM)
-    * TripCost (structure only)
-    * DecisionResult
-    * RouteDecisionEngine
-
-* RouteDecisionEngine:
-
-    * Contains mock UAE-style routes
-    * Chooses best route based on mode:
-
-        * FASTEST → shortest time
-        * NO_TOLLS → lowest toll
-        * CALM → least salik gates
-
-* Returns:
-
-    * choice
-    * why
-    * tip
-    * tripCost (currently NULL)
+* Android app running successfully
+* Kotlin + Jetpack Compose
+* Google Places Autocomplete
+* Origin/Destination selection
+* LatLng extraction
+* Google Directions API integration
+* alternatives=true enabled
+* Multiple routes parsing
+* Dynamic route cards
+* Fastest / No Tolls / Calm modes
+* Real recommendation switching
+* Choice / Why / Tip logic
+* Route scoring engine
+* Fuel estimation (temporary local model)
+* Toll estimation (temporary lightweight model)
+* Total AED estimation
+* AED-per-minute scoring influence
+* Recommended route highlighting
+* Route selection UI
+* Emulator testing completed
+* Git + GitHub connected
 
 ---
 
-## 3. What is NOT done yet
+## 3. Product Logic (CORE)
 
-* No Google Maps API
-* No real routing data
-* No autocomplete
-* No real cost calculation (fuel, total AED)
-* UI is static (not connected to engine)
+Clear Road is NOT a navigation app.
 
----
+It is a:
+ROUTE DECISION ASSISTANT.
 
-## 4. Next Step (VERY IMPORTANT)
+The app must:
 
-We are starting:
+* analyze multiple possible routes
+* choose ONE recommended route
+* explain the decision clearly
 
-### Stage 2 — Connect UI to Decision Engine
-
-Goal:
-
-* Call RouteDecisionEngine from UI
-* Display REAL calculated result on screen
-* Remove static text
-
----
-
-## 5. Product Logic (CORE)
-
-Clear Road must:
-
-* Always explain decisions
-* Be simple (no overload)
-* Focus on UAE specifics:
-
-    * Salik (Dubai toll)
-    * Darb (Abu Dhabi toll)
-    * Rush hours
-    * Parking risks
-
----
-
-## 6. UX Rules
-
-* No noise
-* Only useful info
-* Short explanations
-* Human-readable text
-* No technical language
-
----
-
-## 7. Dev Rules
-
-* No breaking existing code
-* Small steps only
-* No random code generation
-* No API integration until domain is stable
-* Always test after each step
-
----
-
-## 8. Current UI State
-
-UI shows:
+Output format:
 
 * Choice
 * Why
 * Tip
 
-BUT:
-👉 Data is hardcoded (fake)
+---
+
+## 4. Modes
+
+### FASTEST
+
+Prioritize shortest overall travel time.
+
+### NO_TOLLS
+
+Prioritize lower road/toll spending.
+
+### CALM
+
+Balanced route:
+
+* smoother drive
+* balanced cost
+* balanced time
 
 ---
 
-## 9. What MUST be done next
+## 5. UAE-Specific Logic
 
-1. Connect engine to UI
-2. Replace static text with real result
-3. Add mode switch (FASTEST / NO_TOLLS / CALM)
+Project focuses on UAE driving conditions:
+
+* Salik (Dubai toll system)
+* Darb (Abu Dhabi toll system)
+* UAE fuel prices
+* UAE driving behavior
+* Traffic-heavy corridors
+* Parking risk awareness
+
+IMPORTANT:
+Current fuel/toll calculations are still provisional.
+Real UAE economic intelligence will be implemented gradually.
 
 ---
 
-## 10. Critical Rule
+## 6. UX Rules
 
-This project must NOT turn into:
+CRITICAL:
 
-* another Google Maps clone
-* overcomplicated system
+* No noise
+* No clutter
+* No overload
+* Only useful information
+* Short explanations
+* Human-readable text
+* No technical jargon
 
-It must stay:
-👉 simple decision assistant
+UI must stay:
+clean and minimal.
+
+---
+
+## 7. Development Rules (CRITICAL)
+
+### Core Rules
+
+* No breaking working code
+* Small steps only
+* No random code generation
+* Every change must be visually testable
+* Always test after each step
+* Cursor writes code
+* ChatGPT audits and controls code quality
+* User validates builds/screenshots manually
+
+---
+
+### Architecture Rules
+
+DO NOT introduce:
+
+* ViewModel
+* Clean Architecture
+* Repository layers
+* UseCases
+* Dependency Injection
+* Enterprise patterns
+
+UNLESS explicitly approved by the user.
+
+---
+
+### Refactor Rule (VERY IMPORTANT)
+
+Refactoring is NOT allowed automatically.
+
+AI / Cursor MUST ask user permission BEFORE any refactor.
+
+Refactoring is allowed ONLY when it clearly reduces project risk:
+
+* prevents MainActivity from becoming unmanageable
+* isolates fragile logic
+* reduces chance of AI/Cursor breaking working code
+* improves controllability
+* keeps behavior visually testable
+
+Refactoring is NOT allowed when it only adds architecture.
+
+Examples of forbidden refactors:
+
+* adding ViewModel “because it is best practice”
+* splitting files for style only
+* rewriting working logic
+* architecture redesign without user approval
+
+---
+
+## 8. Current Technical Reality
+
+Current fuel model:
+TEMPORARY / ESTIMATED.
+
+Current toll model:
+PARTIAL / LIGHTWEIGHT.
+
+Current scoring:
+REAL and ACTIVE.
+
+The app already performs actual route comparison and recommendation logic.
+
+However:
+real UAE fuel/toll intelligence is still under development.
+
+---
+
+## 9. Current Priorities
+
+Current priority is NOT:
+
+* maps clone features
+* navigation
+* enterprise architecture
+
+Current priority IS:
+
+* stable route intelligence
+* UAE-aware decisions
+* controllable AI-assisted development
+* keeping project manageable
+
+---
+
+## 10. Critical Philosophy
+
+This project must remain:
+
+A SIMPLE UAE ROUTE DECISION ASSISTANT.
+
+NOT:
+
+* a Google Maps replacement
+* an AI-generated architecture experiment
+* a bloated platform
+
+The project must evolve carefully,
+with small controlled improvements only.
