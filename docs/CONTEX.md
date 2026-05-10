@@ -29,7 +29,7 @@ It must NOT become:
 ## 2. Current Project Status
 
 CURRENT STAGE:
-Stage 10 — Foundation Route Intelligence Engine
+Stage 12.1 — Route Personality Stabilization
 
 Implemented:
 
@@ -54,6 +54,23 @@ Implemented:
 * Route selection UI
 * Emulator testing completed
 * Git + GitHub connected
+* Route confidence wording added
+* Toll uncertainty wording added
+* UAE-aware toll wording added
+* Compact semantic route card line added
+* UAE corridor awareness heuristic added
+* Lightweight corridor scanning added
+* Route personality wording added
+* Mode-specific wording differentiation added
+* Route personality cleanup completed
+* Current route labels include examples such as:
+    * Faster Dubai entry
+    * Fast toll route
+    * Toll-heavy corridor
+    * Lowest toll route
+    * Higher toll option
+    * Lower-cost corridor
+    * Longer quieter route
 
 ---
 
@@ -84,9 +101,25 @@ Output format:
 
 Prioritize shortest overall travel time.
 
+Current behavior:
+* Chooses the quickest available route.
+* Uses route personality wording such as:
+    * Faster Dubai entry
+    * Fast toll route
+    * Toll-heavy corridor
+    * Main highway route
+
 ### NO_TOLLS
 
 Prioritize lower road/toll spending.
+
+Current behavior:
+* Chooses the lowest toll / lowest cost option according to current lightweight logic.
+* Uses route personality wording such as:
+    * Lowest toll route
+    * Lower toll likelihood
+    * Higher toll option
+    * Toll-light pick
 
 ### CALM
 
@@ -95,6 +128,13 @@ Balanced route:
 * smoother drive
 * balanced cost
 * balanced time
+
+Current behavior:
+* Chooses a balanced route using time, cost, distance and route personality.
+* Uses wording such as:
+    * Lower-cost corridor
+    * Longer quieter route
+    * Balanced route
 
 ---
 
@@ -108,9 +148,42 @@ Project focuses on UAE driving conditions:
 * UAE driving behavior
 * Traffic-heavy corridors
 * Parking risk awareness
+* Dubai corridor pressure
+* highway route personality
+
+Current implemented UAE logic:
+
+* Lightweight UAE corridor awareness
+* Keyword-based corridor scanning from route summary / instructions
+* High toll-likelihood corridor hints
+* Lower toll-likelihood corridor hints
+* Human-readable route personality labels
+* Toll confidence wording
+
+Current high toll-likelihood keyword examples:
+
+* Sheikh Zayed Road
+* SZR
+* E11
+* Al Garhoud
+* Downtown Dubai
+* Business Bay
+* Financial Centre
+* Dubai Marina
+
+Current lower toll-likelihood keyword examples:
+
+* Mohammed Bin Zayed Road
+* MBZ Road
+* E311
+* Emirates Road
+* E611
+* Ajman
+* Sharjah
 
 IMPORTANT:
 Current fuel/toll calculations are still provisional.
+This is NOT real Salik detection yet.
 Real UAE economic intelligence will be implemented gradually.
 
 ---
@@ -129,6 +202,12 @@ CRITICAL:
 
 UI must stay:
 clean and minimal.
+
+Current route card style:
+* compact one-line cost/personality/fuel/confidence format
+* no extra rows
+* no map clone UI
+* no navigation behavior
 
 ---
 
@@ -193,15 +272,22 @@ Current fuel model:
 TEMPORARY / ESTIMATED.
 
 Current toll model:
-PARTIAL / LIGHTWEIGHT.
+PARTIAL / LIGHTWEIGHT HEURISTIC.
 
 Current scoring:
+REAL and ACTIVE.
+
+Current route personality layer:
 REAL and ACTIVE.
 
 The app already performs actual route comparison and recommendation logic.
 
 However:
 real UAE fuel/toll intelligence is still under development.
+
+Important known limitation:
+Current corridor heuristic is approximate and keyword-based.
+It must not be treated as exact Salik calculation.
 
 ---
 
@@ -212,12 +298,16 @@ Current priority is NOT:
 * maps clone features
 * navigation
 * enterprise architecture
+* complex traffic systems
+* exact Salik engine
 
 Current priority IS:
 
 * stable route intelligence
 * UAE-aware decisions
 * controllable AI-assisted development
+* route personality stability
+* wording consistency
 * keeping project manageable
 
 ---
@@ -236,3 +326,33 @@ NOT:
 
 The project must evolve carefully,
 with small controlled improvements only.
+
+---
+
+## 11. Current Stop Point
+
+Current stop point:
+Stage 12.1 — Route Personality Stabilization.
+
+Last verified state:
+
+* Code committed to Git / GitHub
+* Branch used: master
+* Latest tested route:
+    * Dubai Marina Mall → Dubai International Airport Terminal 3
+* Tested modes:
+    * Fastest
+    * No tolls
+    * Calm
+* Screenshots confirmed:
+    * UI not broken
+    * route cards readable
+    * recommendation highlighting works
+    * wording is more natural
+    * app still feels like a route decision assistant
+
+Next logical step:
+Stage 12.2 — Route Personality Consistency Polish.
+
+Goal of next step:
+Improve consistency of wording between route cards and Choice / Why / Tip without changing scoring, architecture, API, or route selection logic.

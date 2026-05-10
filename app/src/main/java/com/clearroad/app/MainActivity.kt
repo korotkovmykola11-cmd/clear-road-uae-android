@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.domain.RouteOption
@@ -202,7 +202,7 @@ private fun tollPhraseForCard(
                     "Lower-cost corridor"
                 durationStretchVsFastest > 0.12f -> "Longer quieter route"
                 tollBand == "none" -> "Direct Dubai corridor"
-                tollBand == "low" -> "SZR-style route"
+                tollBand == "low" -> "Main highway route"
                 routeIndex % 2 == 0 -> "Main highway route"
                 else -> "Toll-heavy corridor"
             }
@@ -219,7 +219,12 @@ private fun tollPhraseForCard(
                     when (tollBand) {
                         "none" -> "Toll-light pick"
                         "low" -> "Lower toll likelihood"
-                        else -> if (routeIndex % 2 == 0) "Main highway route" else "Toll-heavy corridor"
+                        else ->
+                            if (routeIndex % 2 == 0) {
+                                "Main highway route"
+                            } else {
+                                "Toll-heavy corridor"
+                            }
                     }
             }
         PreferenceMode.CALM ->
@@ -231,6 +236,111 @@ private fun tollPhraseForCard(
             }
     }
 }
+
+private fun recommendationAlignedExplanation(
+    personality: String,
+    mode: PreferenceMode,
+): Triple<String, String, String>? =
+    when (personality) {
+        "Lowest toll route" ->
+            Triple(
+                "Lowest toll route",
+                "Compared with the other lines here, this stays easiest on tolls.",
+                "Solid pick when you want predictable Salik spend.",
+            )
+        "Fast toll route" ->
+            Triple(
+                "Fast toll route",
+                "Fastest option shown — tolled stretches are likely.",
+                "Have Salik ready; you'll probably brush gates.",
+            )
+        "Faster Dubai entry" ->
+            Triple(
+                "Faster Dubai entry",
+                "Cuts drive time via Dubai-side main connectors.",
+                "Reach for this when the clock is tight.",
+            )
+        "Lower-cost corridor" ->
+            if (mode == PreferenceMode.CALM) {
+                Triple(
+                    "Lower-cost corridor",
+                    "Unhurried shaping — easier pacing than chasing the quickest line.",
+                    "Balanced wheel feel across familiar Dubai links.",
+                )
+            } else {
+                Triple(
+                    "Lower-cost corridor",
+                    "Slightly slower profile but lighter toll-plus-fuel versus the fastest run.",
+                    "Glance at fuel + Salik together before you lock it in.",
+                )
+            }
+        "Longer quieter route" ->
+            if (mode == PreferenceMode.CALM) {
+                Triple(
+                    "Longer quieter route",
+                    "Adds a little time for breathing room and a softer pace.",
+                    "Ideal when comfort matters more than trimming minutes.",
+                )
+            } else {
+                Triple(
+                    "Longer quieter route",
+                    "Costs a few minutes for an easier, less frantic stretch.",
+                    "Better drive-feel when you're fine skipping the sprint.",
+                )
+            }
+        "Toll-heavy corridor" ->
+            if (mode == PreferenceMode.CALM) {
+                Triple(
+                    "Toll-heavy corridor",
+                    "Busy main-road flow — steady tempo helps it feel manageable.",
+                    "Keep Salik handy; no need to rush the gates.",
+                )
+            } else {
+                Triple(
+                    "Toll-heavy corridor",
+                    "This corridor pattern tends to hit gates more often.",
+                    "Top up Salik before rolling.",
+                )
+            }
+        "Lower toll likelihood" ->
+            Triple(
+                "Lower toll likelihood",
+                "Adds seat time but tilts away from tolls versus the quicker picks.",
+                "Budget-conscious beats shaving seconds.",
+            )
+        "Direct Dubai corridor" ->
+            Triple(
+                "Direct Dubai corridor",
+                "Stays fairly straight through the usual Dubai connectors.",
+                "Peek at live traffic before you merge.",
+            )
+        "Main highway route" ->
+            Triple(
+                "Main highway route",
+                "Runs like familiar Emirates freeway miles versus quirky diversions.",
+                "Morning-evening peaks linger — leave slack.",
+            )
+        "Higher toll option" ->
+            Triple(
+                "Higher toll option",
+                "Likely more gates than the lighter-touch alternatives beside it.",
+                "Budget extra Salik — charges rack up quicker here.",
+            )
+        "Toll-free likely" ->
+            Triple(
+                "Toll-free likely",
+                "Among what's listed, this skews toward light toll exposure.",
+                "Still sanity-check exits — routing quirks happen.",
+            )
+        "Toll-light pick" ->
+            Triple(
+                "Toll-light pick",
+                "Moderate toll — neither gate-free nor Salik-heavy.",
+                "Fine for everyday runs without sticker shock.",
+            )
+        "Toll estimate" -> null
+        else -> null
+    }
 
 private fun manualRouteChoice(
     mode: PreferenceMode,
@@ -963,6 +1073,24 @@ fun ClearRoadScreen(
         } else {
             null
         }
+    val recommendedRoutePersonalityLine =
+        if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
+            val ri =
+                recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
+            tollPhraseForCard(
+                realRouteDebugDataList[ri],
+                ri,
+                selectedMode,
+                recommendedRouteIndex,
+                realRouteDebugDataList,
+            )
+        } else {
+            null
+        }
+    val recommendationAlignedCopy =
+        recommendedRoutePersonalityLine?.let {
+            recommendationAlignedExplanation(it, selectedMode)
+        }
     LaunchedEffect(selectedMode, realRouteDebugDataList.size, recommendedRouteIndex) {
         if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
         selectedRouteIndex =
@@ -1188,49 +1316,51 @@ fun ClearRoadScreen(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = "Choice",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = when {
                 showRouteCardOverrides ->
-                    manualRouteChoice(
-                        selectedMode,
-                        recommendedRouteIndex.coerceIn(
-                            0,
-                            realRouteDebugDataList.lastIndex,
-                        ),
-                        recommendationTollAed,
-                    )
+                    recommendationAlignedCopy?.first
+                        ?: manualRouteChoice(
+                            selectedMode,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                            recommendationTollAed,
+                        )
                 else -> decision?.choice ?: "Enter a route"
             },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Why",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = when {
                 showRouteCardOverrides ->
-                    manualRouteWhy(
-                        selectedMode,
-                        recommendedRouteIndex.coerceIn(
-                            0,
-                            realRouteDebugDataList.lastIndex,
-                        ),
-                        recommendationTollAed,
-                    )
+                    recommendationAlignedCopy?.second
+                        ?: manualRouteWhy(
+                            selectedMode,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                            recommendationTollAed,
+                        )
                 else ->
                     decision?.why
                         ?: "Add starting point and destination to get a recommendation."
@@ -1238,25 +1368,26 @@ fun ClearRoadScreen(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Tip",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = when {
                 showRouteCardOverrides ->
-                    manualRouteTip(
-                        selectedMode,
-                        recommendedRouteIndex.coerceIn(
-                            0,
-                            realRouteDebugDataList.lastIndex,
-                        ),
-                        recommendationTollAed,
-                    )
+                    recommendationAlignedCopy?.third
+                        ?: manualRouteTip(
+                            selectedMode,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                            recommendationTollAed,
+                        )
                 else -> decision?.tip ?: "Start with a common UAE route."
             },
             style = MaterialTheme.typography.bodyLarge,
@@ -1267,7 +1398,7 @@ fun ClearRoadScreen(
         if (fromCoords != null && toCoords != null) {
             if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Available routes: ${debugRoutes.size}",
                     style = MaterialTheme.typography.bodySmall,
@@ -1297,7 +1428,7 @@ fun ClearRoadScreen(
                             )
                         else -> null
                     }
-                    Spacer(modifier = Modifier.height(11.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1311,8 +1442,8 @@ fun ClearRoadScreen(
                     ) {
                         Column(
                             modifier = Modifier.padding(
-                                horizontal = 6.dp,
-                                vertical = 3.dp,
+                                horizontal = 8.dp,
+                                vertical = 4.dp,
                             ),
                         ) {
                             if (isRecommended) {
@@ -1320,20 +1451,18 @@ fun ClearRoadScreen(
                                     text = "Recommended",
                                     modifier = Modifier
                                         .background(
-                                            color = MaterialTheme.colorScheme.onSurface.copy(
-                                                alpha = 0.06f,
+                                            color = MaterialTheme.colorScheme.primary.copy(
+                                                alpha = 0.11f,
                                             ),
-                                            shape = RoundedCornerShape(6.dp),
+                                            shape = RoundedCornerShape(5.dp),
                                         )
-                                        .padding(horizontal = 8.dp, vertical = 2.dp),
+                                        .padding(horizontal = 10.dp, vertical = 3.dp),
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Medium,
+                                        fontWeight = FontWeight.SemiBold,
                                     ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                        alpha = 0.72f,
-                                    ),
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.88f),
                                 )
-                                Spacer(modifier = Modifier.height(1.dp))
+                                Spacer(modifier = Modifier.height(4.dp))
                             }
                             Text(
                                 text = "Route ${index + 1}",
@@ -1341,39 +1470,40 @@ fun ClearRoadScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
-                            Spacer(modifier = Modifier.height(1.dp))
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(0.dp),
-                            ) {
-                                Text(
-                                    text = item.durationText,
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Medium,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    text = item.distanceText,
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontWeight = FontWeight.Light,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    text = run {
-                                        val fuelAed =
-                                            estimateFuelCostAed(item.distanceMeters / 1000.0)
-                                        val totalAed =
-                                            estimateTotalRouteCostAed(item.tollAED, fuelAed)
-                                        "$totalAed AED · ${tollPhraseForCard(item, index, selectedMode, recommendedRouteIndex, debugRoutes)} · Fuel $fuelAed · ${routeConfidenceLabel(directionsStatus, item)}"
-                                    },
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontWeight = FontWeight.SemiBold,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = item.durationText,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.92f),
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = item.distanceText,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontWeight = FontWeight.Normal,
+                                ),
+                                color =
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f),
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = run {
+                                    val fuelAed =
+                                        estimateFuelCostAed(item.distanceMeters / 1000.0)
+                                    val totalAed =
+                                        estimateTotalRouteCostAed(item.tollAED, fuelAed)
+                                    "$totalAed AED · ${tollPhraseForCard(item, index, selectedMode, recommendedRouteIndex, debugRoutes)} · Fuel $fuelAed · ${routeConfidenceLabel(directionsStatus, item)}"
+                                },
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Medium,
+                                    lineHeight = 17.sp,
+                                ),
+                                color =
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                            )
                         }
                     }
                 }
