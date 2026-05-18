@@ -1699,6 +1699,33 @@ fun ClearRoadScreen(
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color =
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                ) {
+                    Text(
+                        text = "Map preview will appear here",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Medium,
+                        ),
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.74f),
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Decision stays primary. Navigation comes later.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color =
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f),
+                    )
+                }
             }
         }
     }
