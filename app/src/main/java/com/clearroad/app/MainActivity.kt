@@ -42,7 +42,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,11 +58,6 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.text.Charsets
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
@@ -127,137 +121,6 @@ private fun corridorTollHintFromScan(scanText: String): UaeCorridorTollHint {
         highHits > lowHits -> UaeCorridorTollHint.HIGH_LIKELIHOOD
         lowHits > highHits -> UaeCorridorTollHint.LOW_LIKELIHOOD
         else -> UaeCorridorTollHint.NEUTRAL
-    }
-}
-
-/** Abstract UAE movement mood for preview only — not navigation or geography. */
-private fun previewUaeCorridorFeelingPhrase(corridorScanText: String): String? {
-    val trimmed = corridorScanText.trim()
-    if (trimmed.isEmpty()) return null
-    val lc = trimmed.lowercase(Locale.US)
-    val moods: List<Triple<Int, String, List<String>>> =
-        listOf(
-            Triple(
-                10,
-                "Airport corridor",
-                listOf(
-                    "dubai airport",
-                    "international airport",
-                    "al maktoum",
-                    "jebel ali airport",
-                    "terminal 3",
-                    "terminal 2",
-                    "terminal 1",
-                    " dxb",
-                    "dxb ",
-                    " dwc",
-                    "dwc ",
-                ),
-            ),
-            Triple(
-                15,
-                "SZR flow",
-                listOf(
-                    "sheikh zayed road",
-                    "sheikh zayed",
-                    "szr",
-                    "e11",
-                ),
-            ),
-            Triple(
-                20,
-                "Business district flow",
-                listOf(
-                    "business bay",
-                    "financial centre",
-                    "financial center",
-                    "difc",
-                    "downtown dubai",
-                    "trade centre",
-                    "trade center",
-                ),
-            ),
-            Triple(
-                25,
-                "Marina side",
-                listOf(
-                    "dubai marina",
-                    "marina walk",
-                    "jumeirah beach residence",
-                    " jbr",
-                    "jbr ",
-                ),
-            ),
-            Triple(
-                30,
-                "Coastal direction",
-                listOf(
-                    "palm jumeirah",
-                    "palm island",
-                    "jumeirah beach",
-                    "kite beach",
-                    "jumeirah ",
-                ),
-            ),
-            Triple(
-                35,
-                "Northern emirate stretch",
-                listOf(
-                    "sharjah",
-                    "ajman",
-                ),
-            ),
-            Triple(
-                40,
-                "Main motorway mood",
-                listOf(
-                    "mohammed bin zayed",
-                    "mbz road",
-                    "emirates road",
-                    "e311",
-                    "e611",
-                ),
-            ),
-            Triple(
-                45,
-                "City entry stretch",
-                listOf(
-                    "al garhoud",
-                    "garhoud",
-                    "port saeed",
-                ),
-            ),
-            Triple(
-                50,
-                "Inner-city weave",
-                listOf(
-                    "deira",
-                    "bur dubai",
-                    "karama",
-                    "satwa",
-                ),
-            ),
-            Triple(
-                55,
-                "Capitalward stretch",
-                listOf(
-                    "abu dhabi",
-                    "al ain",
-                    "shahama",
-                ),
-            ),
-        )
-    val labels =
-        moods
-            .filter { (_, _, needles) -> needles.any { lc.contains(it) } }
-            .sortedBy { it.first }
-            .distinctBy { it.second }
-            .take(2)
-            .map { it.second }
-    return if (labels.isNotEmpty()) {
-        labels.joinToString(" · ")
-    } else {
-        "Everyday UAE corridor stretch"
     }
 }
 
@@ -676,146 +539,6 @@ private fun directionsRequestPreview(
     }.trimEnd()
 }
 
-private fun buildDirectionsUrl(origin: LatLng, destination: LatLng): String {
-    val o = latLngToCommaString(origin)
-    val d = latLngToCommaString(destination)
-    val key = BuildConfig.PLACES_API_KEY
-    return "https://maps.googleapis.com/maps/api/directions/json?origin=$o&destination=$d&mode=driving&alternatives=true&key=$key"
-}
-
-private suspend fun fetchDirectionsRaw(url: String): String? =
-    withContext(Dispatchers.IO) {
-        var conn: HttpURLConnection? = null
-        try {
-            conn = (URL(url).openConnection() as HttpURLConnection).apply {
-                requestMethod = "GET"
-                connectTimeout = 20_000
-                readTimeout = 20_000
-            }
-            val code = conn.responseCode
-            if (code !in 200..299) return@withContext null
-            conn.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
-        } catch (_: Exception) {
-            null
-        } finally {
-            conn?.disconnect()
-        }
-    }
-
-private fun extractDirectionsStatus(json: String): String? {
-    val marker = "\"status\""
-    val keyIdx = json.indexOf(marker)
-    if (keyIdx == -1) return null
-    val colon = json.indexOf(':', keyIdx + marker.length)
-    if (colon == -1) return null
-    var i = colon + 1
-    while (i < json.length && json[i].isWhitespace()) i++
-    if (i >= json.length || json[i] != '"') return null
-    val start = i + 1
-    val end = json.indexOf('"', start)
-    if (end == -1) return null
-    return json.substring(start, end)
-}
-
-private fun extractFirstLegDistanceDuration(json: String): Pair<String, String>? {
-    fun textFromDistanceOrDurationKey(keyIndex: Int): String? {
-        val colon = json.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < json.length && json[i].isWhitespace()) i++
-        if (i >= json.length || json[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = json.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val textMarker = "\"text\""
-        val textIdx = json.indexOf(textMarker, innerStart)
-        if (textIdx == -1 || textIdx >= innerClose) return null
-        val textColon = json.indexOf(':', textIdx + textMarker.length)
-        if (textColon == -1 || textColon >= innerClose) return null
-        var j = textColon + 1
-        while (j < innerClose && json[j].isWhitespace()) j++
-        if (j >= innerClose || json[j] != '"') return null
-        val strStart = j + 1
-        val strEnd = json.indexOf('"', strStart)
-        if (strEnd == -1 || strEnd > innerClose) return null
-        return json.substring(strStart, strEnd)
-    }
-
-    val routesIdx = json.indexOf("\"routes\"")
-    if (routesIdx == -1) return null
-    val routesBracket = json.indexOf('[', routesIdx)
-    if (routesBracket == -1) return null
-    val firstRouteBrace = json.indexOf('{', routesBracket)
-    if (firstRouteBrace == -1) return null
-    val legsIdx = json.indexOf("\"legs\"", firstRouteBrace)
-    if (legsIdx == -1) return null
-    val legsBracket = json.indexOf('[', legsIdx)
-    if (legsBracket == -1) return null
-    val firstLegBrace = json.indexOf('{', legsBracket)
-    if (firstLegBrace == -1) return null
-
-    val stepsIdx = json.indexOf("\"steps\"", firstLegBrace)
-    val legScanEnd = if (stepsIdx == -1) json.length else stepsIdx
-
-    val distanceIdx = json.indexOf("\"distance\"", firstLegBrace)
-    if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
-    val durationIdx = json.indexOf("\"duration\"", firstLegBrace)
-    if (durationIdx == -1 || durationIdx >= legScanEnd) return null
-
-    val distanceText = textFromDistanceOrDurationKey(distanceIdx) ?: return null
-    val durationText = textFromDistanceOrDurationKey(durationIdx) ?: return null
-    return Pair(distanceText, durationText)
-}
-
-private fun extractFirstLegDistanceDurationValues(json: String): Pair<Int, Int>? {
-    fun intValueFromDistanceOrDurationKey(keyIndex: Int): Int? {
-        val colon = json.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < json.length && json[i].isWhitespace()) i++
-        if (i >= json.length || json[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = json.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val valueMarker = "\"value\""
-        val valueIdx = json.indexOf(valueMarker, innerStart)
-        if (valueIdx == -1 || valueIdx >= innerClose) return null
-        val valueColon = json.indexOf(':', valueIdx + valueMarker.length)
-        if (valueColon == -1 || valueColon >= innerClose) return null
-        var j = valueColon + 1
-        while (j < innerClose && json[j].isWhitespace()) j++
-        val numStart = j
-        while (j < innerClose && json[j].isDigit()) j++
-        if (j == numStart) return null
-        return json.substring(numStart, j).toIntOrNull()
-    }
-
-    val routesIdx = json.indexOf("\"routes\"")
-    if (routesIdx == -1) return null
-    val routesBracket = json.indexOf('[', routesIdx)
-    if (routesBracket == -1) return null
-    val firstRouteBrace = json.indexOf('{', routesBracket)
-    if (firstRouteBrace == -1) return null
-    val legsIdx = json.indexOf("\"legs\"", firstRouteBrace)
-    if (legsIdx == -1) return null
-    val legsBracket = json.indexOf('[', legsIdx)
-    if (legsBracket == -1) return null
-    val firstLegBrace = json.indexOf('{', legsBracket)
-    if (firstLegBrace == -1) return null
-
-    val stepsIdx = json.indexOf("\"steps\"", firstLegBrace)
-    val legScanEnd = if (stepsIdx == -1) json.length else stepsIdx
-
-    val distanceIdx = json.indexOf("\"distance\"", firstLegBrace)
-    if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
-    val durationIdx = json.indexOf("\"duration\"", firstLegBrace)
-    if (durationIdx == -1 || durationIdx >= legScanEnd) return null
-
-    val distanceValue = intValueFromDistanceOrDurationKey(distanceIdx) ?: return null
-    val durationValue = intValueFromDistanceOrDurationKey(durationIdx) ?: return null
-    return Pair(distanceValue, durationValue)
-}
-
 private fun isDirectionsDataValid(
     status: String?,
     distanceDuration: Pair<String, String>?,
@@ -827,16 +550,6 @@ private fun isDirectionsDataValid(
     val (distanceMeters, durationSeconds) = distanceDurationValues
     return distanceMeters > 0 && durationSeconds > 0
 }
-
-private data class RealRouteDebugData(
-    val distanceText: String,
-    val durationText: String,
-    val distanceMeters: Int,
-    val durationSeconds: Int,
-    val tollAED: Int,
-    val hasToll: Boolean,
-    val corridorScanText: String = "",
-)
 
 private fun buildRealRouteDebugData(
     distanceDuration: Pair<String, String>?,
@@ -909,364 +622,6 @@ private fun calculateRouteScore(
         PreferenceMode.CALM ->
             durationMinutes * 0.6 + totalCostAED * 1.2 + distanceKm * 0.15 +
                 aedPerMinute * 0.3
-    }
-}
-
-private fun skipJsonStringContent(json: String, openQuoteIndex: Int): Int {
-    var i = openQuoteIndex + 1
-    while (i < json.length) {
-        when (json[i]) {
-            '\\' -> i += 2
-            '"' -> return i + 1
-            else -> i++
-        }
-    }
-    return json.length
-}
-
-private fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): String? {
-    val colon = json.indexOf(':', searchFrom)
-    if (colon == -1) return null
-    var j = colon + 1
-    while (j < json.length && json[j].isWhitespace()) j++
-    if (j >= json.length || json[j] != '"') return null
-    val start = j + 1
-    val end = json.indexOf('"', start)
-    if (end == -1) return null
-    return json.substring(start, end)
-}
-
-private fun extractJsonNumberFollowingKey(json: String, searchFrom: Int): Double? {
-    val colon = json.indexOf(':', searchFrom)
-    if (colon == -1) return null
-    var j = colon + 1
-    while (j < json.length && json[j].isWhitespace()) j++
-    val start = j
-    while (j < json.length && (json[j].isDigit() || json[j] == '.' || json[j] == '-')) j++
-    if (j == start) return null
-    return json.substring(start, j).toDoubleOrNull()
-}
-
-private val stripHtmlTagRegex = Regex("<[^>]+>")
-
-private fun stripHtmlTags(raw: String): String =
-    stripHtmlTagRegex.replace(raw, " ")
-
-private fun extractRouteSummaryPlain(routeJson: String): String? {
-    val key = "\"summary\""
-    val idx = routeJson.indexOf(key)
-    if (idx == -1) return null
-    return extractJsonQuotedStringFollowingKey(routeJson, idx + key.length)?.let(::stripHtmlTags)
-}
-
-private fun appendHtmlInstructionPlainTexts(routeJson: String, budget: Int): String {
-    val key = "\"html_instructions\""
-    val sb = StringBuilder()
-    var from = 0
-    while (sb.length < budget && from < routeJson.length) {
-        val idx = routeJson.indexOf(key, from)
-        if (idx == -1) break
-        val chunk =
-            extractJsonQuotedStringFollowingKey(routeJson, idx + key.length)?.let(::stripHtmlTags)
-        if (chunk != null) sb.append(chunk).append(' ')
-        from = idx + key.length
-    }
-    return sb.toString().take(budget)
-}
-
-private fun buildCorridorScanText(routeJson: String): String =
-    buildString {
-        extractRouteSummaryPlain(routeJson)?.let { append(it).append(' ') }
-        append(appendHtmlInstructionPlainTexts(routeJson, 6000))
-    }.trim()
-
-private fun tryExtractFareAed(routeJson: String): Int? {
-    val fareKey = "\"fare\""
-    val fi = routeJson.indexOf(fareKey)
-    if (fi == -1) return null
-    val open = routeJson.indexOf('{', fi + fareKey.length)
-    if (open == -1) return null
-    val close = findMatchingClosingBrace(routeJson, open) ?: return null
-    val fareObj = routeJson.substring(open, close + 1)
-    val currencyLabel = "\"currency\""
-    val ci = fareObj.indexOf(currencyLabel)
-    if (ci == -1) return null
-    val currency =
-        extractJsonQuotedStringFollowingKey(fareObj, ci + currencyLabel.length)
-            ?: return null
-    if (!currency.trim().equals("AED", ignoreCase = true)) return null
-    val valueLabel = "\"value\""
-    val vi = fareObj.indexOf(valueLabel)
-    if (vi == -1) return null
-    val num = extractJsonNumberFollowingKey(fareObj, vi + valueLabel.length) ?: return null
-    return num.roundToInt().coerceAtLeast(0)
-}
-
-private fun deriveTollAedFromRouteJson(routeJson: String): Pair<Int, Boolean> {
-    val fare = tryExtractFareAed(routeJson)
-    return when {
-        fare == null -> Pair(0, false)
-        fare > 0 -> Pair(fare, true)
-        else -> Pair(0, false)
-    }
-}
-
-private fun firstRouteObjectJson(directionsJson: String): String? {
-    val routesIdx = directionsJson.indexOf("\"routes\"")
-    if (routesIdx == -1) return null
-    val routesBracket = directionsJson.indexOf('[', routesIdx)
-    if (routesBracket == -1) return null
-    var i = routesBracket + 1
-    while (i < directionsJson.length) {
-        while (i < directionsJson.length &&
-            (directionsJson[i].isWhitespace() || directionsJson[i] == ',')) i++
-        if (i >= directionsJson.length) break
-        if (directionsJson[i] == ']') break
-        if (directionsJson[i] != '{') {
-            i++
-            continue
-        }
-        val routeStart = i
-        val routeEnd = findMatchingClosingBrace(directionsJson, routeStart) ?: return null
-        return directionsJson.substring(routeStart, routeEnd + 1)
-    }
-    return null
-}
-
-private fun findMatchingClosingBrace(json: String, openBraceIndex: Int): Int? {
-    if (openBraceIndex >= json.length || json[openBraceIndex] != '{') return null
-    var depth = 0
-    var i = openBraceIndex
-    while (i < json.length) {
-        when (json[i]) {
-            '"' -> i = skipJsonStringContent(json, i)
-            '{' -> {
-                depth++
-                i++
-            }
-            '}' -> {
-                depth--
-                if (depth == 0) return i
-                i++
-            }
-            else -> i++
-        }
-    }
-    return null
-}
-
-private fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
-    fun textFromDistanceOrDurationKey(routeJson: String, keyIndex: Int): String? {
-        val colon = routeJson.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < routeJson.length && routeJson[i].isWhitespace()) i++
-        if (i >= routeJson.length || routeJson[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = routeJson.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val textMarker = "\"text\""
-        val textIdx = routeJson.indexOf(textMarker, innerStart)
-        if (textIdx == -1 || textIdx >= innerClose) return null
-        val textColon = routeJson.indexOf(':', textIdx + textMarker.length)
-        if (textColon == -1 || textColon >= innerClose) return null
-        var j = textColon + 1
-        while (j < innerClose && routeJson[j].isWhitespace()) j++
-        if (j >= innerClose || routeJson[j] != '"') return null
-        val strStart = j + 1
-        val strEnd = routeJson.indexOf('"', strStart)
-        if (strEnd == -1 || strEnd > innerClose) return null
-        return routeJson.substring(strStart, strEnd)
-    }
-
-    fun intValueFromDistanceOrDurationKey(routeJson: String, keyIndex: Int): Int? {
-        val colon = routeJson.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < routeJson.length && routeJson[i].isWhitespace()) i++
-        if (i >= routeJson.length || routeJson[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = routeJson.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val valueMarker = "\"value\""
-        val valueIdx = routeJson.indexOf(valueMarker, innerStart)
-        if (valueIdx == -1 || valueIdx >= innerClose) return null
-        val valueColon = routeJson.indexOf(':', valueIdx + valueMarker.length)
-        if (valueColon == -1 || valueColon >= innerClose) return null
-        var j = valueColon + 1
-        while (j < innerClose && routeJson[j].isWhitespace()) j++
-        val numStart = j
-        while (j < innerClose && routeJson[j].isDigit()) j++
-        if (j == numStart) return null
-        return routeJson.substring(numStart, j).toIntOrNull()
-    }
-
-    fun firstLegDebugFromRouteObject(routeJson: String): RealRouteDebugData? {
-        val legsIdx = routeJson.indexOf("\"legs\"")
-        if (legsIdx == -1) return null
-        val legsBracket = routeJson.indexOf('[', legsIdx)
-        if (legsBracket == -1) return null
-        val firstLegBrace = routeJson.indexOf('{', legsBracket)
-        if (firstLegBrace == -1) return null
-
-        val stepsIdx = routeJson.indexOf("\"steps\"", firstLegBrace)
-        val legScanEnd = if (stepsIdx == -1) routeJson.length else stepsIdx
-
-        val distanceIdx = routeJson.indexOf("\"distance\"", firstLegBrace)
-        if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
-        val durationIdx = routeJson.indexOf("\"duration\"", firstLegBrace)
-        if (durationIdx == -1 || durationIdx >= legScanEnd) return null
-
-        val distanceText =
-            textFromDistanceOrDurationKey(routeJson, distanceIdx) ?: return null
-        val durationText =
-            textFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
-        val distanceMeters =
-            intValueFromDistanceOrDurationKey(routeJson, distanceIdx) ?: return null
-        val durationSeconds =
-            intValueFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
-
-        val tollPair = deriveTollAedFromRouteJson(routeJson)
-        val corridorScanText = buildCorridorScanText(routeJson)
-
-        return RealRouteDebugData(
-            distanceText = distanceText,
-            durationText = durationText,
-            distanceMeters = distanceMeters,
-            durationSeconds = durationSeconds,
-            tollAED = tollPair.first,
-            hasToll = tollPair.second,
-            corridorScanText = corridorScanText,
-        )
-    }
-
-    val routesIdx = json.indexOf("\"routes\"")
-    if (routesIdx == -1) return emptyList()
-    val routesBracket = json.indexOf('[', routesIdx)
-    if (routesBracket == -1) return emptyList()
-
-    val results = mutableListOf<RealRouteDebugData>()
-    var i = routesBracket + 1
-    while (i < json.length) {
-        while (i < json.length && (json[i].isWhitespace() || json[i] == ',')) i++
-        if (i >= json.length) break
-        if (json[i] == ']') break
-        if (json[i] != '{') {
-            i++
-            continue
-        }
-        val routeStart = i
-        val routeEnd = findMatchingClosingBrace(json, routeStart) ?: break
-        val routeJson = json.substring(routeStart, routeEnd + 1)
-        firstLegDebugFromRouteObject(routeJson)?.let { results.add(it) }
-        i = routeEnd + 1
-    }
-    return results
-}
-
-@Composable
-private fun RoutePreviewSurface(
-    previewRouteIndex: Int,
-    previewRouteItem: RealRouteDebugData,
-    originText: String,
-    destinationText: String,
-) {
-    val scheme = MaterialTheme.colorScheme
-    val muted = scheme.onSurfaceVariant
-    val corridorMoodPhrase =
-        previewUaeCorridorFeelingPhrase(previewRouteItem.corridorScanText)
-    val contextText =
-        when {
-            corridorMoodPhrase != null -> "UAE context · $corridorMoodPhrase"
-            else -> {
-                val from = originText.trim().ifBlank { "Start" }
-                val to = destinationText.trim().ifBlank { "End" }
-                "Your route · $from → $to"
-            }
-        }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = scheme.surfaceVariant.copy(alpha = 0.125f),
-                shape = RoundedCornerShape(14.dp),
-            )
-            .border(
-                width = 1.dp,
-                color = scheme.outline.copy(alpha = 0.068f),
-                shape = RoundedCornerShape(14.dp),
-            )
-            .padding(horizontal = 12.dp, vertical = 7.dp),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                text = "Selected route preview",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 10.sp,
-                    letterSpacing = 0.06.sp,
-                    lineHeight = 12.sp,
-                ),
-                color = muted.copy(alpha = 0.33f),
-            )
-            Spacer(modifier = Modifier.height(1.dp))
-            Text(
-                text =
-                    "Route ${previewRouteIndex + 1} · " +
-                        previewRouteItem.durationText +
-                        " · " +
-                        previewRouteItem.distanceText,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 12.sp,
-                    letterSpacing = 0.015.sp,
-                    lineHeight = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                ),
-                color = muted.copy(alpha = 0.44f),
-            )
-            Spacer(modifier = Modifier.height(3.dp))
-            Text(
-                text = contextText,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 9.sp,
-                    lineHeight = 11.sp,
-                    letterSpacing = 0.02.sp,
-                    fontWeight = FontWeight.Normal,
-                ),
-                color = muted.copy(alpha = 0.27f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(color = scheme.outline.copy(alpha = 0.055f)),
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Map preview will appear here",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Normal,
-                    letterSpacing = 0.015.sp,
-                    fontSize = 10.sp,
-                    lineHeight = 13.sp,
-                ),
-                color = muted.copy(alpha = 0.42f),
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = "Decision stays primary. Navigation comes later.",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 10.sp,
-                    lineHeight = 14.sp,
-                ),
-                color = muted.copy(alpha = 0.37f),
-            )
-        }
     }
 }
 
@@ -1629,105 +984,118 @@ fun ClearRoadScreen(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         val recommendationCompact = showRouteCardOverrides
         val recLabelStyle =
             if (recommendationCompact) {
-                MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.35.sp,
+                )
             } else {
-                MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.35.sp,
+                )
             }
         val recBodyStyle =
             if (recommendationCompact) {
-                MaterialTheme.typography.bodyMedium
+                MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp)
             } else {
-                MaterialTheme.typography.bodyLarge
+                MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp)
             }
-        val recGapLabelToBody = if (recommendationCompact) 1.dp else 2.dp
-        val recGapBetweenSections = if (recommendationCompact) 5.dp else 8.dp
+        val recGapLabelToBody = if (recommendationCompact) 2.dp else 3.dp
+        val recGapBetweenSections = if (recommendationCompact) 7.dp else 10.dp
 
-        Text(
-            text = "Choice",
-            style = recLabelStyle,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(recGapLabelToBody))
-        Text(
-            text = when {
-                showRouteCardOverrides ->
-                    recommendationAlignedCopy?.first
-                        ?: manualRouteChoice(
-                            selectedMode,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
-                            recommendationTollAed,
-                        )
-                else -> decision?.choice ?: "Enter a route"
-            },
-            style = recBodyStyle,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.height(recGapBetweenSections))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+        ) {
+            Text(
+                text = "Choice",
+                style = recLabelStyle,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(recGapLabelToBody))
+            Text(
+                text = when {
+                    showRouteCardOverrides ->
+                        recommendationAlignedCopy?.first
+                            ?: manualRouteChoice(
+                                selectedMode,
+                                recommendedRouteIndex.coerceIn(
+                                    0,
+                                    realRouteDebugDataList.lastIndex,
+                                ),
+                                recommendationTollAed,
+                            )
+                    else -> decision?.choice ?: "Enter a route"
+                },
+                style = recBodyStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.height(recGapBetweenSections))
 
-        Text(
-            text = "Why",
-            style = recLabelStyle,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(recGapLabelToBody))
-        Text(
-            text = when {
-                showRouteCardOverrides ->
-                    recommendationAlignedCopy?.second
-                        ?: manualRouteWhy(
-                            selectedMode,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
-                            recommendationTollAed,
-                        )
-                else ->
-                    decision?.why
-                        ?: "Add starting point and destination to get a recommendation."
-            },
-            style = recBodyStyle,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.height(recGapBetweenSections))
+            Text(
+                text = "Why",
+                style = recLabelStyle,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(recGapLabelToBody))
+            Text(
+                text = when {
+                    showRouteCardOverrides ->
+                        recommendationAlignedCopy?.second
+                            ?: manualRouteWhy(
+                                selectedMode,
+                                recommendedRouteIndex.coerceIn(
+                                    0,
+                                    realRouteDebugDataList.lastIndex,
+                                ),
+                                recommendationTollAed,
+                            )
+                    else ->
+                        decision?.why
+                            ?: "Add starting point and destination to get a recommendation."
+                },
+                style = recBodyStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.height(recGapBetweenSections))
 
-        Text(
-            text = "Tip",
-            style = recLabelStyle,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(recGapLabelToBody))
-        Text(
-            text = when {
-                showRouteCardOverrides ->
-                    recommendationAlignedCopy?.third
-                        ?: manualRouteTip(
-                            selectedMode,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
-                            recommendationTollAed,
-                        )
-                else -> decision?.tip ?: "Start with a common UAE route."
-            },
-            style = recBodyStyle,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+            Text(
+                text = "Tip",
+                style = recLabelStyle,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(recGapLabelToBody))
+            Text(
+                text = when {
+                    showRouteCardOverrides ->
+                        recommendationAlignedCopy?.third
+                            ?: manualRouteTip(
+                                selectedMode,
+                                recommendedRouteIndex.coerceIn(
+                                    0,
+                                    realRouteDebugDataList.lastIndex,
+                                ),
+                                recommendationTollAed,
+                            )
+                    else -> decision?.tip ?: "Start with a common UAE route."
+                },
+                style = recBodyStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        Spacer(modifier = Modifier.height(6.dp))
         val fromCoords = selectedFromLatLng
         val toCoords = selectedToLatLng
         if (fromCoords != null && toCoords != null) {
             if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = "Available routes: ${debugRoutes.size}",
                     style = MaterialTheme.typography.bodySmall,
@@ -1946,15 +1314,6 @@ fun ClearRoadScreen(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                val previewRouteIndex = routeCardSelectionIndex
-                val previewRouteItem = debugRoutes[previewRouteIndex]
-                RoutePreviewSurface(
-                    previewRouteIndex = previewRouteIndex,
-                    previewRouteItem = previewRouteItem,
-                    originText = originText,
-                    destinationText = destinationText,
-                )
             }
         }
     }
