@@ -24,7 +24,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -625,6 +628,7 @@ private fun calculateRouteScore(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClearRoadScreen(
     modifier: Modifier = Modifier,
@@ -663,6 +667,9 @@ fun ClearRoadScreen(
     }
     var selectedRouteIndex by remember { mutableStateOf(0) }
     var directionsLoading by remember { mutableStateOf(false) }
+    var detailsRouteIndex by remember { mutableStateOf<Int?>(null) }
+    /** True only after user taps a route card; cleared when system realigns selection. */
+    var userExplicitRouteSelection by remember { mutableStateOf(false) }
     val isRouteReady =
         selectedFromLatLng != null && selectedToLatLng != null
     val routeList = realRouteDebugDataList
@@ -761,10 +768,13 @@ fun ClearRoadScreen(
         }
     LaunchedEffect(selectedMode, realRouteDebugDataList.size, recommendedRouteIndex) {
         if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
+        userExplicitRouteSelection = false
         selectedRouteIndex =
             recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
     }
     LaunchedEffect(selectedFromLatLng, selectedToLatLng) {
+        detailsRouteIndex = null
+        userExplicitRouteSelection = false
         selectedRouteIndex = 0
         realRouteDebugData = null
         realRouteDebugDataList = emptyList()
@@ -793,18 +803,28 @@ fun ClearRoadScreen(
             raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
         directionsLoading = false
     }
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(
-                start = 24.dp,
-                top = 16.dp,
-                end = 24.dp,
-                bottom = 52.dp,
-            )
-            .navigationBarsPadding(),
-    ) {
+    LaunchedEffect(realRouteDebugDataList) {
+        val idx = detailsRouteIndex ?: return@LaunchedEffect
+        if (
+            realRouteDebugDataList.isEmpty() ||
+            idx !in realRouteDebugDataList.indices
+        ) {
+            detailsRouteIndex = null
+        }
+    }
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    start = 24.dp,
+                    top = 16.dp,
+                    end = 24.dp,
+                    bottom = 52.dp,
+                )
+                .navigationBarsPadding(),
+        ) {
         Text(
             text = "Clear Road",
             style = MaterialTheme.typography.headlineMedium
@@ -1104,15 +1124,17 @@ fun ClearRoadScreen(
                 for (index in debugRoutes.indices) {
                     val item = debugRoutes[index]
                     val isUserSelected = index == routeCardSelectionIndex
+                    val showUserSelectedChrome =
+                        isUserSelected && userExplicitRouteSelection
                     val isRecommended = index == recommendedRouteIndex
                     val scheme = MaterialTheme.colorScheme
                     val outline = scheme.outline
                     val primary = scheme.primary
-                    // Plain < selected-only < recommended-only < both (primary = system; outline frame = your pick).
+                    // Recommended (system) > Selected (user) > plain — outlines and fill follow that order.
                     val containerAlpha = when {
                         isUserSelected && isRecommended -> 0.89f
-                        isRecommended -> 0.705f
-                        isUserSelected -> 0.715f
+                        isRecommended -> 0.745f
+                        isUserSelected -> 0.52f
                         else -> 0.37f
                     }
                     val cardBorder = when {
@@ -1123,13 +1145,13 @@ fun ClearRoadScreen(
                             )
                         isRecommended ->
                             BorderStroke(
-                                width = 1.25.dp,
-                                color = primary.copy(alpha = 0.40f),
+                                width = 1.35.dp,
+                                color = primary.copy(alpha = 0.44f),
                             )
                         isUserSelected ->
                             BorderStroke(
-                                width = 1.25.dp,
-                                color = outline.copy(alpha = 0.87f),
+                                width = 1.1.dp,
+                                color = outline.copy(alpha = 0.53f),
                             )
                         else -> null
                     }
@@ -1137,7 +1159,10 @@ fun ClearRoadScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedRouteIndex = index },
+                            .clickable {
+                                userExplicitRouteSelection = true
+                                selectedRouteIndex = index
+                            },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
                             containerColor =
@@ -1177,12 +1202,12 @@ fun ClearRoadScreen(
                                         text = "Recommended",
                                         modifier = Modifier
                                             .background(
-                                                color = primary.copy(alpha = 0.15f),
+                                                color = primary.copy(alpha = 0.18f),
                                                 shape = RoundedCornerShape(5.dp),
                                             )
                                             .padding(horizontal = 10.dp, vertical = 3.dp),
                                         style = chipStyle.copy(fontWeight = FontWeight.SemiBold),
-                                        color = primary.copy(alpha = 0.92f),
+                                        color = primary.copy(alpha = 0.94f),
                                     )
                                     Text(
                                         text = nuance,
@@ -1199,7 +1224,7 @@ fun ClearRoadScreen(
                                 }
                                 Spacer(modifier = Modifier.height(2.dp))
                             }
-                            if (isUserSelected) {
+                            if (showUserSelectedChrome) {
                                 val softenSelectedBadgeWithRecommended = isRecommended
                                 Text(
                                     text = "Selected",
@@ -1208,27 +1233,22 @@ fun ClearRoadScreen(
                                             color = outline.copy(
                                                 alpha =
                                                     if (softenSelectedBadgeWithRecommended) {
-                                                        0.09f
+                                                        0.085f
                                                     } else {
-                                                        0.135f
+                                                        0.12f
                                                     },
                                             ),
                                             shape = RoundedCornerShape(4.dp),
                                         )
                                         .padding(horizontal = 10.dp, vertical = 2.dp),
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight =
-                                            if (softenSelectedBadgeWithRecommended) {
-                                                FontWeight.Medium
-                                            } else {
-                                                FontWeight.SemiBold
-                                            },
+                                        fontWeight = FontWeight.Medium,
                                     ),
                                     color =
                                         if (softenSelectedBadgeWithRecommended) {
                                             scheme.onSurfaceVariant.copy(alpha = 0.68f)
                                         } else {
-                                            scheme.onSurface.copy(alpha = 0.78f)
+                                            scheme.onSurfaceVariant.copy(alpha = 0.78f)
                                         },
                                 )
                                 Spacer(modifier = Modifier.height(1.dp))
@@ -1248,7 +1268,11 @@ fun ClearRoadScreen(
                                 ),
                                 color =
                                     scheme.onSurface.copy(
-                                        alpha = if (isUserSelected) 0.96f else 0.94f,
+                                        alpha = when {
+                                            isRecommended -> 0.97f
+                                            isUserSelected -> 0.90f
+                                            else -> 0.94f
+                                        },
                                     ),
                             )
                             Spacer(modifier = Modifier.height(2.dp))
@@ -1311,8 +1335,69 @@ fun ClearRoadScreen(
                                     fontWeight = FontWeight.Normal,
                                 ),
                             )
+                            if (showUserSelectedChrome) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "View details →",
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(
+                                            outline.copy(alpha = 0.11f),
+                                        )
+                                        .clickable {
+                                            detailsRouteIndex = index
+                                        }
+                                        .padding(
+                                            horizontal = 10.dp,
+                                            vertical = 5.dp,
+                                        ),
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Medium,
+                                    ),
+                                    color = primary.copy(alpha = 0.92f),
+                                )
+                            }
                         }
                     }
+                }
+            }
+        }
+    }
+
+        detailsRouteIndex?.let { detailIdx ->
+            val detailItem = realRouteDebugDataList.getOrNull(detailIdx)
+            if (detailItem != null) {
+                ModalBottomSheet(
+                    onDismissRequest = { detailsRouteIndex = null },
+                ) {
+                    val fuelForDetails =
+                        estimateFuelCostAed(detailItem.distanceMeters / 1000.0)
+                    val detailPersonality = tollPhraseForCard(
+                        detailItem,
+                        detailIdx,
+                        selectedMode,
+                        recommendedRouteIndex,
+                        realRouteDebugDataList,
+                    )
+                    val detailAligned =
+                        recommendationAlignedExplanation(detailPersonality, selectedMode)
+                    val routeReasonTitle =
+                        detailAligned?.first ?: detailPersonality
+                    val routeReasonWhy =
+                        detailAligned?.second.orEmpty()
+                    RouteDetailsScreen(
+                        routeNumber = detailIdx + 1,
+                        routeReasonTitle = routeReasonTitle,
+                        routeReasonWhy = routeReasonWhy,
+                        durationText = detailItem.durationText,
+                        distanceText = detailItem.distanceText,
+                        fuelCostAed = fuelForDetails,
+                        tollAed = detailItem.tollAED,
+                        confidenceLabel = routeConfidenceLabel(
+                            directionsStatus,
+                            detailItem,
+                        ),
+                    )
                 }
             }
         }

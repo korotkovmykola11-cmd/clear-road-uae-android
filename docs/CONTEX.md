@@ -1,733 +1,405 @@
-Clear Road UAE — Full Project Context
-1. Project Idea
+Clear Road UAE — Project Constitution v2.0
+1. Project Identity
 
-Clear Road is a route decision assistant for drivers in the UAE.
+Clear Road = UAE Route Decision Assistant
 
-Goal:
-Not just navigation (like Google Maps), but a lightweight decision engine that explains:
+Это:
 
-which route to choose
-why it is better
-what to expect
-how the route feels
+не навигатор
+не Google Maps
+не Waze
+не AI-платформа
+не карта
 
-The app must stay:
+Цель:
 
-simple
-fast
-minimal
-human-readable
-UAE-specific
+Помочь водителю быстро понять:
 
-It must NOT become:
+какой маршрут выбрать
+почему выбрать именно его
+что ожидать
+как этот маршрут ощущается
 
-a Google Maps clone
-a Waze clone
-a giant navigation platform
-an overengineered architecture project
+Основная формула:
+
+Clear Road decides
+
+User understands
+
+Google Maps / Waze navigates
 2. Core Product Philosophy
    DECISION FIRST
 
-Clear Road is NOT a navigation app.
+Главный продукт:
 
-It is a:
+Decision
 
-ROUTE DECISION ASSISTANT
+Вторичный:
 
-The app must:
+Map
 
-analyze multiple routes
-choose ONE recommendation
-explain the recommendation clearly
-help the user FEEL route differences
+Навигация:
 
-Navigation itself can later be handled externally by:
+External
 
-Google Maps
-Waze
-3. Emotional Route Decision Philosophy
+Главный центр приложения:
 
-Clear Road should help users:
-not only calculate routes,
-but FEEL route differences.
+Choice
 
-The app should create:
+Why
 
-emotional clarity
-driving intuition
-route confidence
+Tip
 
-Routes should feel:
+Эти три блока никогда не должны исчезать.
 
-calmer
-heavier
+3. Emotional Route Philosophy
+
+Люди выбирают маршрут не только минутами.
+
+Маршрут должен ощущаться:
+
 smoother
-stressful
-efficient
+calmer
 stable
+stressful
+balanced
+efficient
+quieter
 
-NOT just:
+Плохо:
 
-shorter
-faster
-cheaper
-4. Decision Over Navigation Philosophy
+Route 1 — 31 min
 
-The core value of Clear Road is:
-decision quality,
-NOT navigation execution.
+Хорошо:
 
-Google Maps and Waze already solve navigation.
+Calmer evening corridor with lower toll exposure
+4. Human Language Rule
 
-Clear Road solves:
+Запрещено:
 
-route understanding
-route comparison
-route reasoning
-route feeling
-tradeoff explanation
-5. Human Route Intelligence
+Traffic coefficient
 
-The app should explain routes like a human driver would.
+Congestion index
 
-Bad:
+Flow intensity
 
-“Route 1 — 31 min”
+Разрешено:
 
-Good:
+Traffic shifts quickly
 
-“Smoother after-work corridor with lower toll exposure.”
+Calmer evening route
 
-This is one of the strongest ideas of the project.
+Smoother highway flow
 
-6. Route Personality Philosophy
+Stable route
 
-Routes should feel emotionally different.
+Текст должен звучать:
 
-Examples:
+как водитель в UAE
+5. UAE Driver Psychology
+
+Приложение учитывает:
+
+Salik sensitivity
+SZR stress
+Marina pressure
+E311 preference
+comfort over 3–4 minutes
+driving habits
+привычный стиль водителя
+
+Водители думают не только временем.
+
+6. Main Recommendation Structure
+
+Ядро продукта:
+
+Choice
+
+Why
+
+Tip
+
+Это эмоциональный центр приложения.
+
+7. Route Personality System
+
+Маршруты должны иметь характер:
+
+Примеры:
 
 Smooth
-Stable
-Efficient
-Toll-heavy
+
 Balanced
+
+Stable
+
+Efficient
+
+Toll-heavy
+
 Quieter
 
-The app should describe:
-not only speed,
-but driving character.
+Stressful
+8. Commute Feeling System
 
-7. Commute Feeling Philosophy
+Маршруты должны описывать ощущения:
 
-The app should eventually express driving feel:
+Примеры:
 
-Examples:
+Calmer drive
 
-calmer drive
-smoother highway flow
-stressful corridor
-dense merges
-stop-heavy
-quieter pacing
+Dense merges
 
-This must remain:
+Smoother highway flow
 
-lightweight
-minimal
-human-readable
+Stop-heavy corridor
 
-No giant AI traffic engine.
+Stable evening route
+9. Confidence Layer
 
-8. Human Language Rule
-
-Use driver language.
-
-Avoid technical language.
-
-Bad:
-
-“traffic density coefficient”
-
-Good:
-
-“More stable evening route”
-
-The app should sound:
-like a UAE driver thinking.
-
-9. UAE Driver Psychology
-
-The app should reflect:
-real UAE driving behavior.
-
-Examples:
-
-avoiding stressful SZR merges
-Marina evening pressure
-toll sensitivity
-smoother E311 preference
-comfort over saving 3–4 minutes
-
-The app should understand:
-that drivers do not think only in minutes.
-
-10. Confidence Philosophy
-
-The app should stay honest.
-
-Examples:
+Допустимые состояния:
 
 Reliable
+
 Estimated
+
 Traffic unstable
 
-This increases trust
-without requiring giant AI systems.
+Честность важнее искусственной уверенности.
 
-11. Minimal Cognitive Load Philosophy
+10. Map Philosophy
 
-The app should reduce mental effort.
+Правило:
 
-The user should NOT:
+Map = infrastructure
 
-analyze maps heavily
-compare many metrics
-interpret technical traffic data
+Decision = product
 
-The app should simplify:
+Карта помогает решению.
 
-route choice
-route feeling
-expected tradeoffs
-12. Recommendation Must Stay Primary
+Карта не заменяет решение.
 
-Even after:
+11. Preview Rule (новое правило)
 
-route selection
-map preview
-external navigation
+Вывод после Stage 16:
 
-The recommendation layer must remain:
-the emotional center of the app.
+Preview НЕ должен жить внутри основного decision-screen.
 
-Choice / Why / Tip
-must stay more important than the map.
-
-13. Map Philosophy
-
-Map = infrastructure.
-
-Decision = product.
-
-The map must support the recommendation,
-not replace it.
-
-Clear Road must NOT become:
-a map-first product.
-
-14. Route Cards Philosophy
-
-Route cards are not debug containers.
-
-Each card should:
-
-communicate route personality
-communicate driving feel
-explain tradeoffs quickly
-feel understandable within seconds
-
-The user should instantly understand:
-WHY this route exists.
-
-15. External Navigation Philosophy
-
-Clear Road should NOT compete with:
-
-Google Maps
-Waze
-
-Instead:
-it should complement them.
-
-Workflow:
-
-Clear Road explains
-User chooses
-External app navigates
-
-This preserves:
-
-simplicity
-low infrastructure complexity
-low API cost
-controllable architecture
-16. Lightweight Intelligence Philosophy
-
-The project intentionally avoids:
-
-giant AI systems
-massive predictive engines
-heavy backend infrastructure
-
-Instead:
-Clear Road should use:
-
-lightweight heuristics
-UAE-specific semantics
-smart wording
-behavioral hints
-route personalities
-
-Goal:
-high perceived intelligence
-without giant system complexity.
-
-17. Output Format
-
-Main recommendation structure:
+Неправильно:
 
 Choice
 Why
 Tip
 
-This is the emotional center of the app.
+Preview
 
-18. Modes
-    FASTEST
+Available routes
 
-Prioritize shortest overall travel time.
+Route 1
+Route 2
+Route 3
 
-Current personality examples:
+Правильно:
 
-Faster Dubai entry
-Fast toll route
-Toll-heavy corridor
-Main highway route
-NO_TOLLS
+Главный экран:
 
-Prioritize lower toll / road spending.
+Choice
 
-Current personality examples:
+Why
 
-Lowest toll route
-Lower toll likelihood
-Higher toll option
-Toll-light pick
-CALM
+Tip
 
-Balanced route:
+Available routes
 
-smoother drive
-balanced pacing
-balanced comfort
-balanced cost/time feeling
+Route 1
+Route 2
+Route 3
 
-Current personality examples:
+Экран деталей:
 
-Lower-cost corridor
-Longer quieter route
-Balanced route
-19. UAE-Specific Logic
+Selected route
 
-Project focuses on UAE road reality.
+Mini map preview
 
-Current UAE-aware systems:
+Distance
 
-Salik awareness
-Darb awareness (future)
-UAE fuel pricing
-corridor personality
-highway pressure heuristics
-lightweight toll heuristics
-parking awareness
-UAE wording semantics
-20. Current High Toll Corridor Examples
-    Sheikh Zayed Road
-    SZR
-    E11
-    Al Garhoud
-    Downtown Dubai
-    Business Bay
-    Financial Centre
-    Dubai Marina
-21. Current Lower Toll Corridor Examples
-    Mohammed Bin Zayed Road
-    MBZ Road
-    E311
-    Emirates Road
-    E611
-    Ajman
-    Sharjah
-22. Current Technical Reality
+Time
 
-Current Google integrations:
+Fuel
 
-Google Places Autocomplete
-Google Directions API
-alternatives=true enabled
+Tolls
 
-Implemented:
+Open in Waze
 
-origin/destination selection
-LatLng extraction
-multi-route parsing
-recommendation engine
-route cards
-mode switching
-route personalities
-confidence wording
-route selection behavior
-recommendation alignment
-23. Current Route Intelligence Status
+Open in Google Maps
+12. External Navigation Philosophy
 
-Current scoring:
-REAL and ACTIVE.
+Clear Road не конкурирует с:
 
-Current route personality layer:
-REAL and ACTIVE.
+Google Maps
+Waze
 
-Current recommendation engine:
-REAL and ACTIVE.
+Рабочий поток:
 
-24. Current Limitations
+Clear Road explains
 
-Current fuel model:
-TEMPORARY / ESTIMATED.
+User chooses
 
-Current toll model:
-LIGHTWEIGHT / HEURISTIC.
+External app navigates
+13. Multilanguage System
 
-Current corridor awareness:
-KEYWORD-BASED.
+Поддерживаемые языки:
 
-This is NOT exact Salik detection yet.
+English
 
-Real UAE economic intelligence will be implemented gradually.
+Русский
 
-25. UX Rules
+Українська
 
-CRITICAL:
+العربية
 
-No noise
-No clutter
-No overload
-Only useful information
-Human-readable text
-Short explanations
-Minimal screen structure
+Правила:
 
-UI must stay:
-clean and lightweight.
+смысл важнее буквального перевода
+не ломать UI
+не ломать карточки
+поддержка RTL для العربية
+не использовать машинный буквальный перевод
 
-26. Current UI Philosophy
+Пример:
 
-The app should NOT feel like:
+Плохо:
 
-a map clone
-a heavy dashboard
-an enterprise traffic platform
+Low payment corridor
 
-It should feel like:
-a lightweight UAE driving assistant.
+Хорошо:
 
-27. Current Route Card Philosophy
+Lower Salik route
+14. UX Rules
 
-Compact route cards:
+Запрещено:
 
-readable
-fast to scan
-emotionally understandable
+шум
+перегрузка
+длинные тексты
+технический мусор
+перегруженный экран
 
-Current route card style:
+Разрешено:
 
-compact metadata line
-route personality
-fuel/toll/confidence in one readable line
-recommended route highlighting
-selected route highlighting
-28. Development Rules (CRITICAL)
-    Core Rules
-    No breaking working code
-    Small steps only
-    No random code generation
-    Every change must be visually testable
-    Always test after each step
-    Cursor writes code
-    ChatGPT audits code quality
-    User validates builds/screenshots manually
-29. Architecture Rules
+короткий текст
+быстрое понимание
+только полезная информация
+15. Route Card Rules
 
-DO NOT introduce:
+Карточка должна читаться за:
+
+2–3 секунды
+
+Карточка должна содержать:
+
+Time
+
+Distance
+
+Fuel
+
+Toll
+
+Personality
+
+Confidence
+16. Development Rules
+
+Критические правила:
+
+не ломать рабочий код
+маленькие шаги
+без случайного кода
+всё должно визуально проверяться
+не делать огромные изменения
+не делать скрытые изменения
+
+Workflow:
+
+ChatGPT → Prompt
+
+Cursor → Code
+
+User → Build
+
+User → Screenshots
+
+ChatGPT → Audit
+
+Git → Checkpoint
+17. Architecture Rules
+
+Запрещено без разрешения:
 
 ViewModel
-Clean Architecture
-Repository layers
+
+Repository
+
 UseCases
+
 Dependency Injection
+
+Clean Architecture
+
 Enterprise patterns
+18. Refactor Rules
 
-UNLESS explicitly approved by the user.
+Разрешено только если:
 
-30. Refactor Rule (VERY IMPORTANT)
+снижает риск
+улучшает контроль
+предотвращает MainActivity collapse
+улучшает стабильность
+уменьшает вероятность поломок Cursor
 
-Refactoring is NOT allowed automatically.
+Запрещено:
 
-AI/Cursor MUST ask permission BEFORE any refactor.
+Refactor ради красоты
+19. AI Safety Rules
 
-Refactoring is allowed ONLY when it clearly:
+Запрещено:
 
-reduces project risk
-isolates fragile logic
-improves controllability
-prevents MainActivity collapse
-reduces AI breakage risk
-keeps behavior visually testable
+Uncontrolled rewrites
 
-Refactoring is NOT allowed when it only:
+Architecture drift
 
-adds architecture
-follows generic best practices
-rewrites already-working logic
+Best practice explosion
 
-Forbidden examples:
+Random AI decisions
+20. Current Roadmap
+    Completed
+    Stage 13–16
+    Next
+    Stage 17
 
-ViewModel introduction
-Repository layers
-Enterprise redesign
-Splitting files for style only
-31. AI Development Safety Philosophy
+Route Details Screen Foundation
 
-The project is intentionally built:
-with controlled AI-assisted development.
+Потом:
 
-Rules:
+Mini Map Preview
 
-small visual steps
-Git checkpoints
-no uncontrolled rewrites
-no architecture drift
-no “best practice explosions”
+Open in Waze
 
-Goal:
-maintaining product control
-while using AI as a tool.
+Open in Google Maps
 
-32. Current Stable Product State
+Multilanguage Layer
+Final Product Definition
+Clear Road
 
-Current stable systems:
+Lightweight UAE Route Decision Assistant
 
-route personalities stabilized
-compact label set stabilized
-label explosion fixed
-recommendation wording stabilized
-route card readability stabilized
-selected route interaction stabilized
-recommendation highlighting stabilized
-Fastest / No tolls / Calm separation stabilized
-route selection stable
-scroll behavior stable
-UI hierarchy improved
-33. Current Visual/Product Status
-
-The app already behaves like:
-a lightweight route product.
-
-NOT:
-a raw Directions API demo.
-
-The project now has:
-
-route identity
-recommendation personality
-UAE wording semantics
-controllable interaction behavior
-stable multi-route behavior
-34. Git / Stability Status
-
-Git + GitHub:
-CONNECTED and ACTIVE.
-
-Current stable checkpoint:
-
-Stage 13.0 committed
-branch: master
-recovery point exists
-
-This is considered:
-a stable rollback point.
-
-35. Current Verified Test Route
-
-Main validation route:
-
-Dubai Marina Mall
-→ Dubai International Airport Terminal 3
-
-Verified modes:
-
-Fastest
-No tolls
-Calm
-
-Verified:
-
-route cards readable
-recommendation stable
-route personalities readable
-recommendation alignment works
-selected route interaction works
-UI not broken
-scrolling stable
-36. Current Development Priorities
-
-Current priority is NOT:
-
-full navigation
-giant map systems
-realtime traffic infrastructure
-enterprise architecture
-exact Salik engine
-predictive AI systems
-
-Current priority IS:
-
-stable route intelligence
-UAE-aware recommendations
-personality stability
-human-readable explanations
-controllable AI-assisted development
-lightweight product feel
-preserving simplicity
-37. Current Roadmap
-    COMPLETED
-    Stage 12.x
-
-Route Personality Stabilization
-
-Completed:
-
-personality wording
-compact label discipline
-recommendation alignment
-UAE wording cleanup
-Stage 13.0
-
-Route Card Readability Polish
-
-Completed:
-
-spacing polish
-hierarchy polish
-recommended badge cleanup
-card readability improvement
-NEXT STAGES
-Stage 13.1
-
-Selected Route Interaction Polish
-
-Goal:
-Improve selected route emotional ownership.
-
-Stage 13.2
-
-Why This Route Layer
-
-Goal:
-Strengthen human-readable route explanations.
-
-Stage 13.3
-
-Route Personality Layer Expansion
-
-Goal:
-Improve emotional route identity carefully,
-without label explosion.
-
-Stage 13.4
-
-Commute Feeling Layer
-
-Goal:
-Introduce lightweight commute-feel wording:
-
-calmer drive
-smoother flow
-dense merges
-stressful corridor
-
-Without giant AI systems.
-
-Stage 13.5
-
-Confidence Layer
-
-Goal:
-Improve trust:
-
-Reliable
-Estimated
-Traffic unstable
-Stage 13.6
-
-Lightweight Time-Aware Hints
-
-Examples:
-
-Better after 7 PM
-Avoid now if possible
-
-WITHOUT predictive infrastructure.
-
-Stage 14
-
-Map as Background / Decision as Foreground
-
-Goal:
-Plan map integration philosophy carefully.
-
-Stage 15
-
-Map Preview Foundation
-
-Goal:
-Introduce lightweight map preview,
-NOT navigation UI.
-
-Stage 16
-
-Selected Route on Map
-
-Goal:
-Selecting Route 2 / Route 3 updates preview route visually.
-
-Stage 17
-
-Open in Google Maps / Waze
-
-Goal:
-Clear Road chooses.
-External app navigates.
-
-This preserves:
-
-simplicity
-controllability
-low API cost
-lightweight architecture
-38. Critical Philosophy
-
-This project must remain:
-
-A SIMPLE UAE ROUTE DECISION ASSISTANT
-
-NOT:
-
-a Google Maps replacement
-a giant navigation system
-an AI-generated architecture experiment
-a bloated platform
-
-The project must evolve:
-carefully,
-visually,
-and in small controlled steps only.
+Decision first
+Map second
+Navigation external
+Human language
+UAE-aware
+Emotionally understandable
+Multilingual
+Controlled AI development
