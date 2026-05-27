@@ -1051,28 +1051,14 @@ fun ClearRoadScreen(
                                 }
                             }
                             Spacer(modifier = Modifier.height(cardLineGap))
-                            Text(
-                                text = item.durationText,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                ),
-                                color =
-                                    scheme.onSurface.copy(
-                                        alpha = when {
-                                            isRecommended -> 0.97f
-                                            isUserSelected -> 0.90f
-                                            else -> 0.94f
-                                        },
-                                    ),
-                            )
-                            Spacer(modifier = Modifier.height(cardLineGap))
-                            Text(
-                                text = item.distanceText,
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    fontWeight = FontWeight.Normal,
-                                ),
-                                color =
-                                    scheme.onSurfaceVariant.copy(alpha = 0.48f),
+                            RouteMetricsBlock(
+                                durationText = item.durationText,
+                                distanceText = item.distanceText,
+                                durationOnSurfaceAlpha = when {
+                                    isRecommended -> 0.97f
+                                    isUserSelected -> 0.90f
+                                    else -> 0.94f
+                                },
                             )
                             Spacer(modifier = Modifier.height(cardLineGap))
                             val fuelAed =
@@ -1093,14 +1079,8 @@ fun ClearRoadScreen(
                                 text = "$totalAed AED · $personality",
                             )
                             Spacer(modifier = Modifier.height(metricsLineGap))
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
+                            RouteFuelConfidenceLine(
                                 text = "Fuel $fuelAed · $confidence",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Normal,
-                                ),
-                                color =
-                                    scheme.onSurfaceVariant.copy(alpha = 0.47f),
                             )
                             if (showUserSelectedChrome) {
                                 Spacer(modifier = Modifier.height(1.dp))
