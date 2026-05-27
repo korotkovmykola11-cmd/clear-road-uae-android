@@ -1,26 +1,24 @@
-Clear Road UAE — Project Constitution v2.0
+Clear Road UAE — Project Constitution v3.0
 1. Project Identity
+   Clear Road = UAE Route Decision Assistant
 
-Clear Road = UAE Route Decision Assistant
+Clear Road is:
 
-Это:
+NOT a navigation app
+NOT Google Maps
+NOT Waze
+NOT an AI chatbot
+NOT a map product
+NOT a route encyclopedia
 
-не навигатор
-не Google Maps
-не Waze
-не AI-платформа
-не карта
+Clear Road exists to help drivers quickly decide:
 
-Цель:
+which route to choose
+why this route matters
+what emotional experience to expect
+what tradeoff they are accepting
 
-Помочь водителю быстро понять:
-
-какой маршрут выбрать
-почему выбрать именно его
-что ожидать
-как этот маршрут ощущается
-
-Основная формула:
+Core formula:
 
 Clear Road decides
 
@@ -30,296 +28,456 @@ Google Maps / Waze navigates
 2. Core Product Philosophy
    DECISION FIRST
 
-Главный продукт:
+Primary product:
 
 Decision
 
-Вторичный:
+Secondary:
 
 Map
 
-Навигация:
+Navigation:
 
 External
 
-Главный центр приложения:
+The emotional center of the product:
 
 Choice
-
 Why
-
 Tip
 
-Эти три блока никогда не должны исчезать.
+These 3 blocks are sacred.
 
-3. Emotional Route Philosophy
+They must never disappear.
 
-Люди выбирают маршрут не только минутами.
+They are the identity of Clear Road.
 
-Маршрут должен ощущаться:
+3. Product Definition
+
+Clear Road is:
+
+Lightweight UAE Route Decision Assistant
+
+Core traits:
+
+lightweight
+emotionally intelligent
+UAE-aware
+multilingual
+minimal
+fast to understand
+low cognitive load
+emotionally readable
+
+The app must feel:
+
+calm
+confident
+intentional
+useful
+human
+
+NOT:
+
+noisy
+analytical
+robotic
+overloaded
+enterprise-heavy
+4. Emotional Route Philosophy
+
+People do NOT choose routes using minutes alone.
+
+Drivers choose:
+
+stress level
+predictability
+comfort
+merge pressure
+toll exposure
+mental fatigue
+driving rhythm
+
+Routes must feel:
 
 smoother
 calmer
 stable
-stressful
 balanced
 efficient
 quieter
+stressful
+aggressive
+dense
+predictable
 
-Плохо:
+Bad:
 
 Route 1 — 31 min
 
-Хорошо:
+Good:
 
-Calmer evening corridor with lower toll exposure
-4. Human Language Rule
+Calmer evening corridor with lighter toll pressure
+5. Human Language Rule
 
-Запрещено:
+The app must speak like a UAE driver.
+
+Forbidden:
 
 Traffic coefficient
-
 Congestion index
-
+Dynamic traffic matrix
+Route optimization score
+Predictive vector
 Flow intensity
 
-Разрешено:
+Allowed:
 
 Traffic shifts quickly
+Calm evening route
+Stable highway flow
+Busy merge area
+Smoother city corridor
+Heavier Salik pressure
+Quieter route tonight
 
-Calmer evening route
+The language must feel:
 
-Smoother highway flow
+human
+local
+emotionally readable
+natural in UAE driving culture
+6. UAE Driver Psychology
 
-Stable route
+Clear Road must understand UAE driving behavior.
 
-Текст должен звучать:
-
-как водитель в UAE
-5. UAE Driver Psychology
-
-Приложение учитывает:
+The app considers:
 
 Salik sensitivity
 SZR stress
 Marina pressure
 E311 preference
+Hessa congestion
+evening merge stress
 comfort over 3–4 minutes
-driving habits
-привычный стиль водителя
+driver fatigue
+aggressive lane changes
+predictable flow preference
 
-Водители думают не только временем.
+Drivers do NOT think only in ETA.
 
-6. Main Recommendation Structure
+They think:
 
-Ядро продукта:
+"Will this route drain me?"
+7. Main Recommendation Structure
+
+Core recommendation structure:
 
 Choice
 
+What route should be selected.
+
 Why
+
+Why Clear Road recommends it.
 
 Tip
 
-Это эмоциональный центр приложения.
+What emotional or practical expectation the driver should know.
 
-7. Route Personality System
+Example:
 
-Маршруты должны иметь характер:
+Choice:
+Smoother city approach
 
-Примеры:
+Why:
+Gentler merge rhythm through evening traffic.
+
+Tip:
+Good when stress matters more than 3 minutes.
+8. Route Personality System
+
+Every route should have personality.
+
+Allowed personalities:
 
 Smooth
-
 Balanced
-
 Stable
-
 Efficient
-
-Toll-heavy
-
 Quieter
+Toll-heavy
+Fast-moving
+Calm
+Dense
+Aggressive
+Predictable
+Stop-heavy
 
-Stressful
-8. Commute Feeling System
+The product should never feel emotionally flat.
 
-Маршруты должны описывать ощущения:
+9. Commute Feeling System
 
-Примеры:
+The route must communicate feeling.
+
+Examples:
 
 Calmer drive
-
 Dense merges
-
+Stable evening corridor
+Stop-heavy stretch
 Smoother highway flow
+Busy city pressure
+Fast-moving corridor
+Aggressive merge zone
 
-Stop-heavy corridor
+The driver should immediately understand:
 
-Stable evening route
-9. Confidence Layer
+"What kind of drive am I about to experience?"
+10. Confidence Layer
 
-Допустимые состояния:
+Allowed confidence states:
 
 Reliable
-
 Estimated
-
 Traffic unstable
 
-Честность важнее искусственной уверенности.
+Confidence must remain:
 
-10. Map Philosophy
+lightweight
+honest
+simple
 
-Правило:
+Never fake certainty.
+
+Honesty > artificial intelligence theater.
+
+11. Comparative Reasoning Layer
+
+Clear Road should eventually explain:
+
+Why THIS route instead of the default painful route
+
+This is NOT Google Maps comparison UI.
+
+This is emotional comparison reasoning.
+
+Examples:
+
+Google would save 2 minutes here,
+but this route avoids aggressive SZR merges.
+This route costs slightly more,
+but keeps traffic pressure more stable tonight.
+
+Comparative reasoning must feel:
+
+human
+practical
+emotionally intelligent
+
+NOT technical.
+
+12. UAE Hyperlocal Intelligence
+
+Clear Road must evolve toward UAE-specific intelligence.
+
+Future supported context:
+
+Marina congestion waves
+Hessa Street pressure
+SZR lane stress
+E311 relief flow
+school traffic
+Friday prayer patterns
+event traffic
+airport waves
+evening sun glare
+UAE merge behavior
+
+This is one of the key future differentiators.
+
+13. Deep Context Intelligence
+
+Future goal:
+
+Clear Road should understand:
+
+time of departure
+emotional traffic rhythm
+expected stress evolution
+future congestion probability
+
+Example:
+
+Leaving 20 minutes later may reduce merge stress significantly.
+
+Clear Road should eventually manage:
+
+time quality
+
+not just:
+
+travel duration
+14. Map Philosophy
+
+Rule:
 
 Map = infrastructure
 
 Decision = product
 
-Карта помогает решению.
+The map supports the decision.
 
-Карта не заменяет решение.
+The map never becomes the product itself.
 
-11. Preview Rule (новое правило)
+15. Preview Rule
 
-Вывод после Stage 16:
+Preview must NOT live inside the main decision screen.
 
-Preview НЕ должен жить внутри основного decision-screen.
-
-Неправильно:
+Wrong:
 
 Choice
 Why
 Tip
 
 Preview
-
 Available routes
 
-Route 1
-Route 2
-Route 3
+Correct:
 
-Правильно:
-
-Главный экран:
-
+Main Screen
 Choice
-
 Why
-
 Tip
-
 Available routes
-
-Route 1
-Route 2
-Route 3
-
-Экран деталей:
-
+Route cards
+Details Screen
 Selected route
-
 Mini map preview
-
 Distance
-
 Time
-
 Fuel
-
-Tolls
-
+Toll
+Confidence
 Open in Waze
-
 Open in Google Maps
-12. External Navigation Philosophy
+16. External Navigation Philosophy
 
-Clear Road не конкурирует с:
+Clear Road does NOT compete with:
 
 Google Maps
 Waze
 
-Рабочий поток:
+Workflow:
 
 Clear Road explains
 
 User chooses
 
 External app navigates
-13. Multilanguage System
 
-Поддерживаемые языки:
+Navigation remains external.
+
+Decision remains internal.
+
+17. Multilanguage System
+
+Supported languages:
 
 English
-
 Русский
-
 Українська
-
 العربية
 
-Правила:
+Rules:
 
-смысл важнее буквального перевода
-не ломать UI
-не ломать карточки
-поддержка RTL для العربية
-не использовать машинный буквальный перевод
+meaning > literal translation
+preserve emotional tone
+preserve compact UI
+support RTL for Arabic
+avoid robotic translation
+maintain UAE-driving feeling
 
-Пример:
-
-Плохо:
+Bad:
 
 Low payment corridor
 
-Хорошо:
+Good:
 
 Lower Salik route
-14. UX Rules
+18. UX Rules
 
-Запрещено:
+Forbidden:
 
-шум
-перегрузка
-длинные тексты
-технический мусор
-перегруженный экран
+noise
+clutter
+long paragraphs
+technical garbage
+dashboard overload
+enterprise UI
+metric obsession
+over-analysis
 
-Разрешено:
+Allowed:
 
-короткий текст
-быстрое понимание
-только полезная информация
-15. Route Card Rules
+short text
+fast understanding
+useful information only
+calm UI
+emotionally readable explanations
 
-Карточка должна читаться за:
+The UI should be understandable in:
 
-2–3 секунды
+2–3 seconds
+19. Route Card Rules
 
-Карточка должна содержать:
+Route card must contain:
 
 Time
-
 Distance
-
 Fuel
-
 Toll
-
 Personality
-
 Confidence
-16. Development Rules
 
-Критические правила:
+Card must feel:
 
-не ломать рабочий код
-маленькие шаги
-без случайного кода
-всё должно визуально проверяться
-не делать огромные изменения
-не делать скрытые изменения
+compact
+emotionally readable
+visually calm
+fast to scan
+
+Card must NEVER become overloaded.
+
+20. Current UI Philosophy
+
+Current interaction flow:
+
+Tap route
+→ Selected state
+→ View details
+→ Bottom sheet details
+
+This is CORRECT.
+
+The product currently behaves like:
+
+decision assistant
+
+NOT:
+
+map browser
+21. Development Rules
+
+Critical rules:
+
+never break working code
+small controlled steps only
+visual verification required
+no giant rewrites
+no hidden changes
+no uncontrolled Cursor behavior
+no speculative coding
 
 Workflow:
 
@@ -334,66 +492,94 @@ User → Screenshots
 ChatGPT → Audit
 
 Git → Checkpoint
-17. Architecture Rules
+22. Architecture Rules
 
-Запрещено без разрешения:
+Forbidden without permission:
 
 ViewModel
-
 Repository
-
 UseCases
-
 Dependency Injection
-
 Clean Architecture
-
 Enterprise patterns
-18. Refactor Rules
 
-Разрешено только если:
+Reason:
 
-снижает риск
-улучшает контроль
-предотвращает MainActivity collapse
-улучшает стабильность
-уменьшает вероятность поломок Cursor
+The project must remain:
 
-Запрещено:
+controllable
+lightweight
+stable
+understandable
+23. Refactor Rules
 
-Refactor ради красоты
-19. AI Safety Rules
+Refactor allowed ONLY if it:
 
-Запрещено:
+reduces risk
+improves stability
+prevents MainActivity collapse
+improves control
+reduces Cursor break probability
 
-Uncontrolled rewrites
+Forbidden:
 
-Architecture drift
+beauty refactors
+architecture fashion
+enterprise refactors
+unnecessary abstraction
+24. AI Safety Rules
 
-Best practice explosion
+Forbidden:
 
-Random AI decisions
-20. Current Roadmap
-    Completed
-    Stage 13–16
-    Next
-    Stage 17
+uncontrolled rewrites
+architecture drift
+AI overengineering
+random feature generation
+speculative abstractions
+“best practice explosions”
 
-Route Details Screen Foundation
+Cursor must remain:
 
-Потом:
+controlled
+
+NOT autonomous.
+
+25. Current Product Direction
+
+Completed:
+
+Stage 13
+Stage 14
+Stage 15
+Stage 16
+
+Current focus:
+
+Stage 17
+
+Current goals:
+
+Route Details Foundation
+Recommendation Intelligence
+Emotional Reasoning
+UAE-aware wording
+Comparative reasoning foundation
+Confidence structure
+Stable route personality system
+
+Future:
 
 Mini Map Preview
-
 Open in Waze
-
 Open in Google Maps
-
 Multilanguage Layer
-Final Product Definition
-Clear Road
+Hyperlocal UAE intelligence
+Predictive departure logic
+26. Final Product Definition
+    Clear Road
+    Lightweight UAE Route Decision Assistant
 
-Lightweight UAE Route Decision Assistant
+Core identity:
 
 Decision first
 Map second
@@ -403,3 +589,6 @@ UAE-aware
 Emotionally understandable
 Multilingual
 Controlled AI development
+Calm intelligence
+Emotional route reasoning
+Lightweight product philosophy

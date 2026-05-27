@@ -102,40 +102,8 @@ object RouteDecisionEngine {
     private fun friendlyVia(route: RouteOption): String =
         route.name.substringBefore("(").trim()
 
-    private fun approximateTime(minutes: Int): String {
-        val rounded = ((minutes + 5) / 10) * 10
-        if (rounded < 60) return "About $rounded minutes"
-        val h = rounded / 60
-        val m = rounded % 60
-        if (m == 0) return if (h == 1) "About an hour" else "About $h hours"
-        return if (h == 1) "About 1 hr $m min" else "About ${h} hr $m min"
-    }
-
     private fun buildWhy(route: RouteOption, mode: PreferenceMode): String =
-        when (mode) {
-            PreferenceMode.FASTEST -> buildWhyFastest(route, approximateTime(route.durationMin))
-            PreferenceMode.NO_TOLLS -> buildWhyNoTolls(route, approximateTime(route.durationMin))
-            PreferenceMode.CALM ->
-                "Keeps time and toll sensible — less manic than the fastest cut."
-        }
-
-    private fun buildWhyFastest(route: RouteOption, time: String): String =
-        when {
-            route.tollAed == 0.0 ->
-                "$time, Salik-quiet — solid when minutes really matter."
-            route.salikGates >= 4 ->
-                "$time, quickest here — expect several gates along the run."
-            else ->
-                "$time, quickest choice with some Salik along the way."
-        }
-
-    private fun buildWhyNoTolls(route: RouteOption, time: String): String =
-        when {
-            route.tollAed == 0.0 ->
-                "$time, gate-free — easiest on the wallet among these."
-            else ->
-                "Lightest toll fingerprint here — still budget for the odd Salik ping."
-        }
+        RouteReasoning.engineWhy(route, mode)
 
     private fun buildTip(route: RouteOption, mode: PreferenceMode): String {
         if (route.passesAbuDhabi) {
