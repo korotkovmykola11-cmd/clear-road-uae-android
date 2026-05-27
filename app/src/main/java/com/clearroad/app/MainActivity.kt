@@ -823,144 +823,63 @@ fun ClearRoadScreen(
         }
         Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 16.dp else 24.dp))
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            PreferenceMode.entries.forEach { mode ->
-                val selected = mode == selectedMode
-                Text(
-                    text = preferenceModeLabel(mode),
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { selectedMode = mode }
-                        .background(
-                            color = if (selected) {
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                            } else {
-                                Color.Transparent
-                            },
-                            shape = RoundedCornerShape(10.dp),
-                        )
-                        .padding(
-                            vertical = if (showRouteCardOverrides) 8.dp else 11.dp,
-                            horizontal = 6.dp,
-                        ),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (selected) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                        },
-                        textDecoration = TextDecoration.None,
-                    ),
-                )
-            }
-        }
+        ModeTabs(
+            selectedMode = selectedMode,
+            onModeSelected = { selectedMode = it },
+            tabVerticalPadding = if (showRouteCardOverrides) 8.dp else 11.dp,
+        )
         Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 8.dp else 14.dp))
 
-        val recommendationCompact = showRouteCardOverrides
-        val recLabelStyle =
-            if (recommendationCompact) {
-                MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.35.sp,
-                )
-            } else {
-                MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.35.sp,
-                )
+        val selectedDecisionTitle =
+            when {
+                showRouteCardOverrides ->
+                    recommendationAlignedCopy?.first
+                        ?: manualRouteChoice(
+                            selectedMode,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                            recommendationTollAed,
+                        )
+                else -> decision?.choice ?: "Enter a route"
             }
-        val recBodyStyle =
-            if (recommendationCompact) {
-                MaterialTheme.typography.bodyMedium.copy(lineHeight = 18.sp)
-            } else {
-                MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp)
+        val selectedDecisionWhy =
+            when {
+                showRouteCardOverrides ->
+                    recommendationAlignedCopy?.second
+                        ?: manualRouteWhy(
+                            selectedMode,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                            recommendationTollAed,
+                        )
+                else ->
+                    decision?.why
+                        ?: "Add starting point and destination to get a recommendation."
             }
-        val recGapLabelToBody = if (recommendationCompact) 1.dp else 3.dp
-        val recGapBetweenSections = if (recommendationCompact) 3.dp else 10.dp
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = if (recommendationCompact) 2.dp else 6.dp),
-        ) {
-            Text(
-                text = "Choice",
-                style = recLabelStyle,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.height(recGapLabelToBody))
-            Text(
-                text = when {
-                    showRouteCardOverrides ->
-                        recommendationAlignedCopy?.first
-                            ?: manualRouteChoice(
-                                selectedMode,
-                                recommendedRouteIndex.coerceIn(
-                                    0,
-                                    realRouteDebugDataList.lastIndex,
-                                ),
-                                recommendationTollAed,
-                            )
-                    else -> decision?.choice ?: "Enter a route"
-                },
-                style = recBodyStyle,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(modifier = Modifier.height(recGapBetweenSections))
-
-            Text(
-                text = "Why",
-                style = recLabelStyle,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.height(recGapLabelToBody))
-            Text(
-                text = when {
-                    showRouteCardOverrides ->
-                        recommendationAlignedCopy?.second
-                            ?: manualRouteWhy(
-                                selectedMode,
-                                recommendedRouteIndex.coerceIn(
-                                    0,
-                                    realRouteDebugDataList.lastIndex,
-                                ),
-                                recommendationTollAed,
-                            )
-                    else ->
-                        decision?.why
-                            ?: "Add starting point and destination to get a recommendation."
-                },
-                style = recBodyStyle,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(modifier = Modifier.height(recGapBetweenSections))
-
-            Text(
-                text = "Tip",
-                style = recLabelStyle,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.height(recGapLabelToBody))
-            Text(
-                text = when {
-                    showRouteCardOverrides ->
-                        recommendationAlignedCopy?.third
-                            ?: manualRouteTip(
-                                selectedMode,
-                                recommendedRouteIndex.coerceIn(
-                                    0,
-                                    realRouteDebugDataList.lastIndex,
-                                ),
-                                recommendationTollAed,
-                            )
-                    else -> decision?.tip ?: "Start with a common UAE route."
-                },
-                style = recBodyStyle,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
+        val selectedDecisionTip =
+            when {
+                showRouteCardOverrides ->
+                    recommendationAlignedCopy?.third
+                        ?: manualRouteTip(
+                            selectedMode,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                            recommendationTollAed,
+                        )
+                else -> decision?.tip ?: "Start with a common UAE route."
+            }
+        ChoiceWhyTipBlock(
+            selectedDecisionTitle = selectedDecisionTitle,
+            selectedDecisionWhy = selectedDecisionWhy,
+            selectedDecisionTip = selectedDecisionTip,
+            compact = showRouteCardOverrides,
+        )
         Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 3.dp else 6.dp))
         val fromCoords = selectedFromLatLng
         val toCoords = selectedToLatLng
@@ -968,11 +887,7 @@ fun ClearRoadScreen(
             if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "Available routes: ${debugRoutes.size}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                AvailableRoutesHeader(routeCount = realRouteDebugDataList.size)
                 for (index in debugRoutes.indices) {
                     val item = debugRoutes[index]
                     val isUserSelected = index == routeCardSelectionIndex
@@ -1174,14 +1089,8 @@ fun ClearRoadScreen(
                                 )
                             val confidence =
                                 routeConfidenceLabel(directionsStatus, item)
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
+                            RouteMetaLine(
                                 text = "$totalAed AED · $personality",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Normal,
-                                ),
-                                color =
-                                    scheme.onSurfaceVariant.copy(alpha = 0.62f),
                             )
                             Spacer(modifier = Modifier.height(metricsLineGap))
                             Text(
