@@ -986,7 +986,6 @@ fun ClearRoadScreen(
                             val cardLineGap = 1.dp
                             val metricsLineGap = 0.dp
                             if (isRecommended) {
-                                val chipStyle = MaterialTheme.typography.labelSmall
                                 val nuance =
                                     confidenceHintBelowRecommendation(
                                         selectedMode,
@@ -994,39 +993,18 @@ fun ClearRoadScreen(
                                         recommendedRouteIndex,
                                         debugRoutes.size,
                                     )
-                                Text(
-                                    text = "Recommended",
-                                    modifier = Modifier
-                                        .background(
-                                            color = primary.copy(alpha = 0.18f),
-                                            shape = RoundedCornerShape(5.dp),
-                                        )
-                                        .padding(horizontal = 10.dp, vertical = 1.dp),
-                                    style = chipStyle.copy(fontWeight = FontWeight.SemiBold),
-                                    color = primary.copy(alpha = 0.94f),
-                                )
-                                Text(
-                                    text = nuance,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontWeight = FontWeight.Normal,
-                                        lineHeight = 14.sp,
-                                    ),
-                                    color = scheme.onSurfaceVariant.copy(alpha = 0.58f),
-                                )
+                                RecommendedBadgeBlock(nuance = nuance)
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(
-                                    text = "Route ${index + 1}",
+                                RouteTitleBlock(
+                                    personality = "",
+                                    title = "Route ${index + 1}",
+                                    titleAlpha = 0.93f,
                                     modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = FontWeight.SemiBold,
-                                    ),
-                                    color = scheme.onSurface.copy(alpha = 0.93f),
                                 )
                                 if (showUserSelectedChrome) {
                                     Text(
@@ -1076,7 +1054,7 @@ fun ClearRoadScreen(
                             val confidence =
                                 routeConfidenceLabel(directionsStatus, item)
                             RouteMetaLine(
-                                text = "$totalAed AED · $personality",
+                                tollText = "$totalAed AED · $personality",
                             )
                             Spacer(modifier = Modifier.height(metricsLineGap))
                             RouteFuelConfidenceLine(
@@ -1084,16 +1062,9 @@ fun ClearRoadScreen(
                             )
                             if (showUserSelectedChrome) {
                                 Spacer(modifier = Modifier.height(1.dp))
-                                Text(
-                                    text = "Selected",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Normal,
-                                    ),
-                                    color =
-                                        scheme.onSurfaceVariant.copy(
-                                            alpha =
-                                                if (isRecommended) 0.46f else 0.54f,
-                                        ),
+                                SelectedLabelBlock(
+                                    labelAlpha =
+                                        if (isRecommended) 0.46f else 0.54f,
                                 )
                             }
                         }

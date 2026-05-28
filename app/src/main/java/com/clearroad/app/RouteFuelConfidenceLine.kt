@@ -8,16 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-internal fun RouteMetaLine(
-    tollText: String,
+internal fun RouteFuelConfidenceLine(
+    text: String,
     modifier: Modifier = Modifier,
 ) {
     Text(
         modifier = modifier.fillMaxWidth(),
-        text = tollText,
+        text = text,
         style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = FontWeight.Normal,
         ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.62f),
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.47f),
     )
 }
