@@ -4,6 +4,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
 internal fun AvailableRoutesHeader(
@@ -11,9 +13,12 @@ internal fun AvailableRoutesHeader(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = "Available routes: $routeCount",
+        text = "Routes · $routeCount",
         modifier = modifier,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.labelMedium.copy(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.35.sp,
+        ),
+        color = MaterialTheme.colorScheme.primary,
     )
 }

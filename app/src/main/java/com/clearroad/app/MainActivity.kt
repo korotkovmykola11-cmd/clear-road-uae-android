@@ -430,10 +430,10 @@ private fun routeConfidenceLabel(
     directionsStatus: String?,
     item: RealRouteDebugData,
 ): String {
-    if (item.durationSeconds <= 0 || item.distanceMeters <= 0) return "Limited"
-    if (directionsStatus != "OK") return "Limited"
+    if (item.durationSeconds <= 0 || item.distanceMeters <= 0) return "Light read"
+    if (directionsStatus != "OK") return "Light read"
     val tollKnownFromFare = item.hasToll || item.tollAED > 0
-    return if (tollKnownFromFare) "Reliable" else "Estimated"
+    return if (tollKnownFromFare) "Steady" else "Typical"
 }
 
 private fun estimateFuelCostAed(distanceKm: Double): Int {
@@ -880,11 +880,27 @@ fun ClearRoadScreen(
             selectedDecisionTip = selectedDecisionTip,
             compact = showRouteCardOverrides,
         )
-        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 3.dp else 6.dp))
+        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 2.dp else 6.dp))
         val fromCoords = selectedFromLatLng
         val toCoords = selectedToLatLng
         if (fromCoords != null && toCoords != null) {
-            if (realRouteDebugDataList.isNotEmpty()) {
+            if (directionsLoading) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = when (selectedMode) {
+                        PreferenceMode.FASTEST -> "Checking route options..."
+                        PreferenceMode.NO_TOLLS ->
+                            "Looking for the best route balance..."
+                        PreferenceMode.CALM -> "Finding calmer route choices..."
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color =
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.62f,
+                        ),
+                )
+            } else if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
                 Spacer(modifier = Modifier.height(2.dp))
                 AvailableRoutesHeader(routeCount = realRouteDebugDataList.size)
@@ -931,7 +947,7 @@ fun ClearRoadScreen(
                             )
                         else -> null
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(1.dp))
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -972,14 +988,14 @@ fun ClearRoadScreen(
                                     top =
                                         when {
                                             isRecommended -> 1.dp
-                                            showUserSelectedChrome -> 3.dp
-                                            else -> 2.dp
+                                            showUserSelectedChrome -> 2.dp
+                                            else -> 1.dp
                                         },
                                     bottom =
                                         when {
-                                            showUserSelectedChrome -> 6.dp
-                                            isRecommended -> 5.dp
-                                            else -> 3.dp
+                                            showUserSelectedChrome -> 5.dp
+                                            isRecommended -> 4.dp
+                                            else -> 2.dp
                                         },
                                 ),
                         ) {

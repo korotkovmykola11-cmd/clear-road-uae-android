@@ -45,7 +45,7 @@ internal fun ChoiceWhyTipBlock(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = if (compact) 2.dp else 6.dp),
+            .padding(vertical = if (compact) 1.dp else 6.dp),
     ) {
         Text(
             text = "Choice",

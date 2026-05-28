@@ -69,7 +69,7 @@ internal fun RouteDetailsScreen(
         }
         Spacer(modifier = Modifier.height(22.dp))
         Text(
-            text = "Route confidence",
+            text = "Route read",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
             color = scheme.primary.copy(alpha = 0.88f),
         )
