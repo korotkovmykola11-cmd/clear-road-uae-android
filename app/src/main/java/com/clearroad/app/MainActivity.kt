@@ -448,6 +448,95 @@ private fun estimateTotalRouteCostAed(
 ): Int =
     tollAED + fuelAED
 
+private fun costSummaryLines(
+    mode: PreferenceMode,
+    fuelCostAed: Int,
+    tollAed: Int,
+): Pair<String, String?> =
+    when (mode) {
+        PreferenceMode.FASTEST ->
+            if (tollAed == 0 || fuelCostAed > tollAed) {
+                Pair("Most cost comes from fuel.", "Toll impact is low.")
+            } else {
+                Pair("Fuel and toll costs are balanced.", null)
+            }
+        PreferenceMode.NO_TOLLS ->
+            Pair("Fuel is the main cost.", "Salik impact is minimized.")
+        PreferenceMode.CALM ->
+            Pair("Extra time buys a smoother drive.", "Cost remains moderate.")
+    }
+
+private data class DecisionSnapshotLines(
+    val recommendedHeading: String,
+    val recommendedSummary: String,
+    val othersHeading: String,
+    val othersSummary: String,
+)
+
+private fun decisionSnapshotLines(
+    mode: PreferenceMode,
+    recommendedRouteIndex: Int,
+): DecisionSnapshotLines =
+    when (mode) {
+        PreferenceMode.FASTEST ->
+            DecisionSnapshotLines(
+                recommendedHeading =
+                    "Route ${recommendedRouteIndex + 1} (recommended)",
+                recommendedSummary = "Fastest arrival with low extra cost.",
+                othersHeading = "Other routes",
+                othersSummary = "Slightly slower without a clear gain.",
+            )
+        PreferenceMode.NO_TOLLS ->
+            DecisionSnapshotLines(
+                recommendedHeading = "Recommended route",
+                recommendedSummary = "Lowest Salik impact on this trip.",
+                othersHeading = "Other routes",
+                othersSummary = "Higher toll spending than recommended.",
+            )
+        PreferenceMode.CALM ->
+            DecisionSnapshotLines(
+                recommendedHeading = "Recommended route",
+                recommendedSummary = "Smoother drive with a small time tradeoff.",
+                othersHeading = "Other routes",
+                othersSummary = "More movement, less comfort focus.",
+            )
+    }
+
+private fun confidenceLines(
+    mode: PreferenceMode,
+    routes: List<RealRouteDebugData>,
+    recommendedRouteIndex: Int,
+): String {
+    if (routes.isEmpty()) {
+        return "Good choice, but alternatives remain reasonable."
+    }
+    val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
+    val isHighConfidence =
+        when (mode) {
+            PreferenceMode.FASTEST -> {
+                val recommendedDuration = routes[recIdx].durationSeconds
+                val nextFastestDuration =
+                    routes.indices
+                        .filter { it != recIdx }
+                        .minOfOrNull { routes[it].durationSeconds }
+                nextFastestDuration != null &&
+                    recommendedDuration + 120 <= nextFastestDuration
+            }
+            PreferenceMode.NO_TOLLS -> {
+                val recommendedToll = routes[recIdx].tollAED
+                routes.indices
+                    .filter { it != recIdx }
+                    .all { routes[it].tollAED > recommendedToll }
+            }
+            PreferenceMode.CALM -> false
+        }
+    return if (isHighConfidence) {
+        "Strong reason to prefer this route."
+    } else {
+        "Good choice, but alternatives remain reasonable."
+    }
+}
+
 private fun calculateAedPerMinute(
     totalCostAed: Double,
     durationMinutes: Int,
@@ -1121,6 +1210,29 @@ fun ClearRoadScreen(
                         detailAligned?.first ?: detailPersonality
                     val routeReasonWhy =
                         detailAligned?.second.orEmpty()
+                    val (costSummaryPrimary, costSummarySecondary) =
+                        costSummaryLines(
+                            selectedMode,
+                            fuelForDetails,
+                            detailItem.tollAED,
+                        )
+                    val decisionSnapshot =
+                        decisionSnapshotLines(
+                            selectedMode,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                        )
+                    val recommendationConfidenceText =
+                        confidenceLines(
+                            selectedMode,
+                            realRouteDebugDataList,
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            ),
+                        )
                     RouteDetailsScreen(
                         routeNumber = detailIdx + 1,
                         routeReasonTitle = routeReasonTitle,
@@ -1133,6 +1245,17 @@ fun ClearRoadScreen(
                             directionsStatus,
                             detailItem,
                         ),
+                        costSummaryPrimary = costSummaryPrimary,
+                        costSummarySecondary = costSummarySecondary,
+                        decisionSnapshotRecommendedHeading =
+                            decisionSnapshot.recommendedHeading,
+                        decisionSnapshotRecommendedSummary =
+                            decisionSnapshot.recommendedSummary,
+                        decisionSnapshotOthersHeading =
+                            decisionSnapshot.othersHeading,
+                        decisionSnapshotOthersSummary =
+                            decisionSnapshot.othersSummary,
+                        recommendationConfidenceText = recommendationConfidenceText,
                     )
                 }
             }

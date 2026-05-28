@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -29,11 +32,20 @@ internal fun RouteDetailsScreen(
     fuelCostAed: Int,
     tollAed: Int,
     confidenceLabel: String,
+    costSummaryPrimary: String,
+    costSummarySecondary: String? = null,
+    decisionSnapshotRecommendedHeading: String,
+    decisionSnapshotRecommendedSummary: String,
+    decisionSnapshotOthersHeading: String,
+    decisionSnapshotOthersSummary: String,
+    recommendationConfidenceText: String,
 ) {
     val scheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .navigationBarsPadding()
             .padding(horizontal = 24.dp, vertical = 16.dp),
     ) {
         Text(
@@ -100,10 +112,77 @@ internal fun RouteDetailsScreen(
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
                 DetailsMetricRow(sectionLabel = "Time", valueText = durationText)
                 DetailsMetricRow(sectionLabel = "Distance", valueText = distanceText)
-                DetailsMetricRow(sectionLabel = "Fuel", valueText = "$fuelCostAed AED")
-                DetailsMetricRow(sectionLabel = "Toll", valueText = "$tollAed AED", isLast = true)
+                DetailsMetricRow(sectionLabel = "Fuel cost", valueText = "$fuelCostAed AED")
+                DetailsMetricRow(sectionLabel = "Toll cost", valueText = "$tollAed AED")
+                DetailsMetricRow(
+                    sectionLabel = "Total trip cost",
+                    valueText = "${fuelCostAed + tollAed} AED",
+                    isLast = true,
+                )
             }
         }
+        Spacer(modifier = Modifier.height(18.dp))
+        Text(
+            text = "Cost summary",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = scheme.primary.copy(alpha = 0.88f),
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = costSummaryPrimary,
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+        )
+        if (!costSummarySecondary.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = costSummarySecondary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+            )
+        }
+        Spacer(modifier = Modifier.height(18.dp))
+        Text(
+            text = "Decision snapshot",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = scheme.primary.copy(alpha = 0.88f),
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = decisionSnapshotRecommendedHeading,
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = scheme.onSurface.copy(alpha = 0.94f),
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = decisionSnapshotRecommendedSummary,
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = decisionSnapshotOthersHeading,
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = scheme.onSurface.copy(alpha = 0.94f),
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = decisionSnapshotOthersSummary,
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+        )
+        Spacer(modifier = Modifier.height(18.dp))
+        Text(
+            text = "Recommendation confidence",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = scheme.primary.copy(alpha = 0.88f),
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = recommendationConfidenceText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+        )
     }
 }
 
