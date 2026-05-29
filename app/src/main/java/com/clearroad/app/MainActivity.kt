@@ -1256,6 +1256,8 @@ fun ClearRoadScreen(
                         decisionSnapshotOthersSummary =
                             decisionSnapshot.othersSummary,
                         recommendationConfidenceText = recommendationConfidenceText,
+                        fromLatLng = selectedFromLatLng,
+                        toLatLng = selectedToLatLng,
                     )
                 }
             }

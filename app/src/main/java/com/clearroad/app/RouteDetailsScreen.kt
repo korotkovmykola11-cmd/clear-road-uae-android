@@ -1,5 +1,6 @@
 package com.clearroad.app
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.unit.dp
 
 /**
@@ -39,6 +42,8 @@ internal fun RouteDetailsScreen(
     decisionSnapshotOthersHeading: String,
     decisionSnapshotOthersSummary: String,
     recommendationConfidenceText: String,
+    fromLatLng: LatLng? = null,
+    toLatLng: LatLng? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     Column(
@@ -183,6 +188,42 @@ internal fun RouteDetailsScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
         )
+        if (fromLatLng != null && toLatLng != null) {
+            val context = LocalContext.current
+            Spacer(modifier = Modifier.height(18.dp))
+            Text(
+                text = "Open in Google Maps",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        openGoogleMapsHandoff(context, fromLatLng, toLatLng)
+                    },
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Medium,
+                ),
+                color = scheme.primary.copy(alpha = 0.92f),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Open in Waze",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        openWazeHandoff(context, toLatLng)
+                    },
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Medium,
+                ),
+                color = scheme.primary.copy(alpha = 0.92f),
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text =
+                    "Opens your trip in Google Maps or Waze. Route may differ slightly.",
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant.copy(alpha = 0.62f),
+            )
+        }
     }
 }
 
