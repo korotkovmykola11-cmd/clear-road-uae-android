@@ -1,5 +1,6 @@
 package com.clearroad.app
 
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
 import java.net.HttpURLConnection
@@ -8,6 +9,8 @@ import kotlin.math.roundToInt
 import kotlin.text.Charsets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+private const val ROUTE_POLYLINE_DEBUG_TAG = "RoutePolylineDebug"
 
 internal data class RealRouteDebugData(
     val distanceText: String,
@@ -178,10 +181,59 @@ private fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): 
     var j = colon + 1
     while (j < json.length && json[j].isWhitespace()) j++
     if (j >= json.length || json[j] != '"') return null
-    val start = j + 1
-    val end = json.indexOf('"', start)
-    if (end == -1) return null
-    return json.substring(start, end)
+    return decodeJsonStringLiteral(json, j)
+}
+
+/** Unescape a JSON string literal; [openQuoteIndex] must point at the opening `"`. */
+private fun decodeJsonStringLiteral(json: String, openQuoteIndex: Int): String? {
+    if (openQuoteIndex >= json.length || json[openQuoteIndex] != '"') return null
+    val sb = StringBuilder()
+    var i = openQuoteIndex + 1
+    while (i < json.length) {
+        when (json[i]) {
+            '\\' -> {
+                if (i + 1 >= json.length) return null
+                when (json[i + 1]) {
+                    '"', '\\', '/' -> {
+                        sb.append(json[i + 1])
+                        i += 2
+                    }
+                    'b' -> {
+                        sb.append('\b')
+                        i += 2
+                    }
+                    'f' -> {
+                        sb.append('\u000C')
+                        i += 2
+                    }
+                    'n' -> {
+                        sb.append('\n')
+                        i += 2
+                    }
+                    'r' -> {
+                        sb.append('\r')
+                        i += 2
+                    }
+                    't' -> {
+                        sb.append('\t')
+                        i += 2
+                    }
+                    'u' -> {
+                        if (i + 5 >= json.length) return null
+                        sb.append(json.substring(i + 2, i + 6).toInt(16).toChar())
+                        i += 6
+                    }
+                    else -> return null
+                }
+            }
+            '"' -> return sb.toString()
+            else -> {
+                sb.append(json[i])
+                i++
+            }
+        }
+    }
+    return null
 }
 
 private fun extractJsonNumberFollowingKey(json: String, searchFrom: Int): Double? {
@@ -252,14 +304,15 @@ private fun tryExtractFareAed(routeJson: String): Int? {
 
 private fun extractOverviewPolylinePoints(routeJson: String): String? {
     val overviewKey = "\"overview_polyline\""
-    val overviewIdx = routeJson.indexOf(overviewKey)
+    // Route-level overview_polyline follows legs; first indexOf can match html inside steps.
+    val overviewIdx = routeJson.lastIndexOf(overviewKey)
     if (overviewIdx == -1) return null
     val open = routeJson.indexOf('{', overviewIdx + overviewKey.length)
     if (open == -1) return null
     val close = findMatchingClosingBrace(routeJson, open) ?: return null
     val overviewObj = routeJson.substring(open, close + 1)
     val pointsKey = "\"points\""
-    val pointsIdx = overviewObj.indexOf(pointsKey)
+    val pointsIdx = overviewObj.lastIndexOf(pointsKey)
     if (pointsIdx == -1) return null
     return extractJsonQuotedStringFollowingKey(overviewObj, pointsIdx + pointsKey.length)
 }
@@ -268,7 +321,11 @@ internal fun decodeRoutePathPoints(encodedPolyline: String?): List<LatLng> {
     if (encodedPolyline.isNullOrBlank()) return emptyList()
     return try {
         PolyUtil.decode(encodedPolyline)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        Log.w(
+            ROUTE_POLYLINE_DEBUG_TAG,
+            "decode failed encodedLen=${encodedPolyline.length}: ${e.message}",
+        )
         emptyList()
     }
 }
@@ -432,6 +489,25 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
         val routeStart = i
         val routeEnd = findMatchingClosingBrace(json, routeStart) ?: break
         val routeJson = json.substring(routeStart, routeEnd + 1)
+        val routeIndex = results.size
+        val encodedPolyline = extractOverviewPolylinePoints(routeJson)
+        val encodedLen = encodedPolyline?.length ?: 0
+        val pointCount = decodeRoutePathPoints(encodedPolyline).size
+        Log.d(
+            ROUTE_POLYLINE_DEBUG_TAG,
+            "Route $routeIndex:\nencodedLen=$encodedLen\npointCount=$pointCount",
+        )
+        if (encodedLen == 0) {
+            Log.w(
+                ROUTE_POLYLINE_DEBUG_TAG,
+                "Route $routeIndex: overview_polyline.points missing in API response",
+            )
+        } else if (pointCount == 0) {
+            Log.w(
+                ROUTE_POLYLINE_DEBUG_TAG,
+                "Route $routeIndex: polyline decode yielded no points (encodedLen=$encodedLen)",
+            )
+        }
         firstLegDebugFromRouteObject(routeJson)?.let { results.add(it) }
         i = routeEnd + 1
     }

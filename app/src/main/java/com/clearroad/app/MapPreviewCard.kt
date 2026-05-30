@@ -1,5 +1,6 @@
 package com.clearroad.app
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.clearroad.app.ui.theme.ClearRoadColors
@@ -32,7 +34,11 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
+internal const val ROUTE_PREVIEW_DEBUG_TAG = "RoutePreviewDebug"
+
 private val MapPreviewHeight = 170.dp
+private val RoutePreviewPolylineColor = Color(0xFF00C853)
+private val RoutePreviewPolylineWidth = 15f
 
 @Composable
 internal fun MapPreviewCard(
@@ -41,8 +47,24 @@ internal fun MapPreviewCard(
     routePathPoints: List<LatLng> = emptyList(),
     cardBorder: BorderStroke,
     modifier: Modifier = Modifier,
+    debugRouteIndex: Int = -1,
+    debugRouteName: String = "unknown",
 ) {
     val cameraPositionState = rememberCameraPositionState()
+    val pointsCount = routePathPoints.size
+    val isEmpty = routePathPoints.isEmpty()
+    val drawingPolyline = !isEmpty
+    LaunchedEffect(debugRouteIndex, debugRouteName, routePathPoints) {
+        Log.d(
+            ROUTE_PREVIEW_DEBUG_TAG,
+            "RoutePreviewDebug:\n" +
+                "RouteIndex=$debugRouteIndex\n" +
+                "RouteName=$debugRouteName\n" +
+                "Points=$pointsCount\n" +
+                "IsEmpty=$isEmpty\n" +
+                "DrawingPolyline=$drawingPolyline",
+        )
+    }
     LaunchedEffect(fromLatLng, toLatLng, routePathPoints) {
         val boundsBuilder = LatLngBounds.builder()
             .include(fromLatLng)
@@ -91,10 +113,17 @@ internal fun MapPreviewCard(
                     ),
                 ) {
                     if (routePathPoints.isNotEmpty()) {
+                        Log.d(
+                            ROUTE_PREVIEW_DEBUG_TAG,
+                            "RoutePreviewDebug:\n" +
+                                "RouteIndex=$debugRouteIndex\n" +
+                                "RouteName=$debugRouteName\n" +
+                                "PolylineComposableInvoked=true",
+                        )
                         Polyline(
                             points = routePathPoints,
-                            color = ClearRoadColors.ClearSkyBlue,
-                            width = 5f,
+                            color = RoutePreviewPolylineColor,
+                            width = RoutePreviewPolylineWidth,
                         )
                     }
                     Marker(
