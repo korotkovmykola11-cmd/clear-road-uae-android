@@ -74,6 +74,12 @@ internal fun RouteDetailsScreen(
             cardBorder = cardBorder,
         )
         if (model.fromLatLng != null && model.toLatLng != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            MapPreviewCard(
+                fromLatLng = model.fromLatLng,
+                toLatLng = model.toLatLng,
+                cardBorder = cardBorder,
+            )
             Spacer(modifier = Modifier.height(16.dp))
             RouteDetailsHandoffFooter(
                 fromLatLng = model.fromLatLng,
@@ -111,8 +117,10 @@ private fun RouteDetailsWhyCard(
                     tags = model.whyTags,
                     accentColor = modeAccent,
                 )
+                Spacer(modifier = Modifier.height(14.dp))
+            } else {
+                Spacer(modifier = Modifier.height(10.dp))
             }
-            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = model.routeReasonTitle,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
@@ -144,15 +152,15 @@ private fun RouteDetailsConfidenceCallout(
 ) {
     val backgroundColor =
         if (isHighConfidence) {
-            ClearRoadColors.CloudHighlight
+            ClearRoadColors.CloudHighlight.copy(alpha = 0.92f)
         } else {
-            ClearRoadColors.RouteCardSurface
+            ClearRoadColors.SalikNeutral.copy(alpha = 0.07f)
         }
     val borderColor =
         if (isHighConfidence) {
-            modeAccent.copy(alpha = 0.28f)
+            modeAccent.copy(alpha = 0.36f)
         } else {
-            ClearRoadColors.SalikNeutral.copy(alpha = 0.16f)
+            ClearRoadColors.SalikNeutral.copy(alpha = 0.24f)
         }
     Column(
         modifier = Modifier
@@ -173,7 +181,7 @@ private fun RouteDetailsConfidenceCallout(
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = if (isHighConfidence) FontWeight.Medium else FontWeight.Normal,
             ),
-            color = if (isHighConfidence) ClearRoadColors.RoadGrey else ClearRoadColors.RoadGreyMuted,
+            color = ClearRoadColors.RoadGrey,
         )
     }
 }
@@ -200,7 +208,7 @@ private fun RouteDetailsTripCard(
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = ClearRoadColors.RoadGreyMuted,
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -222,7 +230,7 @@ private fun RouteDetailsTripCard(
                     modifier = Modifier.weight(1f),
                 )
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
             Text(
                 text = model.confidenceLabel,
                 modifier = Modifier
@@ -234,14 +242,14 @@ private fun RouteDetailsTripCard(
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
                 color = ClearRoadColors.RoadGreyMuted,
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
             Text(
                 text = model.costSummaryPrimary,
                 style = MaterialTheme.typography.bodyMedium,
                 color = ClearRoadColors.RoadGreyMuted,
             )
             if (!model.costSummarySecondary.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = model.costSummarySecondary,
                     style = MaterialTheme.typography.bodyMedium,
