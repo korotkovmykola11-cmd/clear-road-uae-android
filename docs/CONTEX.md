@@ -1,635 +1,436 @@
-Clear Road UAE — Project Constitution v3.1
-1. Project Identity
-   Clear Road = UAE Route Decision Assistant
+# Clear Road UAE — Project Constitution v4.0
 
-Brand identity (locked): docs/PRODUCT_IDENTITY.md
-Design direction (locked): docs/DESIGN_DIRECTION.md
+**Status:** Primary project constitution  
+**Current stable tag:** `stage-22.0-stable`  
+**Companion docs:** `PRODUCT_IDENTITY.md`, `DESIGN_DIRECTION.md` (detail locks — subordinate to this file)
+
+---
+
+## Section 1 — Identity
+
+**Clear Road = UAE Route Decision Assistant**
 
 Clear Road is:
 
-NOT a navigation app
-NOT Google Maps
-NOT Waze
-NOT an AI chatbot
-NOT a map product
-NOT a route encyclopedia
+- NOT a navigation app
+- NOT Google Maps
+- NOT Waze
+- NOT an AI chatbot
+- NOT a map product
+- NOT a route encyclopedia
 
 Clear Road exists to help drivers quickly decide:
 
-which route to choose
-why this route matters
-what emotional experience to expect
-what tradeoff they are accepting
+- which route to choose
+- why this route matters
+- what tradeoff they are accepting
 
-Core formula:
+**Product order (locked forever):**
 
+```
+Decision First
+Map Second
+Navigation Later
+```
+
+**Core formula:**
+
+```
 Clear Road decides
+→ User understands
+→ Google Maps / Waze navigate
+```
 
-User understands
+Clear Road must feel:
 
-Google Maps / Waze navigates
+- calm
+- confident
+- intentional
+- useful
+- human
+- UAE-aware
+- lightweight
+- emotionally readable
 
-Driver-facing priority (research-backed, visible product):
+Clear Road must NOT feel:
 
+- noisy
+- analytical
+- robotic
+- overloaded
+- enterprise-heavy
+- navigation-first
+
+---
+
+## Section 2 — Driver Priority
+
+**Locked forever — visible product priority:**
+
+```
 Time · Salik · Short Why
+```
 
-Fuel may remain internal logic only. It is not a visible UI or brand requirement.
+These are the primary decision signals shown to the driver.
 
-2. Core Product Philosophy
-   DECISION FIRST
+**Not primary visible value:**
 
-Primary product:
+- Fuel (removed from visible UI — Stage 21.0)
+- Distance as a hero metric
+- Raw metrics dashboards
+- Optimization scores
+- Cost obsession
 
-Decision
+**Distance** remains visible as supporting context. It is **not** the main decision signal.
 
-Secondary:
+**Fuel** may remain internal logic for scoring experiments. It must **never** return as visible UI or brand expression without explicit constitution change.
 
-Map
+---
 
-Navigation:
+## Section 3 — Sacred Blocks
 
-External
+**These blocks must never disappear. They are the product core.**
 
-The emotional center of the product:
-
-Choice
-Why
-Tip
-
-These 3 blocks are sacred.
-
-They must never disappear.
-
-They are the identity of Clear Road.
-
-3. Product Definition
-
-Clear Road is:
-
-Lightweight UAE Route Decision Assistant
-
-Core traits:
-
-lightweight
-emotionally intelligent
-UAE-aware
-multilingual
-minimal
-fast to understand
-low cognitive load
-emotionally readable
-
-The app must feel:
-
-calm
-confident
-intentional
-useful
-human
-
-NOT:
-
-noisy
-analytical
-robotic
-overloaded
-enterprise-heavy
-4. Emotional Route Philosophy
-
-People do NOT choose routes using minutes alone.
-
-Drivers choose:
-
-stress level
-predictability
-comfort
-merge pressure
-toll exposure
-mental fatigue
-driving rhythm
-
-Routes must feel:
-
-smoother
-calmer
-stable
-balanced
-efficient
-quieter
-stressful
-aggressive
-dense
-predictable
-
-Bad:
-
-Route 1 — 31 min
-
-Good:
-
-Calmer evening corridor with lighter toll pressure
-5. Human Language Rule
-
-The app must speak like a UAE driver.
-
-Forbidden:
-
-Traffic coefficient
-Congestion index
-Dynamic traffic matrix
-Route optimization score
-Predictive vector
-Flow intensity
-
-Allowed:
-
-Traffic shifts quickly
-Calm evening route
-Stable highway flow
-Busy merge area
-Smoother city corridor
-Heavier Salik pressure
-Quieter route tonight
-
-The language must feel:
-
-human
-local
-emotionally readable
-natural in UAE driving culture
-6. UAE Driver Psychology
-
-Clear Road must understand UAE driving behavior.
-
-The app considers:
-
-Salik sensitivity
-SZR stress
-Marina pressure
-E311 preference
-Hessa congestion
-evening merge stress
-comfort over 3–4 minutes
-driver fatigue
-aggressive lane changes
-predictable flow preference
-
-Drivers do NOT think only in ETA.
-
-They think:
-
-"Will this route drain me?"
-7. Main Recommendation Structure
-
-Core recommendation structure:
-
-Choice
-
-What route should be selected.
-
-Why
-
-Why Clear Road recommends it.
-
-Tip
-
-What emotional or practical expectation the driver should know.
-
-Example:
-
-Choice:
-Smoother city approach
-
-Why:
-Gentler merge rhythm through evening traffic.
-
-Tip:
-Good when stress matters more than 3 minutes.
-8. Route Personality System
-
-Every route should have personality.
-
-Allowed personalities:
-
-Smooth
-Balanced
-Stable
-Efficient
-Quieter
-Toll-heavy
-Fast-moving
-Calm
-Dense
-Aggressive
-Predictable
-Stop-heavy
-
-The product should never feel emotionally flat.
-
-9. Commute Feeling System
-
-The route must communicate feeling.
-
-Examples:
-
-Calmer drive
-Dense merges
-Stable evening corridor
-Stop-heavy stretch
-Smoother highway flow
-Busy city pressure
-Fast-moving corridor
-Aggressive merge zone
-
-The driver should immediately understand:
-
-"What kind of drive am I about to experience?"
-10. Confidence Layer
-
-Allowed confidence states:
-
-Reliable
-Estimated
-Traffic unstable
-
-Confidence must remain:
-
-lightweight
-honest
-simple
-
-Never fake certainty.
-
-Honesty > artificial intelligence theater.
-
-11. Comparative Reasoning Layer
-
-Clear Road should eventually explain:
-
-Why THIS route instead of the default painful route
-
-This is NOT Google Maps comparison UI.
-
-This is emotional comparison reasoning.
-
-Examples:
-
-Google would save 2 minutes here,
-but this route avoids aggressive SZR merges.
-This route costs slightly more,
-but keeps traffic pressure more stable tonight.
-
-Comparative reasoning must feel:
-
-human
-practical
-emotionally intelligent
-
-NOT technical.
-
-Simplified Why Layer (target style):
-
-Short tags, not long essays.
-
-Examples:
-
-No Salik
-8 min faster
-Fewer turns
-Main roads
-
-11a. Visible Decision Priority
-
-After UAE driver research, the visible product priority is:
-
-Time
-Salik
-Short Why
-
-Fuel cost is not a user-facing value for most drivers.
-Fuel logic may stay internal; it must not drive UI or brand expression.
-
-12. UAE Hyperlocal Intelligence
-
-Clear Road must evolve toward UAE-specific intelligence.
-
-Future supported context:
-
-Marina congestion waves
-Hessa Street pressure
-SZR lane stress
-E311 relief flow
-school traffic
-Friday prayer patterns
-event traffic
-airport waves
-evening sun glare
-UAE merge behavior
-
-This is one of the key future differentiators.
-
-13. Deep Context Intelligence
-
-Future goal:
-
-Clear Road should understand:
-
-time of departure
-emotional traffic rhythm
-expected stress evolution
-future congestion probability
-
-Example:
-
-Leaving 20 minutes later may reduce merge stress significantly.
-
-Clear Road should eventually manage:
-
-time quality
-
-not just:
-
-travel duration
-14. Map Philosophy
-
-Rule:
-
-Map = infrastructure
-
-Decision = product
-
-The map supports the decision.
-
-The map never becomes the product itself.
-
-15. Preview Rule
-
-Preview must NOT live inside the main decision screen.
-
-Wrong:
-
-Choice
-Why
-Tip
-
-Preview
-Available routes
-
-Correct:
-
-Main Screen
-Choice
-Why
-Tip
-Available routes
-Route cards
-Details Screen
-Selected route
-Mini map preview
-Distance
-Time
-Salik / Toll
-Short Why
-Confidence
-Open in Waze
-Open in Google Maps
-
-External navigation handoff is completed at Stage 20.0.
-Handoff uses origin and destination only — no route geometry transfer.
-
-16. External Navigation Philosophy
-
-Clear Road does NOT compete with:
-
-Google Maps
-Waze
-
-Workflow:
-
-Clear Road explains
-
-User chooses
-
-External app navigates
-
-Navigation remains external.
-
-Decision remains internal.
-
-17. Multilanguage System
-
-Supported languages:
-
-English
-Русский
-Українська
-العربية
+```
+Choice   — what to pick
+Why      — why it matters
+Tip      — what to expect
+```
 
 Rules:
 
-meaning > literal translation
-preserve emotional tone
-preserve compact UI
-support RTL for Arabic
-avoid robotic translation
-maintain UAE-driving feeling
+- Any redesign may change wrapping, not semantics
+- No mascot, map, or metric layer may replace them
+- Short Why tags may augment Why — not replace Choice / Why / Tip
 
-Bad:
+---
 
-Low payment corridor
+## Section 4 — Design Lock
 
-Good:
+**Locked in Stage 21.5 — Design Direction**
 
-Lower Salik route
-18. UX Rules
+Visual direction:
 
-Forbidden:
+- **Sky Blue** — primary brand accent, clarity
+- **Clouds** — soft atmospheric layer
+- **Dubai Atmosphere** — local mood through light and color
+- **Premium Light Theme** — default app theme
+- **White Surfaces** — primary cards and content
+- **Clean Space** — generous spacing, minimal shadows
 
-noise
-clutter
-long paragraphs
-technical garbage
-dashboard overload
-enterprise UI
-metric obsession
-over-analysis
+**Forbidden visual directions:**
 
-Allowed:
+- Dark cyberpunk
+- Gaming UI
+- Enterprise dashboard
+- Map-first blue navigation UI
+- Tourist postcard overload (Burj on every screen)
+- Neon startup chaos
+- Aggressive full-width CTAs
 
-short text
-fast understanding
-useful information only
-calm UI
-emotionally readable explanations
+**Stage 22 foundation (locked):**
 
-The UI should be understandable in:
+- Semantic theme tokens in `ui/theme/`
+- UI presentation models (`ChoiceWhyTipUiModel`, `RouteCardUiModel`, `RouteDetailsUiModel`)
+- Premium light Material theme — dynamic system color disabled for brand consistency
+- Mode accent colors: Fastest (blue), No Tolls (green), Calm (purple)
 
-2–3 seconds
-19. Route Card Rules
+**Design-first rules before visual redesign:**
 
-Route card must contain:
+1. UI models and theme tokens before layout overhaul (Stage 22 ✅)
+2. Redesign touches composables and theme — not scoring, recommendation, or handoff
+3. Product Identity and Design Direction locks filter all visual references
+4. No feature scope hidden inside a “design PR”
 
-Time
-Distance
-Salik / Toll
-Short Why (tag-style when available)
-Personality
-Confidence
+---
 
-Fuel is not a visible route card requirement.
-Fuel estimates may remain internal only.
+## Section 5 — Hero Rule
 
-Card must feel:
+**The hero is the driver making a clear choice.**
 
-compact
-emotionally readable
-visually calm
-fast to scan
+Clear Road is not the protagonist. The map is not the protagonist. YUNO is not the protagonist.
 
-Card must NEVER become overloaded.
+**Hero moment:**
 
-20. Current UI Philosophy
+> Driver reads Choice / Why / Tip → understands → opens Maps or Waze with confidence
 
-Current interaction flow:
+---
 
-Tap route
-→ Selected state
-→ View details
-→ Bottom sheet details
+### YUNO — Optional Rule (locked)
 
-This is CORRECT.
+**Name:** YUNO — fork-in-the-road guide character
 
-The product currently behaves like:
+| Rule | Lock |
+|------|------|
+| Status | **Optional** — product works fully without YUNO |
+| Tone | Friendly, calm |
+| Dominance | **Not mascot-first** |
+| Chatbot | **Not a chatbot** |
+| Assistant | **Not an assistant** |
+| Duolingo | **Not a Duolingo clone** |
 
-decision assistant
+YUNO may exist as a signature brand detail.  
+**The product does not depend on YUNO.**
 
-NOT:
+YUNO may support Tip tone. YUNO must never replace Choice / Why / Tip.
 
-map browser
-21. Development Rules
+`GuideSlotUiModel` is reserved in UI models. YUNO assets are not required for any current stage.
 
-Critical rules:
+---
 
-never break working code
-small controlled steps only
-visual verification required
-no giant rewrites
-no hidden changes
-no uncontrolled Cursor behavior
-no speculative coding
+## Section 6 — Map Rule
 
-Workflow:
+**Locked forever:**
 
-ChatGPT → Prompt
+```
+Map supports decision.
+Decision never supports map.
+```
 
-Cursor → Code
+- Map = infrastructure
+- Decision = product
+- Preview must NOT live on the main decision screen
+- Map Preview (when implemented) = Details screen only
+- No in-app turn-by-turn navigation
+- No route geometry handoff to external apps
 
-User → Build
+---
 
-User → Screenshots
+## Section 7 — Navigation Rule
 
-ChatGPT → Audit
+**Locked forever:**
 
-Git → Checkpoint
-22. Architecture Rules
+```
+Clear Road decides.
+Google Maps navigates.
+Waze navigates.
+```
 
-Forbidden without permission:
+External navigation (Stage 20.0):
 
-ViewModel
-Repository
-UseCases
-Dependency Injection
-Clean Architecture
-Enterprise patterns
+- Generic `ACTION_VIEW` handoff
+- Origin and destination coordinates only
+- No polyline, no selected alternative forcing
+- No Google Maps SDK for navigation
+- Waze fallback chain when app unavailable
 
-Reason:
+Clear Road does NOT compete with Google Maps or Waze.
 
-The project must remain:
+---
 
-controllable
-lightweight
-stable
-understandable
-23. Refactor Rules
+## Section 8 — UAE Intelligence
 
-Refactor allowed ONLY if it:
+**Future product direction — not current scope**
 
-reduces risk
-improves stability
-prevents MainActivity collapse
-improves control
-reduces Cursor break probability
+Clear Road should evolve toward UAE-specific context:
 
-Forbidden:
+- Marina congestion waves
+- SZR lane stress
+- Hessa Street pressure
+- E311 relief flow
+- Airport waves
+- School traffic
+- Event traffic
+- Friday prayer patterns
+- Evening merge behavior
+- UAE merge psychology
 
-beauty refactors
-architecture fashion
-enterprise refactors
-unnecessary abstraction
-24. AI Safety Rules
+This is a future differentiator. It must not drift the product toward navigation or map-first behavior.
 
-Forbidden:
+---
 
-uncontrolled rewrites
-architecture drift
-AI overengineering
-random feature generation
-speculative abstractions
-“best practice explosions”
+## Section 9 — Route Personalities
 
-Cursor must remain:
+**Locked brand modes:**
 
-controlled
+```
+Fastest
+No Tolls
+Calm
+```
 
-NOT autonomous.
+These are product modes and brand language — not just filter labels.
 
-25. Current Product Direction
+Route cards and copy should express mode-appropriate tradeoffs:
 
-Completed:
+- **Fastest** — time-first
+- **No Tolls** — Salik-first
+- **Calm** — comfort and flow-first
 
-Stage 13–16 — Route Details foundation, recommendation intelligence, emotional reasoning
-Stage 17–19 — Controlled UI extraction, Route Details layers, recommendation confidence
-Stage 20.0 — External navigation handoff (Google Maps / Waze, generic ACTION_VIEW)
-Stage 21.0 — Fuel UI removal (visible layer; Time · Salik · Short Why aligned)
-Stage 21.5 — Design Direction Lock (docs only — YUNO, visual identity, route language)
+**Short Why tag examples (target language):**
 
-Stable checkpoint: stage-21.0-stable (pending user confirmation after Stage 21 test)
+```
+8 min faster
+0 Salik gates
+Main roads
+Light traffic
+Fewer turns
+```
 
-Current focus:
+Personality adjectives (supporting, not replacing modes):
 
-Stage 22 — Design System foundation (semantic theme tokens, UI presentation models)
+Smooth · Balanced · Stable · Efficient · Quieter · Predictable · Calm · Dense
 
-Next planned (not started):
+---
 
-Stage 23 — Visual redesign of composables (premium light theme, mode accents)
-Stage 24 — Simplified Why Layer tags in UI
-Stage 25 — Map Preview (Details only, no navigation)
-Stage 26+ — Multilanguage + Arabic RTL, optional YUNO guide slot, Voice
+## Section 10 — Language Rule
 
-Future:
+**The app speaks like a UAE driver — human, local, emotionally readable.**
 
-Multilanguage Layer + Arabic RTL
-Hyperlocal UAE intelligence
-Predictive departure logic
-Voice output (decision layer only)
-Route History
-YUNO character assets (optional — see DESIGN_DIRECTION.md)
-26. Final Product Definition
-    Clear Road
-    Lightweight UAE Route Decision Assistant
+**Forbidden:**
 
-Core identity:
+- Traffic coefficient
+- Congestion index
+- Dynamic traffic matrix
+- Route optimization score
+- Predictive vector
+- Flow intensity
+- Metric obsession language
 
-Decision first
-Map second
-Navigation external
+**Allowed:**
+
+- Smoother drive
+- Calm evening route
+- Stable flow
+- Busy merge area
+- Heavier Salik pressure
+- 8 min faster
+- No Salik
+- Main roads
+
+**Multilanguage (future):**
+
+English · Русский · Українська · العربية
+
+Rules: meaning > literal translation · preserve emotional tone · RTL for Arabic · maintain UAE-driving feeling
+
+---
+
+## Section 11 — Architecture Rule
+
+**Forbidden without explicit approval:**
+
+- ViewModel
+- Repository
+- UseCases
+- Dependency Injection
+- Clean Architecture
+- Enterprise patterns
+
+**Reason:** the project must remain controllable, lightweight, stable, and understandable.
+
+**Allowed architecture today:**
+
+- `MainActivity` controls app flow intentionally
+- Dumb extracted composables
+- Small platform utilities (`NavigationHandoff.kt`, `DirectionsParsing.kt`)
+- Domain copy/scoring helpers (`domain/RouteReasoning.kt`, etc.)
+- UI presentation models assembled in MainActivity
+- Semantic theme tokens
+
+**Refactor allowed ONLY if it:**
+
+- reduces risk
+- improves stability
+- prevents MainActivity collapse
+- improves control
+- reduces break probability
+
+**Forbidden refactors:**
+
+- beauty refactors
+- architecture fashion
+- enterprise refactors
+- unnecessary abstraction
+- uncontrolled AI rewrites
+
+---
+
+## Section 12 — Development Workflow
+
+**Locked forever:**
+
+```
+ChatGPT  → Audit / Prompt
+Cursor   → Code (controlled steps only)
+User     → Build
+User     → Screenshots
+ChatGPT  → Verification
+Git      → Checkpoint
+```
+
+**Critical dev rules:**
+
+- never break working code
+- small controlled steps only
+- visual verification required
+- no giant rewrites
+- no hidden changes
+- no uncontrolled Cursor behavior
+- no speculative coding
+- Cursor is controlled — NOT autonomous
+
+---
+
+## Section 13 — Current Stable Checkpoint
+
+| Stage | Deliverable |
+|-------|-------------|
+| **20.0** | External navigation handoff (Google Maps / Waze, generic ACTION_VIEW) |
+| **21.0** | Fuel UI removal — visible layer aligned with Time · Salik · Short Why |
+| **21.5** | Design Direction Lock (docs — YUNO, visual identity, route language) |
+| **22.0** | Theme tokens + UI presentation models (preparation foundation) |
+
+**Current stable tag:** `stage-22.0-stable`
+
+**Verified locks at this checkpoint:**
+
+- Product Identity locked
+- Design Direction locked
+- Fuel removed from visible UI
+- Decision First philosophy preserved
+- Handoff external and working
+- Theme foundation in code
+
+---
+
+## Section 14 — Next Stage
+
+### Stage 23.0 — Visual Redesign Foundation
+
+**Scope:** UI only
+
+**Rules:**
+
+- No scoring changes
+- No recommendation changes
+- No route logic changes
+- No handoff changes
+- No YUNO implementation
+- No Map Preview
+- No Multilanguage
+- No Voice
+
+**Goal:** apply Design Lock to composables — premium light cards, mode accents, clean spacing, Why tag row preparation
+
+**After Stage 23 (planned, not started):**
+
+- Stage 24 — Simplified Why Layer tags in UI
+- Stage 25 — Map Preview (Details only)
+- Stage 26+ — Multilanguage + RTL, optional YUNO slot, Voice
+
+---
+
+## Final Definition
+
+```
+Clear Road UAE
+Lightweight UAE Route Decision Assistant
+
+Decision First · Map Second · Navigation Later
 Time · Salik · Short Why
-Human language
-UAE-aware
-Emotionally understandable
-Premium calm (see PRODUCT_IDENTITY.md)
-Multilingual
-Controlled AI development
-Calm intelligence
-Emotional route reasoning
-Lightweight product philosophy
+Choice · Why · Tip
+Premium Light · Sky Blue · Clean Space
+Hero: the driver
+YUNO: optional, not required
+```

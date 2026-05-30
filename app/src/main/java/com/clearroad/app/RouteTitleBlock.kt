@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.clearroad.app.ui.theme.ClearRoadColors
 
 @Composable
 internal fun RouteTitleBlock(
@@ -24,7 +25,7 @@ internal fun RouteTitleBlock(
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Medium,
                 ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f),
+                color = ClearRoadColors.RoadGreyMuted,
             )
             Spacer(modifier = Modifier.height(1.dp))
         }
@@ -33,7 +34,7 @@ internal fun RouteTitleBlock(
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.SemiBold,
             ),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = titleAlpha),
+            color = ClearRoadColors.RoadGrey.copy(alpha = titleAlpha),
         )
     }
 }

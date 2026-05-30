@@ -51,12 +51,15 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clearroad.app.ui.theme.ClearRoadColors
+import com.clearroad.app.ui.theme.accentColor
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.domain.RouteOption
 import com.clearroad.app.domain.RouteReasoning
 import com.clearroad.app.domain.RouteReasoningContext
 import com.clearroad.app.ui.theme.ClearRoad2Theme
+import com.clearroad.app.ui.theme.ClearRoadShellBackground
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.roundToInt
 import com.google.android.libraries.places.api.Places
@@ -79,11 +82,16 @@ class MainActivity : ComponentActivity() {
             if (Places.isInitialized()) Places.createClient(this) else null
         setContent {
             ClearRoad2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ClearRoadScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        placesClient = placesClient,
-                    )
+                ClearRoadShellBackground {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = ClearRoadColors.CloudBackground,
+                    ) { innerPadding ->
+                        ClearRoadScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            placesClient = placesClient,
+                        )
+                    }
                 }
             }
         }
@@ -768,13 +776,16 @@ fun ClearRoadScreen(
         ) {
         Text(
             text = "Clear Road",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineSmall.copy(
+                fontWeight = FontWeight.SemiBold,
+            ),
+            color = ClearRoadColors.RoadGrey,
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "Route decision assistant",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.bodyMedium,
+            color = ClearRoadColors.RoadGreyMuted,
         )
         Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 20.dp else 32.dp))
 
@@ -1024,6 +1035,7 @@ fun ClearRoadScreen(
                             routeIndex = index,
                             item = item,
                             selectedMode = selectedMode,
+                            routes = debugRoutes,
                             recommendedRouteIndex = recommendedRouteIndex,
                             routeCardSelectionIndex = routeCardSelectionIndex,
                             userExplicitRouteSelection = userExplicitRouteSelection,
@@ -1043,35 +1055,30 @@ fun ClearRoadScreen(
                             bringIntoViewRequester.bringIntoView()
                         }
                     }
-                    val scheme = MaterialTheme.colorScheme
-                    val outline = scheme.outline
-                    val primary = scheme.primary
-                    // Recommended (system) > Selected (user) > plain — outlines and fill follow that order.
-                    val containerAlpha = when {
-                        isUserSelected && isRecommended -> 0.89f
-                        isRecommended -> 0.745f
-                        isUserSelected -> 0.52f
-                        else -> 0.37f
-                    }
+                    val modeAccent = cardModel.mode.accentColor()
                     val cardBorder = when {
                         isUserSelected && isRecommended ->
                             BorderStroke(
                                 width = 2.dp,
-                                color = primary.copy(alpha = 0.48f),
+                                color = modeAccent.copy(alpha = 0.55f),
                             )
                         isRecommended ->
                             BorderStroke(
-                                width = 1.35.dp,
-                                color = primary.copy(alpha = 0.44f),
+                                width = 1.5.dp,
+                                color = modeAccent.copy(alpha = 0.45f),
                             )
                         isUserSelected ->
                             BorderStroke(
-                                width = 1.1.dp,
-                                color = outline.copy(alpha = 0.53f),
+                                width = 1.dp,
+                                color = ClearRoadColors.SalikNeutral.copy(alpha = 0.35f),
                             )
-                        else -> null
+                        else ->
+                            BorderStroke(
+                                width = 1.dp,
+                                color = modeAccent.copy(alpha = 0.20f),
+                            )
                     }
-                    Spacer(modifier = Modifier.height(1.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1088,10 +1095,9 @@ fun ClearRoadScreen(
                                 userExplicitRouteSelection = true
                                 selectedRouteIndex = index
                             },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(14.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor =
-                                scheme.surfaceVariant.copy(alpha = containerAlpha),
+                            containerColor = ClearRoadColors.RouteCardSurface,
                         ),
                         elevation =
                             CardDefaults.cardElevation(
@@ -1107,26 +1113,21 @@ fun ClearRoadScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(
-                                    start = 8.dp,
-                                    end = 8.dp,
-                                    top =
-                                        when {
-                                            isRecommended -> 1.dp
-                                            showUserSelectedChrome -> 2.dp
-                                            else -> 1.dp
-                                        },
-                                    bottom =
-                                        when {
-                                            showUserSelectedChrome -> 5.dp
-                                            isRecommended -> 4.dp
-                                            else -> 2.dp
-                                        },
+                                    horizontal = 12.dp,
+                                    vertical = when {
+                                        showUserSelectedChrome -> 12.dp
+                                        isRecommended -> 11.dp
+                                        else -> 10.dp
+                                    },
                                 ),
                         ) {
-                            val cardLineGap = 1.dp
-                            val metricsLineGap = 0.dp
+                            val cardLineGap = 4.dp
+                            val metricsLineGap = 2.dp
                             if (isRecommended && cardModel.recommendedNuance != null) {
-                                RecommendedBadgeBlock(nuance = cardModel.recommendedNuance)
+                                RecommendedBadgeBlock(
+                                    nuance = cardModel.recommendedNuance,
+                                    accentColor = modeAccent,
+                                )
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -1143,21 +1144,21 @@ fun ClearRoadScreen(
                                     Text(
                                         text = "View details →",
                                         modifier = Modifier
-                                            .clip(RoundedCornerShape(6.dp))
+                                            .clip(RoundedCornerShape(8.dp))
                                             .background(
-                                                outline.copy(alpha = 0.11f),
+                                                modeAccent.copy(alpha = 0.10f),
                                             )
                                             .clickable {
                                                 detailsRouteIndex = index
                                             }
                                             .padding(
-                                                horizontal = 8.dp,
-                                                vertical = 2.dp,
+                                                horizontal = 10.dp,
+                                                vertical = 4.dp,
                                             ),
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             fontWeight = FontWeight.Medium,
                                         ),
-                                        color = primary.copy(alpha = 0.92f),
+                                        color = modeAccent.copy(alpha = 0.92f),
                                     )
                                 }
                             }
@@ -1166,6 +1167,11 @@ fun ClearRoadScreen(
                                 durationText = cardModel.durationText,
                                 distanceText = cardModel.distanceText,
                                 durationOnSurfaceAlpha = cardModel.durationOnSurfaceAlpha,
+                            )
+                            Spacer(modifier = Modifier.height(cardLineGap))
+                            WhyTagRow(
+                                tags = cardModel.whyTags,
+                                accentColor = modeAccent,
                             )
                             Spacer(modifier = Modifier.height(cardLineGap))
                             RouteMetaLine(
@@ -1204,6 +1210,8 @@ fun ClearRoadScreen(
             if (detailItem != null) {
                 ModalBottomSheet(
                     onDismissRequest = { detailsRouteIndex = null },
+                    containerColor = ClearRoadColors.RouteCardSurface,
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
                 ) {
                     val detailPersonality = tollPhraseForCard(
                         detailItem,

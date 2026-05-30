@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.clearroad.app.ui.theme.ClearRoadColors
 
 @Composable
 internal fun RouteFuelConfidenceLine(
@@ -18,6 +19,6 @@ internal fun RouteFuelConfidenceLine(
         style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = FontWeight.Normal,
         ),
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.47f),
+        color = ClearRoadColors.SalikNeutral.copy(alpha = 0.72f),
     )
 }

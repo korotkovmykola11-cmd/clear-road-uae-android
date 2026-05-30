@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.clearroad.app.ui.model.ChoiceWhyTipUiModel
+import com.clearroad.app.ui.theme.ClearRoadColors
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -65,39 +66,39 @@ internal fun ChoiceWhyTipBlock(
         Text(
             text = "Choice",
             style = recLabelStyle,
-            color = MaterialTheme.colorScheme.primary,
+            color = ClearRoadColors.ClearSkyBlue,
         )
         Spacer(modifier = Modifier.height(recGapLabelToBody))
         Text(
             text = selectedDecisionTitle,
             style = recBodyStyle,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = ClearRoadColors.RoadGrey,
         )
         Spacer(modifier = Modifier.height(recGapBetweenSections))
 
         Text(
             text = "Why",
             style = recLabelStyle,
-            color = MaterialTheme.colorScheme.primary,
+            color = ClearRoadColors.ClearSkyBlue,
         )
         Spacer(modifier = Modifier.height(recGapLabelToBody))
         Text(
             text = selectedDecisionWhy,
             style = recBodyStyle,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = ClearRoadColors.RoadGrey,
         )
         Spacer(modifier = Modifier.height(recGapBetweenSections))
 
         Text(
             text = "Tip",
             style = recLabelStyle,
-            color = MaterialTheme.colorScheme.primary,
+            color = ClearRoadColors.ClearSkyBlue,
         )
         Spacer(modifier = Modifier.height(recGapLabelToBody))
         Text(
             text = selectedDecisionTip,
             style = recBodyStyle,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = ClearRoadColors.RoadGrey,
         )
     }
 }

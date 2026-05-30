@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.clearroad.app.ui.theme.ClearRoadColors
 
 @Composable
 internal fun RouteMetricsBlock(
@@ -23,17 +24,15 @@ internal fun RouteMetricsBlock(
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Bold,
             ),
-            color = MaterialTheme.colorScheme.onSurface.copy(
-                alpha = durationOnSurfaceAlpha,
-            ),
+            color = ClearRoadColors.RoadGrey.copy(alpha = durationOnSurfaceAlpha),
         )
-        Spacer(modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = distanceText,
             style = MaterialTheme.typography.bodySmall.copy(
                 fontWeight = FontWeight.Normal,
             ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.48f),
+            color = ClearRoadColors.RoadGreyMuted,
         )
     }
 }

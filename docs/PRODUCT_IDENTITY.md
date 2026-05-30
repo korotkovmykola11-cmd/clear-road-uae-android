@@ -1,9 +1,8 @@
 # Clear Road UAE — Product Identity
 
-**Status:** Locked (Stage B)  
-**Checkpoint:** stage-20.0-stable  
-**Companion doc:** `CONTEX.md` (Project Constitution)  
-**Design lock:** `DESIGN_DIRECTION.md` (Stage 21.5)
+**Status:** Locked (Stage B) — subordinate to `CONTEX.md` v4.0  
+**Checkpoint:** `stage-22.0-stable`  
+**Detail companion:** `DESIGN_DIRECTION.md`
 
 ---
 

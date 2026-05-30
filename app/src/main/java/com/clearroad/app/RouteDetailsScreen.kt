@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import com.clearroad.app.ui.model.RouteDetailsUiModel
+import com.clearroad.app.ui.theme.ClearRoadColors
 import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.unit.dp
 
@@ -69,7 +70,7 @@ internal fun RouteDetailsScreen(
     fromLatLng: LatLng? = null,
     toLatLng: LatLng? = null,
 ) {
-    val scheme = MaterialTheme.colorScheme
+    val sectionColor = ClearRoadColors.ClearSkyBlue
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -80,61 +81,61 @@ internal fun RouteDetailsScreen(
         Text(
             text = "Route Details",
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-            color = scheme.onSurface,
+            color = ClearRoadColors.RoadGrey,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "Route $routeNumber",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
-            color = scheme.primary.copy(alpha = 0.92f),
+            color = sectionColor,
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Why this route",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = scheme.primary.copy(alpha = 0.88f),
+            color = sectionColor,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = routeReasonTitle,
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-            color = scheme.onSurface.copy(alpha = 0.94f),
+            color = ClearRoadColors.RoadGrey,
         )
         if (routeReasonWhy.isNotBlank()) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = routeReasonWhy,
                 style = MaterialTheme.typography.bodyMedium,
-                color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+                color = ClearRoadColors.RoadGreyMuted,
             )
         }
         Spacer(modifier = Modifier.height(22.dp))
         Text(
             text = "Route read",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = scheme.primary.copy(alpha = 0.88f),
+            color = sectionColor,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = confidenceLabel,
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-            color = scheme.onSurface.copy(alpha = 0.92f),
+            color = ClearRoadColors.RoadGrey,
         )
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 18.dp),
-            color = scheme.outline.copy(alpha = 0.24f),
+            color = ClearRoadColors.SalikNeutral.copy(alpha = 0.18f),
         )
         Text(
             text = "Trip data",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = scheme.primary.copy(alpha = 0.88f),
+            color = sectionColor,
         )
         Spacer(modifier = Modifier.height(10.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(
-                containerColor = scheme.surfaceVariant.copy(alpha = 0.42f),
+                containerColor = ClearRoadColors.RouteCardSurface,
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
@@ -152,63 +153,63 @@ internal fun RouteDetailsScreen(
         Text(
             text = "Salik summary",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = scheme.primary.copy(alpha = 0.88f),
+            color = sectionColor,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = costSummaryPrimary,
             style = MaterialTheme.typography.bodyMedium,
-            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+            color = ClearRoadColors.RoadGreyMuted,
         )
         if (!costSummarySecondary.isNullOrBlank()) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = costSummarySecondary,
                 style = MaterialTheme.typography.bodyMedium,
-                color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+                color = ClearRoadColors.RoadGreyMuted,
             )
         }
         Spacer(modifier = Modifier.height(18.dp))
         Text(
             text = "Decision snapshot",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = scheme.primary.copy(alpha = 0.88f),
+            color = sectionColor,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = decisionSnapshotRecommendedHeading,
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-            color = scheme.onSurface.copy(alpha = 0.94f),
+            color = ClearRoadColors.RoadGrey,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = decisionSnapshotRecommendedSummary,
             style = MaterialTheme.typography.bodyMedium,
-            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+            color = ClearRoadColors.RoadGreyMuted,
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = decisionSnapshotOthersHeading,
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-            color = scheme.onSurface.copy(alpha = 0.94f),
+            color = ClearRoadColors.RoadGrey,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = decisionSnapshotOthersSummary,
             style = MaterialTheme.typography.bodyMedium,
-            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+            color = ClearRoadColors.RoadGreyMuted,
         )
         Spacer(modifier = Modifier.height(18.dp))
         Text(
             text = "Recommendation confidence",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = scheme.primary.copy(alpha = 0.88f),
+            color = sectionColor,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = recommendationConfidenceText,
             style = MaterialTheme.typography.bodyMedium,
-            color = scheme.onSurfaceVariant.copy(alpha = 0.88f),
+            color = ClearRoadColors.RoadGreyMuted,
         )
         if (fromLatLng != null && toLatLng != null) {
             val context = LocalContext.current
@@ -223,7 +224,7 @@ internal fun RouteDetailsScreen(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
                 ),
-                color = scheme.primary.copy(alpha = 0.92f),
+                color = sectionColor,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -236,14 +237,14 @@ internal fun RouteDetailsScreen(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
                 ),
-                color = scheme.primary.copy(alpha = 0.92f),
+                color = sectionColor,
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text =
                     "Opens your trip in Google Maps or Waze. Route may differ slightly.",
                 style = MaterialTheme.typography.bodySmall,
-                color = scheme.onSurfaceVariant.copy(alpha = 0.62f),
+                color = ClearRoadColors.RoadGreyMuted,
             )
         }
     }
@@ -255,17 +256,16 @@ private fun DetailsMetricRow(
     valueText: String,
     isLast: Boolean = false,
 ) {
-    val scheme = MaterialTheme.colorScheme
     Text(
         text = sectionLabel,
         style = MaterialTheme.typography.labelMedium,
-        color = scheme.onSurfaceVariant.copy(alpha = 0.82f),
+        color = ClearRoadColors.RoadGreyMuted,
     )
     Spacer(modifier = Modifier.height(2.dp))
     Text(
         text = valueText,
         style = MaterialTheme.typography.bodyMedium,
-        color = scheme.onSurface.copy(alpha = 0.82f),
+        color = ClearRoadColors.RoadGrey,
     )
     if (!isLast) {
         Spacer(modifier = Modifier.height(12.dp))

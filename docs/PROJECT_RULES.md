@@ -1,45 +1,39 @@
-Clear Road UAE — Project Rules
+Clear Road UAE — Project Rules (legacy summary)
+
+**Primary constitution:** `CONTEX.md` v4.0 — that file wins on any conflict.
 
 1. Goal
-   App helps driver choose best route based on cost, time, and comfort.
+   App helps the driver choose the best route — decision assistant, not navigation.
 
 2. Core logic
-
-* Show ONE final decision
-* Not navigation, but decision assistant
+   * Show ONE final decision
+   * Not navigation — decision first
 
 3. Output format
-
-* Choice
-* Why
-* Tip
+   * Choice
+   * Why
+   * Tip
 
 4. Modes
+   * Fastest
+   * No Tolls
+   * Calm
 
-* Fastest
-* No tolls
-* Calm
-
-5. Cost model
-
-* Time (min)
-* Distance (km)
-* Fuel (low/high)
-* Toll (Salik/Darb)
-* Total AED
-* AED per minute
+5. Visible priority (locked v4.0)
+   * Time
+   * Salik
+   * Short Why
+   * Distance — supporting only
+   * Fuel — internal only, not visible UI
 
 6. UX rules
-
-* No noise
-* Only useful info
-* Salik only if matters
-* Darb only if Abu Dhabi
-* Parking short info only
+   * No noise
+   * Only useful info
+   * Salik when it matters
+   * Darb only if Abu Dhabi corridor
 
 7. Dev rules
-
-* No random code generation
-* Small steps only
-* No breaking existing code
-* No API until domain is ready
+   * No random code generation
+   * Small steps only
+   * No breaking existing code
+   * See CONTEX.md Section 11–12 for architecture and workflow

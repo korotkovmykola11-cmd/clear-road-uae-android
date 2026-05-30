@@ -17,6 +17,7 @@ object ClearRoadColors {
     val ModeNoTolls = Color(0xFF22A861)
     val ModeCalm = Color(0xFF8B5CF6)
     val RecommendedTint = Color(0xFF3BA4D9)
+    val CloudHighlight = Color(0xFFE3F2FA)
 }
 
 fun PreferenceMode.accentColor(): Color =

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.clearroad.app.ui.theme.ClearRoadColors
 
 @Composable
 internal fun AvailableRoutesHeader(
@@ -19,6 +20,6 @@ internal fun AvailableRoutesHeader(
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.35.sp,
         ),
-        color = MaterialTheme.colorScheme.primary,
+        color = ClearRoadColors.RoadGrey,
     )
 }

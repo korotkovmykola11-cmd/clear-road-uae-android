@@ -17,6 +17,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.clearroad.app.domain.PreferenceMode
+import com.clearroad.app.ui.theme.ClearRoadColors
+import com.clearroad.app.ui.theme.accentColor
 
 @Composable
 internal fun ModeTabs(
@@ -28,6 +30,7 @@ internal fun ModeTabs(
     Row(modifier = modifier.fillMaxWidth()) {
         PreferenceMode.entries.forEach { mode ->
             val selected = mode == selectedMode
+            val modeAccent = mode.accentColor()
             Text(
                 text = modeTabLabel(mode),
                 modifier = Modifier
@@ -35,7 +38,7 @@ internal fun ModeTabs(
                     .clickable { onModeSelected(mode) }
                     .background(
                         color = if (selected) {
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            modeAccent.copy(alpha = 0.12f)
                         } else {
                             Color.Transparent
                         },
@@ -49,9 +52,9 @@ internal fun ModeTabs(
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                     color = if (selected) {
-                        MaterialTheme.colorScheme.onSurface
+                        modeAccent
                     } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                        ClearRoadColors.RoadGreyMuted
                     },
                     textDecoration = TextDecoration.None,
                 ),

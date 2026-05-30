@@ -14,6 +14,7 @@ internal fun buildRouteCardUiModel(
     routeIndex: Int,
     item: RealRouteDebugData,
     selectedMode: PreferenceMode,
+    routes: List<RealRouteDebugData>,
     recommendedRouteIndex: Int,
     routeCardSelectionIndex: Int,
     userExplicitRouteSelection: Boolean,
@@ -40,6 +41,7 @@ internal fun buildRouteCardUiModel(
             isUserSelected -> 0.90f
             else -> 0.94f
         },
+        whyTags = whyTagsForRoute(item, routeIndex, selectedMode, routes),
         mode = selectedMode,
     )
 }

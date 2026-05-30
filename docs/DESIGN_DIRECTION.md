@@ -1,10 +1,9 @@
 # Clear Road UAE — Design Direction Lock
 
 **Stage:** 21.5  
-**Status:** Locked  
-**Type:** Documentation only — no code  
-**References:** `docs/design/img.png`, `docs/design/img_1.png`  
-**Companion docs:** `PRODUCT_IDENTITY.md`, `CONTEX.md`
+**Status:** Locked — subordinate to `CONTEX.md` v4.0  
+**Type:** Design detail companion (Stage 21.5)  
+**References:** `docs/design/img.png`, `docs/design/img_1.png`
 
 ---
 

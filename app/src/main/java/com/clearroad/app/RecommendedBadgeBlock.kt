@@ -9,29 +9,30 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clearroad.app.ui.theme.ClearRoadColors
 
 @Composable
 internal fun RecommendedBadgeBlock(
     nuance: String,
     modifier: Modifier = Modifier,
+    accentColor: Color = MaterialTheme.colorScheme.primary,
 ) {
-    val scheme = MaterialTheme.colorScheme
-    val primary = scheme.primary
     val chipStyle = MaterialTheme.typography.labelSmall
     Column(modifier = modifier) {
         Text(
             text = "Recommended",
             modifier = Modifier
                 .background(
-                    color = primary.copy(alpha = 0.18f),
-                    shape = RoundedCornerShape(5.dp),
+                    color = accentColor.copy(alpha = 0.14f),
+                    shape = RoundedCornerShape(6.dp),
                 )
-                .padding(horizontal = 10.dp, vertical = 1.dp),
+                .padding(horizontal = 10.dp, vertical = 2.dp),
             style = chipStyle.copy(fontWeight = FontWeight.SemiBold),
-            color = primary.copy(alpha = 0.94f),
+            color = accentColor,
         )
         Text(
             text = nuance,
@@ -40,7 +41,7 @@ internal fun RecommendedBadgeBlock(
                 fontWeight = FontWeight.Normal,
                 lineHeight = 14.sp,
             ),
-            color = scheme.onSurfaceVariant.copy(alpha = 0.58f),
+            color = ClearRoadColors.RoadGreyMuted,
         )
     }
 }
