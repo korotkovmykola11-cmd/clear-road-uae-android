@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -107,11 +108,19 @@ private fun RouteDetailsWhyCard(
         border = cardBorder,
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
-            Text(
-                text = "Why this route",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = ClearRoadColors.RoadGreyMuted,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top,
+            ) {
+                Text(
+                    text = "Why this route",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = ClearRoadColors.RoadGreyMuted,
+                    modifier = Modifier.weight(1f),
+                )
+                YunoBrandBlock(compact = true)
+            }
             if (model.whyTags.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 WhyTagRow(

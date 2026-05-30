@@ -798,19 +798,32 @@ fun ClearRoadScreen(
                 )
                 .navigationBarsPadding(),
         ) {
-        Text(
-            text = "Clear Road",
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.SemiBold,
-            ),
-            color = ClearRoadColors.RoadGrey,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "Route decision assistant",
-            style = MaterialTheme.typography.bodyMedium,
-            color = ClearRoadColors.RoadGreyMuted,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp),
+            ) {
+                Text(
+                    text = "Clear Road",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                    color = ClearRoadColors.RoadGrey,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Route decision assistant",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ClearRoadColors.RoadGreyMuted,
+                )
+            }
+            YunoBrandBlock(corner = true)
+        }
         Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 20.dp else 32.dp))
 
         OutlinedTextField(
@@ -948,7 +961,7 @@ fun ClearRoadScreen(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 16.dp else 24.dp))
+        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 12.dp else 16.dp))
 
         ModeTabs(
             selectedMode = selectedMode,
