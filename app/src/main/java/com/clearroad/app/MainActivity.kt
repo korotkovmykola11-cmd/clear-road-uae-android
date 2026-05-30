@@ -513,40 +513,43 @@ private fun decisionSnapshotLines(
             )
     }
 
+private fun isHighConfidenceRecommendation(
+    mode: PreferenceMode,
+    routes: List<RealRouteDebugData>,
+    recommendedRouteIndex: Int,
+): Boolean {
+    if (routes.isEmpty()) return false
+    val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
+    return when (mode) {
+        PreferenceMode.FASTEST -> {
+            val recommendedDuration = routes[recIdx].durationSeconds
+            val nextFastestDuration =
+                routes.indices
+                    .filter { it != recIdx }
+                    .minOfOrNull { routes[it].durationSeconds }
+            nextFastestDuration != null &&
+                recommendedDuration + 120 <= nextFastestDuration
+        }
+        PreferenceMode.NO_TOLLS -> {
+            val recommendedToll = routes[recIdx].tollAED
+            routes.indices
+                .filter { it != recIdx }
+                .all { routes[it].tollAED > recommendedToll }
+        }
+        PreferenceMode.CALM -> false
+    }
+}
+
 private fun confidenceLines(
     mode: PreferenceMode,
     routes: List<RealRouteDebugData>,
     recommendedRouteIndex: Int,
-): String {
-    if (routes.isEmpty()) {
-        return "Good choice, but alternatives remain reasonable."
-    }
-    val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
-    val isHighConfidence =
-        when (mode) {
-            PreferenceMode.FASTEST -> {
-                val recommendedDuration = routes[recIdx].durationSeconds
-                val nextFastestDuration =
-                    routes.indices
-                        .filter { it != recIdx }
-                        .minOfOrNull { routes[it].durationSeconds }
-                nextFastestDuration != null &&
-                    recommendedDuration + 120 <= nextFastestDuration
-            }
-            PreferenceMode.NO_TOLLS -> {
-                val recommendedToll = routes[recIdx].tollAED
-                routes.indices
-                    .filter { it != recIdx }
-                    .all { routes[it].tollAED > recommendedToll }
-            }
-            PreferenceMode.CALM -> false
-        }
-    return if (isHighConfidence) {
+): String =
+    if (isHighConfidenceRecommendation(mode, routes, recommendedRouteIndex)) {
         "Strong reason to prefer this route."
     } else {
         "Good choice, but alternatives remain reasonable."
     }
-}
 
 private fun calculateAedPerMinute(
     totalCostAed: Double,
@@ -1239,21 +1242,32 @@ fun ClearRoadScreen(
                                 realRouteDebugDataList.lastIndex,
                             ),
                         )
+                    val recIdxForConfidence =
+                        recommendedRouteIndex.coerceIn(
+                            0,
+                            realRouteDebugDataList.lastIndex,
+                        )
                     val recommendationConfidenceText =
                         confidenceLines(
                             selectedMode,
                             realRouteDebugDataList,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
+                            recIdxForConfidence,
+                        )
+                    val isHighConfidence =
+                        isHighConfidenceRecommendation(
+                            selectedMode,
+                            realRouteDebugDataList,
+                            recIdxForConfidence,
                         )
                     RouteDetailsScreen(
                         model = buildRouteDetailsUiModel(
+                            routeIndex = detailIdx,
                             routeNumber = detailIdx + 1,
                             routeReasonTitle = routeReasonTitle,
                             routeReasonWhy = routeReasonWhy,
                             item = detailItem,
+                            selectedMode = selectedMode,
+                            routes = realRouteDebugDataList,
                             confidenceLabel = routeConfidenceLabel(
                                 directionsStatus,
                                 detailItem,
@@ -1269,6 +1283,7 @@ fun ClearRoadScreen(
                             decisionSnapshotOthersSummary =
                                 decisionSnapshot.othersSummary,
                             recommendationConfidenceText = recommendationConfidenceText,
+                            isHighConfidence = isHighConfidence,
                             fromLatLng = selectedFromLatLng,
                             toLatLng = selectedToLatLng,
                         ),

@@ -47,10 +47,13 @@ internal fun buildRouteCardUiModel(
 }
 
 internal fun buildRouteDetailsUiModel(
+    routeIndex: Int,
     routeNumber: Int,
     routeReasonTitle: String,
     routeReasonWhy: String,
     item: RealRouteDebugData,
+    selectedMode: PreferenceMode,
+    routes: List<RealRouteDebugData>,
     confidenceLabel: String,
     costSummaryPrimary: String,
     costSummarySecondary: String?,
@@ -59,6 +62,7 @@ internal fun buildRouteDetailsUiModel(
     decisionSnapshotOthersHeading: String,
     decisionSnapshotOthersSummary: String,
     recommendationConfidenceText: String,
+    isHighConfidence: Boolean,
     fromLatLng: LatLng?,
     toLatLng: LatLng?,
 ): RouteDetailsUiModel =
@@ -77,6 +81,9 @@ internal fun buildRouteDetailsUiModel(
         decisionSnapshotOthersHeading = decisionSnapshotOthersHeading,
         decisionSnapshotOthersSummary = decisionSnapshotOthersSummary,
         recommendationConfidenceText = recommendationConfidenceText,
+        isHighConfidence = isHighConfidence,
+        whyTags = whyTagsForRoute(item, routeIndex, selectedMode, routes),
+        mode = selectedMode,
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
     )
