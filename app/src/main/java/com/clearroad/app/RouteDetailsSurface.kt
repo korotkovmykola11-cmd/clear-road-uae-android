@@ -22,8 +22,7 @@ import androidx.compose.ui.unit.dp
  * @param routeDisplayName Short label such as `"Route 2"` for the user's selection.
  * @param durationText Leg duration string from Directions (matches [RealRouteDebugData.durationText]).
  * @param distanceText Leg distance string from Directions (matches [RealRouteDebugData.distanceText]).
- * @param fuelCostAed Fuel estimate in AED from app logic — same convention as route cards.
- * @param tollAed Toll estimate in AED (matches [RealRouteDebugData.tollAED]).
+ * @param tollAed Salik estimate in AED (matches [RealRouteDebugData.tollAED]).
  * @param confidenceLabel e.g. `"Reliable"`, `"Estimated"`, `"Limited"` — from route confidence helpers.
  */
 @Composable
@@ -32,7 +31,6 @@ internal fun RouteDetailsSurface(
     routeDisplayName: String,
     durationText: String,
     distanceText: String,
-    fuelCostAed: Int,
     tollAed: Int,
     confidenceLabel: String,
 ) {
@@ -58,8 +56,10 @@ internal fun RouteDetailsSurface(
 
             RouteDetailMetricRow(label = "Time", valueText = durationText)
             RouteDetailMetricRow(label = "Distance", valueText = distanceText)
-            RouteDetailMetricRow(label = "Fuel", valueText = "$fuelCostAed AED")
-            RouteDetailMetricRow(label = "Toll", valueText = "$tollAed AED")
+            RouteDetailMetricRow(
+                label = "Salik",
+                valueText = if (tollAed > 0) "$tollAed AED" else "No Salik",
+            )
             RouteDetailMetricRow(label = "Confidence", valueText = confidenceLabel)
         }
     }

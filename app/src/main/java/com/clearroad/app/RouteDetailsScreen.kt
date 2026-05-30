@@ -32,7 +32,6 @@ internal fun RouteDetailsScreen(
     routeReasonWhy: String,
     durationText: String,
     distanceText: String,
-    fuelCostAed: Int,
     tollAed: Int,
     confidenceLabel: String,
     costSummaryPrimary: String,
@@ -117,18 +116,16 @@ internal fun RouteDetailsScreen(
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
                 DetailsMetricRow(sectionLabel = "Time", valueText = durationText)
                 DetailsMetricRow(sectionLabel = "Distance", valueText = distanceText)
-                DetailsMetricRow(sectionLabel = "Fuel cost", valueText = "$fuelCostAed AED")
-                DetailsMetricRow(sectionLabel = "Toll cost", valueText = "$tollAed AED")
                 DetailsMetricRow(
-                    sectionLabel = "Total trip cost",
-                    valueText = "${fuelCostAed + tollAed} AED",
+                    sectionLabel = "Salik",
+                    valueText = if (tollAed > 0) "$tollAed AED" else "No Salik",
                     isLast = true,
                 )
             }
         }
         Spacer(modifier = Modifier.height(18.dp))
         Text(
-            text = "Cost summary",
+            text = "Salik summary",
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
             color = scheme.primary.copy(alpha = 0.88f),
         )

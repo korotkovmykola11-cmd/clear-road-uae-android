@@ -1,6 +1,8 @@
-Clear Road UAE — Project Constitution v3.0
+Clear Road UAE — Project Constitution v3.1
 1. Project Identity
    Clear Road = UAE Route Decision Assistant
+
+Brand identity (locked): docs/PRODUCT_IDENTITY.md
 
 Clear Road is:
 
@@ -25,6 +27,13 @@ Clear Road decides
 User understands
 
 Google Maps / Waze navigates
+
+Driver-facing priority (research-backed, visible product):
+
+Time · Salik · Short Why
+
+Fuel may remain internal logic only. It is not a visible UI or brand requirement.
+
 2. Core Product Philosophy
    DECISION FIRST
 
@@ -277,6 +286,28 @@ emotionally intelligent
 
 NOT technical.
 
+Simplified Why Layer (target style):
+
+Short tags, not long essays.
+
+Examples:
+
+No Salik
+8 min faster
+Fewer turns
+Main roads
+
+11a. Visible Decision Priority
+
+After UAE driver research, the visible product priority is:
+
+Time
+Salik
+Short Why
+
+Fuel cost is not a user-facing value for most drivers.
+Fuel logic may stay internal; it must not drive UI or brand expression.
+
 12. UAE Hyperlocal Intelligence
 
 Clear Road must evolve toward UAE-specific intelligence.
@@ -356,11 +387,15 @@ Selected route
 Mini map preview
 Distance
 Time
-Fuel
-Toll
+Salik / Toll
+Short Why
 Confidence
 Open in Waze
 Open in Google Maps
+
+External navigation handoff is completed at Stage 20.0.
+Handoff uses origin and destination only — no route geometry transfer.
+
 16. External Navigation Philosophy
 
 Clear Road does NOT compete with:
@@ -435,10 +470,13 @@ Route card must contain:
 
 Time
 Distance
-Fuel
-Toll
+Salik / Toll
+Short Why (tag-style when available)
 Personality
 Confidence
+
+Fuel is not a visible route card requirement.
+Fuel estimates may remain internal only.
 
 Card must feel:
 
@@ -548,33 +586,29 @@ NOT autonomous.
 
 Completed:
 
-Stage 13
-Stage 14
-Stage 15
-Stage 16
+Stage 13–16 — Route Details foundation, recommendation intelligence, emotional reasoning
+Stage 17–19 — Controlled UI extraction, Route Details layers, recommendation confidence
+Stage 20.0 — External navigation handoff (Google Maps / Waze, generic ACTION_VIEW)
+
+Stable checkpoint: stage-20.0-stable
 
 Current focus:
 
-Stage 17
+Stage 21 — Fuel UI removal (visible layer only; align UI with Time · Salik · Short Why)
 
-Current goals:
+Next planned (not started):
 
-Route Details Foundation
-Recommendation Intelligence
-Emotional Reasoning
-UAE-aware wording
-Comparative reasoning foundation
-Confidence structure
-Stable route personality system
+Stage 22 — Design System foundation (semantic theme tokens, UI presentation models)
+Stage 23+ — Product Identity visual expression, Simplified Why Layer in UI, Map Preview (Details only)
 
 Future:
 
-Mini Map Preview
-Open in Waze
-Open in Google Maps
-Multilanguage Layer
+Multilanguage Layer + Arabic RTL
 Hyperlocal UAE intelligence
 Predictive departure logic
+Voice output (decision layer only)
+Route History
+Optional Guide Character (off by default — see PRODUCT_IDENTITY.md)
 26. Final Product Definition
     Clear Road
     Lightweight UAE Route Decision Assistant
@@ -584,9 +618,11 @@ Core identity:
 Decision first
 Map second
 Navigation external
+Time · Salik · Short Why
 Human language
 UAE-aware
 Emotionally understandable
+Premium calm (see PRODUCT_IDENTITY.md)
 Multilingual
 Controlled AI development
 Calm intelligence

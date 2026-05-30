@@ -73,7 +73,7 @@ object RouteReasoning {
                         DecisionCopy(
                             choice = "Smoother city approach",
                             why = "Gentler flow than the quickest Salik-heavy cut.",
-                            tip = "Glance at fuel and Salik before you go.",
+                            tip = "Check Salik before you go.",
                         )
                     }
                 "Steadier corridor leg" ->

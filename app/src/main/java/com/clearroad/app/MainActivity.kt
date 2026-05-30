@@ -448,22 +448,29 @@ private fun estimateTotalRouteCostAed(
 ): Int =
     tollAED + fuelAED
 
+private fun salikMetaText(tollAed: Int, personality: String): String =
+    if (tollAed > 0) "Salik $tollAed AED · $personality"
+    else "No Salik · $personality"
+
 private fun costSummaryLines(
     mode: PreferenceMode,
-    fuelCostAed: Int,
     tollAed: Int,
 ): Pair<String, String?> =
     when (mode) {
         PreferenceMode.FASTEST ->
-            if (tollAed == 0 || fuelCostAed > tollAed) {
-                Pair("Most cost comes from fuel.", "Toll impact is low.")
+            if (tollAed == 0) {
+                Pair("No Salik on this route.", "Time is the main factor.")
             } else {
-                Pair("Fuel and toll costs are balanced.", null)
+                Pair("Salik $tollAed AED on this route.", "Time is the main factor.")
             }
         PreferenceMode.NO_TOLLS ->
-            Pair("Fuel is the main cost.", "Salik impact is minimized.")
+            Pair("Salik kept low on this route.", "May add a few minutes.")
         PreferenceMode.CALM ->
-            Pair("Extra time buys a smoother drive.", "Cost remains moderate.")
+            if (tollAed > 0) {
+                Pair("Extra time buys a smoother drive.", "Salik $tollAed AED.")
+            } else {
+                Pair("Extra time buys a smoother drive.", "No Salik on this route.")
+            }
     }
 
 private data class DecisionSnapshotLines(
@@ -1144,10 +1151,6 @@ fun ClearRoadScreen(
                                 },
                             )
                             Spacer(modifier = Modifier.height(cardLineGap))
-                            val fuelAed =
-                                estimateFuelCostAed(item.distanceMeters / 1000.0)
-                            val totalAed =
-                                estimateTotalRouteCostAed(item.tollAED, fuelAed)
                             val personality =
                                 tollPhraseForCard(
                                     item,
@@ -1159,11 +1162,11 @@ fun ClearRoadScreen(
                             val confidence =
                                 routeConfidenceLabel(directionsStatus, item)
                             RouteMetaLine(
-                                tollText = "$totalAed AED · $personality",
+                                tollText = salikMetaText(item.tollAED, personality),
                             )
                             Spacer(modifier = Modifier.height(metricsLineGap))
                             RouteFuelConfidenceLine(
-                                text = "Fuel $fuelAed · $confidence",
+                                text = confidence,
                             )
                             if (showUserSelectedChrome) {
                                 Spacer(modifier = Modifier.height(1.dp))
@@ -1195,8 +1198,6 @@ fun ClearRoadScreen(
                 ModalBottomSheet(
                     onDismissRequest = { detailsRouteIndex = null },
                 ) {
-                    val fuelForDetails =
-                        estimateFuelCostAed(detailItem.distanceMeters / 1000.0)
                     val detailPersonality = tollPhraseForCard(
                         detailItem,
                         detailIdx,
@@ -1213,7 +1214,6 @@ fun ClearRoadScreen(
                     val (costSummaryPrimary, costSummarySecondary) =
                         costSummaryLines(
                             selectedMode,
-                            fuelForDetails,
                             detailItem.tollAED,
                         )
                     val decisionSnapshot =
@@ -1239,7 +1239,6 @@ fun ClearRoadScreen(
                         routeReasonWhy = routeReasonWhy,
                         durationText = detailItem.durationText,
                         distanceText = detailItem.distanceText,
-                        fuelCostAed = fuelForDetails,
                         tollAed = detailItem.tollAED,
                         confidenceLabel = routeConfidenceLabel(
                             directionsStatus,
