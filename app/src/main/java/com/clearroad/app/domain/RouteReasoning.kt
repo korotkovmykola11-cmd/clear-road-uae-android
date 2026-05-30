@@ -1,5 +1,7 @@
 package com.clearroad.app.domain
 
+import kotlin.math.roundToInt
+
 /**
  * Lightweight reasoning copy for Clear Road decisions.
  *
@@ -202,37 +204,78 @@ object RouteReasoning {
     fun recommendedNuance(context: RouteReasoningContext): String {
         if (context.directionsStatus != "OK") {
             return when (context.mode) {
-                PreferenceMode.FASTEST -> "Timing unclear"
-                PreferenceMode.NO_TOLLS -> "Salik cost unclear"
-                PreferenceMode.CALM -> "Pace unclear"
+                PreferenceMode.FASTEST -> "Timing unclear until routes load."
+                PreferenceMode.NO_TOLLS -> "Salik cost unclear until routes load."
+                PreferenceMode.CALM -> "Pace unclear until routes load."
             }
         }
-        val slot =
-            (
-                (context.recommendedRouteIndex.coerceAtLeast(0) +
-                    context.routeCount.coerceAtLeast(1)) % 3
-                )
         return when (context.mode) {
-            PreferenceMode.FASTEST ->
-                when (slot) {
-                    0 -> "Strong pace through this corridor"
-                    1 -> "Fast city flow on this pick"
-                    else -> "Quickest rhythm among these"
-                }
-            PreferenceMode.NO_TOLLS ->
-                when (slot) {
-                    0 -> "Keeps Salik spending lighter"
-                    1 -> "More predictable Salik cost"
-                    else -> "Avoids heavier toll pressure"
-                }
-            PreferenceMode.CALM ->
-                when (slot) {
-                    0 -> "Smoother merge rhythm"
-                    1 -> "Gentler highway flow"
-                    else -> "Less lane pressure feel"
-                }
+            PreferenceMode.FASTEST -> "Best choice if arrival time matters."
+            PreferenceMode.NO_TOLLS -> "Good balance between cost and travel time."
+            PreferenceMode.CALM -> "Good choice when reducing driving stress matters."
         }
     }
+
+    /**
+     * Human-readable recommendation line for Route Details and Recommended badge.
+     * Uses existing route metrics only — no scoring or selection logic.
+     */
+    fun humanRecommendationExplanation(
+        mode: PreferenceMode,
+        recommendedDurationSeconds: Int,
+        recommendedTollAed: Int,
+        nextAlternativeDurationSeconds: Int?,
+        fastestDurationSeconds: Int,
+        highConfidence: Boolean,
+        compact: Boolean = false,
+    ): String =
+        when (mode) {
+            PreferenceMode.FASTEST -> {
+                if (highConfidence && nextAlternativeDurationSeconds != null) {
+                    val savedMinutes =
+                        ((nextAlternativeDurationSeconds - recommendedDurationSeconds) / 60.0)
+                            .roundToInt()
+                    when {
+                        savedMinutes >= 2 ->
+                            "Saves about $savedMinutes min compared with the next option."
+                        savedMinutes == 1 ->
+                            "Saves a minute compared with the next option."
+                        else -> "Fastest available route right now."
+                    }
+                } else if (
+                    fastestDurationSeconds > 0 &&
+                    recommendedDurationSeconds <= fastestDurationSeconds + 60
+                ) {
+                    "Fastest available route right now."
+                } else {
+                    "Best choice if arrival time matters."
+                }
+            }
+            PreferenceMode.NO_TOLLS ->
+                when {
+                    recommendedTollAed == 0 -> "Keeps toll costs at zero."
+                    highConfidence -> "Avoids Salik charges on this trip."
+                    else -> "Good balance between cost and travel time."
+                }
+            PreferenceMode.CALM -> {
+                val extraSeconds =
+                    if (fastestDurationSeconds > 0) {
+                        recommendedDurationSeconds - fastestDurationSeconds
+                    } else {
+                        0
+                    }
+                when {
+                    extraSeconds >= 300 ->
+                        if (compact) {
+                            "Slightly longer — smoother drive."
+                        } else {
+                            "Slightly longer, but designed for a smoother drive."
+                        }
+                    extraSeconds >= 60 -> "Prioritizes a more relaxed trip."
+                    else -> "Good choice when reducing driving stress matters."
+                }
+            }
+        }
 
     fun engineWhy(route: RouteOption, mode: PreferenceMode): String {
         val time = approximateTime(route.durationMin)

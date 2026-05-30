@@ -150,20 +150,19 @@ private fun preferenceModeLabel(mode: PreferenceMode): String =
 /** Preference tab mode for lightweight UX copy (Fastest / No tolls / Calm). */
 private typealias RouteMode = PreferenceMode
 
-/** Static nuance label beside Recommended — wording pools only, not traffic prediction or scoring. */
+/** Static nuance label beside Recommended — wording from route metrics, not scoring. */
 private fun confidenceHintBelowRecommendation(
     mode: RouteMode,
     directionsStatus: String?,
     recommendedRouteIndex: Int,
-    routeCount: Int,
+    routes: List<RealRouteDebugData>,
 ): String =
-    RouteReasoning.recommendedNuance(
-        RouteReasoningContext(
-            mode = mode,
-            directionsStatus = directionsStatus,
-            recommendedRouteIndex = recommendedRouteIndex,
-            routeCount = routeCount,
-        ),
+    recommendationExplanationText(
+        mode = mode,
+        directionsStatus = directionsStatus,
+        routes = routes,
+        recommendedRouteIndex = recommendedRouteIndex,
+        compact = true,
     )
 
 private fun getTollLevel(tollAED: Int): String =
@@ -540,16 +539,53 @@ private fun isHighConfidenceRecommendation(
     }
 }
 
+private fun recommendationExplanationText(
+    mode: PreferenceMode,
+    directionsStatus: String?,
+    routes: List<RealRouteDebugData>,
+    recommendedRouteIndex: Int,
+    compact: Boolean,
+): String {
+    if (directionsStatus != "OK" || routes.isEmpty()) {
+        return when (mode) {
+            PreferenceMode.FASTEST -> "Timing unclear until routes load."
+            PreferenceMode.NO_TOLLS -> "Salik cost unclear until routes load."
+            PreferenceMode.CALM -> "Pace unclear until routes load."
+        }
+    }
+    val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
+    val recommended = routes[recIdx]
+    val highConfidence =
+        isHighConfidenceRecommendation(mode, routes, recIdx)
+    val nextAlternativeDurationSeconds =
+        routes.indices
+            .filter { it != recIdx }
+            .minOfOrNull { routes[it].durationSeconds }
+    val fastestDurationSeconds = routes.minOf { it.durationSeconds }
+    return RouteReasoning.humanRecommendationExplanation(
+        mode = mode,
+        recommendedDurationSeconds = recommended.durationSeconds,
+        recommendedTollAed = recommended.tollAED,
+        nextAlternativeDurationSeconds = nextAlternativeDurationSeconds,
+        fastestDurationSeconds = fastestDurationSeconds,
+        highConfidence = highConfidence,
+        compact = compact,
+    )
+}
+
 private fun confidenceLines(
     mode: PreferenceMode,
+    directionsStatus: String?,
     routes: List<RealRouteDebugData>,
     recommendedRouteIndex: Int,
 ): String =
-    if (isHighConfidenceRecommendation(mode, routes, recommendedRouteIndex)) {
-        "Strong reason to prefer this route."
-    } else {
-        "Good choice, but alternatives remain reasonable."
-    }
+    recommendationExplanationText(
+        mode = mode,
+        directionsStatus = directionsStatus,
+        routes = routes,
+        recommendedRouteIndex = recommendedRouteIndex,
+        compact = false,
+    )
 
 private fun calculateAedPerMinute(
     totalCostAed: Double,
@@ -1028,7 +1064,7 @@ fun ClearRoadScreen(
                                 selectedMode,
                                 directionsStatus,
                                 recommendedRouteIndex,
-                                debugRoutes.size,
+                                debugRoutes,
                             )
                         } else {
                             null
@@ -1250,6 +1286,7 @@ fun ClearRoadScreen(
                     val recommendationConfidenceText =
                         confidenceLines(
                             selectedMode,
+                            directionsStatus,
                             realRouteDebugDataList,
                             recIdxForConfidence,
                         )
