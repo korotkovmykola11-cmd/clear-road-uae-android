@@ -459,22 +459,7 @@ private fun costSummaryLines(
     mode: PreferenceMode,
     tollAed: Int,
 ): Pair<String, String?> =
-    when (mode) {
-        PreferenceMode.FASTEST ->
-            if (tollAed == 0) {
-                Pair("No Salik on this route.", "Time is the main factor.")
-            } else {
-                Pair("Salik $tollAed AED on this route.", "Time is the main factor.")
-            }
-        PreferenceMode.NO_TOLLS ->
-            Pair("Salik kept low on this route.", "May add a few minutes.")
-        PreferenceMode.CALM ->
-            if (tollAed > 0) {
-                Pair("Extra time buys a smoother drive.", "Salik $tollAed AED.")
-            } else {
-                Pair("Extra time buys a smoother drive.", "No Salik on this route.")
-            }
-    }
+    RouteReasoning.tripAtAGlanceLines(mode, tollAed)
 
 private data class DecisionSnapshotLines(
     val recommendedHeading: String,

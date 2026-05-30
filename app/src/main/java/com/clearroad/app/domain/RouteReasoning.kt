@@ -40,6 +40,31 @@ data class DecisionCopy(
 
 object RouteReasoning {
 
+    /**
+     * Trip at a glance copy — one voice per mode (time / Salik / comfort).
+     * Wording only; uses toll fact from the opened route.
+     */
+    fun tripAtAGlanceLines(
+        mode: PreferenceMode,
+        tollAed: Int,
+    ): Pair<String, String?> =
+        when (mode) {
+            PreferenceMode.FASTEST ->
+                if (tollAed == 0) {
+                    Pair("Time is the main factor.", "No Salik on this route.")
+                } else {
+                    Pair("Time is the main factor.", "Salik $tollAed AED on this route.")
+                }
+            PreferenceMode.NO_TOLLS ->
+                Pair("Salik kept low on this route.", "May add a few minutes.")
+            PreferenceMode.CALM ->
+                if (tollAed > 0) {
+                    Pair("Extra time buys a smoother drive.", "Salik $tollAed AED on this route.")
+                } else {
+                    Pair("Extra time buys a smoother drive.", "No Salik on this route.")
+                }
+        }
+
     fun alignedExplanation(
         personality: String,
         mode: PreferenceMode,
@@ -79,11 +104,19 @@ object RouteReasoning {
                         )
                     }
                 "Steadier corridor leg" ->
-                    DecisionCopy(
-                        choice = "Steadier corridor leg",
-                        why = "Steadier motorway rhythm with lighter Salik.",
-                        tip = "When you want pace without heavy gates.",
-                    )
+                    if (mode == PreferenceMode.CALM) {
+                        DecisionCopy(
+                            choice = "Steadier corridor leg",
+                            why = "Steadier motorway rhythm with less lane pressure.",
+                            tip = "When calm beats rushing.",
+                        )
+                    } else {
+                        DecisionCopy(
+                            choice = "Steadier corridor leg",
+                            why = "Steadier motorway rhythm with lighter Salik.",
+                            tip = "When you want pace without heavy gates.",
+                        )
+                    }
                 "Easier traffic stretch" ->
                     DecisionCopy(
                         choice = "Easier traffic stretch",
@@ -100,8 +133,8 @@ object RouteReasoning {
                     if (mode == PreferenceMode.CALM) {
                         DecisionCopy(
                             choice = "More Salik ahead",
-                            why = "Busier Salik stretch — pace stays gentler.",
-                            tip = "Keep your tag topped.",
+                            why = "Gentler pace with less lane pressure on this leg.",
+                            tip = "Fine when calm beats rushing.",
                         )
                     } else if (mode == PreferenceMode.NO_TOLLS) {
                         DecisionCopy(
@@ -144,8 +177,8 @@ object RouteReasoning {
                     if (mode == PreferenceMode.CALM) {
                         DecisionCopy(
                             choice = "Lower Salik route",
-                            why = "More predictable Salik cost on this leg.",
-                            tip = "Still glance at exits before you move.",
+                            why = "Smoother merge rhythm on this leg.",
+                            tip = "Fine when extra minutes buy calm.",
                         )
                     } else {
                         DecisionCopy(
