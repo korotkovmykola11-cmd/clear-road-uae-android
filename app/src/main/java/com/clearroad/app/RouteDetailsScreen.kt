@@ -1,6 +1,5 @@
 package com.clearroad.app
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -76,27 +74,12 @@ internal fun RouteDetailsScreen(
             cardBorder = cardBorder,
         )
         if (model.fromLatLng != null && model.toLatLng != null) {
-            val debugRouteIndex = model.routeNumber - 1
-            val debugRouteName = "Route ${model.routeNumber}"
-            LaunchedEffect(debugRouteIndex, debugRouteName, model.routePathPoints) {
-                Log.d(
-                    ROUTE_PREVIEW_DEBUG_TAG,
-                    "RoutePreviewDebug:\n" +
-                        "RouteIndex=$debugRouteIndex\n" +
-                        "RouteName=$debugRouteName\n" +
-                        "Points=${model.routePathPoints.size}\n" +
-                        "IsEmpty=${model.routePathPoints.isEmpty()}\n" +
-                        "UiModelHandoff=true",
-                )
-            }
             Spacer(modifier = Modifier.height(12.dp))
             MapPreviewCard(
                 fromLatLng = model.fromLatLng,
                 toLatLng = model.toLatLng,
                 routePathPoints = model.routePathPoints,
                 cardBorder = cardBorder,
-                debugRouteIndex = debugRouteIndex,
-                debugRouteName = debugRouteName,
             )
             Spacer(modifier = Modifier.height(16.dp))
             RouteDetailsHandoffFooter(

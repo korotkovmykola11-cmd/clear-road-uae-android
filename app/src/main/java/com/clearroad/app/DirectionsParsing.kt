@@ -1,6 +1,5 @@
 package com.clearroad.app
 
-import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
 import java.net.HttpURLConnection
@@ -9,8 +8,6 @@ import kotlin.math.roundToInt
 import kotlin.text.Charsets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-private const val ROUTE_POLYLINE_DEBUG_TAG = "RoutePolylineDebug"
 
 internal data class RealRouteDebugData(
     val distanceText: String,
@@ -321,11 +318,7 @@ internal fun decodeRoutePathPoints(encodedPolyline: String?): List<LatLng> {
     if (encodedPolyline.isNullOrBlank()) return emptyList()
     return try {
         PolyUtil.decode(encodedPolyline)
-    } catch (e: Exception) {
-        Log.w(
-            ROUTE_POLYLINE_DEBUG_TAG,
-            "decode failed encodedLen=${encodedPolyline.length}: ${e.message}",
-        )
+    } catch (_: Exception) {
         emptyList()
     }
 }
@@ -489,25 +482,6 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
         val routeStart = i
         val routeEnd = findMatchingClosingBrace(json, routeStart) ?: break
         val routeJson = json.substring(routeStart, routeEnd + 1)
-        val routeIndex = results.size
-        val encodedPolyline = extractOverviewPolylinePoints(routeJson)
-        val encodedLen = encodedPolyline?.length ?: 0
-        val pointCount = decodeRoutePathPoints(encodedPolyline).size
-        Log.d(
-            ROUTE_POLYLINE_DEBUG_TAG,
-            "Route $routeIndex:\nencodedLen=$encodedLen\npointCount=$pointCount",
-        )
-        if (encodedLen == 0) {
-            Log.w(
-                ROUTE_POLYLINE_DEBUG_TAG,
-                "Route $routeIndex: overview_polyline.points missing in API response",
-            )
-        } else if (pointCount == 0) {
-            Log.w(
-                ROUTE_POLYLINE_DEBUG_TAG,
-                "Route $routeIndex: polyline decode yielded no points (encodedLen=$encodedLen)",
-            )
-        }
         firstLegDebugFromRouteObject(routeJson)?.let { results.add(it) }
         i = routeEnd + 1
     }
