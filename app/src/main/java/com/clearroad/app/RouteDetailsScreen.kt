@@ -138,6 +138,7 @@ private fun RouteDetailsWhyCard(
             Spacer(modifier = Modifier.height(12.dp))
             RouteDetailsConfidenceCallout(
                 text = model.recommendationConfidenceText,
+                tradeoffText = model.recommendationTradeoffText,
                 isHighConfidence = model.isHighConfidence,
                 modeAccent = modeAccent,
             )
@@ -148,6 +149,7 @@ private fun RouteDetailsWhyCard(
 @Composable
 private fun RouteDetailsConfidenceCallout(
     text: String,
+    tradeoffText: String?,
     isHighConfidence: Boolean,
     modeAccent: Color,
 ) {
@@ -184,6 +186,14 @@ private fun RouteDetailsConfidenceCallout(
             ),
             color = ClearRoadColors.RoadGrey,
         )
+        if (!tradeoffText.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = tradeoffText,
+                style = MaterialTheme.typography.bodySmall,
+                color = ClearRoadColors.RoadGreyMuted,
+            )
+        }
     }
 }
 

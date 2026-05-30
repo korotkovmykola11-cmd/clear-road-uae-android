@@ -1296,6 +1296,12 @@ fun ClearRoadScreen(
                             realRouteDebugDataList,
                             recIdxForConfidence,
                         )
+                    val recommendationTradeoffText =
+                        if (directionsStatus == "OK") {
+                            RouteReasoning.routeTradeoffExplanation(selectedMode)
+                        } else {
+                            null
+                        }
                     RouteDetailsScreen(
                         model = buildRouteDetailsUiModel(
                             routeIndex = detailIdx,
@@ -1320,6 +1326,7 @@ fun ClearRoadScreen(
                             decisionSnapshotOthersSummary =
                                 decisionSnapshot.othersSummary,
                             recommendationConfidenceText = recommendationConfidenceText,
+                            recommendationTradeoffText = recommendationTradeoffText,
                             isHighConfidence = isHighConfidence,
                             fromLatLng = selectedFromLatLng,
                             toLatLng = selectedToLatLng,

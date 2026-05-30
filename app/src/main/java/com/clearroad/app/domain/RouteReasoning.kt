@@ -277,6 +277,17 @@ object RouteReasoning {
             }
         }
 
+    /**
+     * Short tradeoff line for Route Details — what the driver gives up with this mode.
+     * Wording only; no scoring or selection logic.
+     */
+    fun routeTradeoffExplanation(mode: PreferenceMode): String =
+        when (mode) {
+            PreferenceMode.FASTEST -> "Alternative routes are slower."
+            PreferenceMode.NO_TOLLS -> "Other routes may increase Salik spending."
+            PreferenceMode.CALM -> "Faster routes may feel busier."
+        }
+
     fun engineWhy(route: RouteOption, mode: PreferenceMode): String {
         val time = approximateTime(route.durationMin)
         val core =

@@ -53,6 +53,7 @@ data class RouteDetailsUiModel(
     val decisionSnapshotOthersHeading: String,
     val decisionSnapshotOthersSummary: String,
     val recommendationConfidenceText: String,
+    val recommendationTradeoffText: String? = null,
     val isHighConfidence: Boolean = false,
     val whyTags: List<WhyTagUiModel> = emptyList(),
     val mode: PreferenceMode = PreferenceMode.FASTEST,
