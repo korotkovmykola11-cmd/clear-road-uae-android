@@ -3,6 +3,7 @@ Clear Road UAE — Project Constitution v3.1
    Clear Road = UAE Route Decision Assistant
 
 Brand identity (locked): docs/PRODUCT_IDENTITY.md
+Design direction (locked): docs/DESIGN_DIRECTION.md
 
 Clear Road is:
 
@@ -589,17 +590,21 @@ Completed:
 Stage 13–16 — Route Details foundation, recommendation intelligence, emotional reasoning
 Stage 17–19 — Controlled UI extraction, Route Details layers, recommendation confidence
 Stage 20.0 — External navigation handoff (Google Maps / Waze, generic ACTION_VIEW)
+Stage 21.0 — Fuel UI removal (visible layer; Time · Salik · Short Why aligned)
+Stage 21.5 — Design Direction Lock (docs only — YUNO, visual identity, route language)
 
-Stable checkpoint: stage-20.0-stable
+Stable checkpoint: stage-21.0-stable (pending user confirmation after Stage 21 test)
 
 Current focus:
 
-Stage 21 — Fuel UI removal (visible layer only; align UI with Time · Salik · Short Why)
+Stage 22 — Design System foundation (semantic theme tokens, UI presentation models)
 
 Next planned (not started):
 
-Stage 22 — Design System foundation (semantic theme tokens, UI presentation models)
-Stage 23+ — Product Identity visual expression, Simplified Why Layer in UI, Map Preview (Details only)
+Stage 23 — Visual redesign of composables (premium light theme, mode accents)
+Stage 24 — Simplified Why Layer tags in UI
+Stage 25 — Map Preview (Details only, no navigation)
+Stage 26+ — Multilanguage + Arabic RTL, optional YUNO guide slot, Voice
 
 Future:
 
@@ -608,7 +613,7 @@ Hyperlocal UAE intelligence
 Predictive departure logic
 Voice output (decision layer only)
 Route History
-Optional Guide Character (off by default — see PRODUCT_IDENTITY.md)
+YUNO character assets (optional — see DESIGN_DIRECTION.md)
 26. Final Product Definition
     Clear Road
     Lightweight UAE Route Decision Assistant

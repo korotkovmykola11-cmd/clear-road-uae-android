@@ -2,7 +2,8 @@
 
 **Status:** Locked (Stage B)  
 **Checkpoint:** stage-20.0-stable  
-**Companion doc:** `CONTEX.md` (Project Constitution)
+**Companion doc:** `CONTEX.md` (Project Constitution)  
+**Design lock:** `DESIGN_DIRECTION.md` (Stage 21.5)
 
 ---
 
@@ -104,7 +105,7 @@ Fuel cost is **not** part of brand expression in the UI. Driver research confirm
 
 ## Hero
 
-**The hero is the driver making a clear choice — not a character.**
+**The hero is the driver making a clear choice — not YUNO, not the app.**
 
 Clear Road is not the protagonist. Clear Road helps the driver choose with confidence.
 
@@ -118,32 +119,40 @@ Clear Road is not the protagonist. Clear Road helps the driver choose with confi
 
 ---
 
-## Guide Character
+## YUNO — Guide Character
 
-**Decision: no Guide Character in Product Identity (off by default).**
+**Locked in Stage 21.5** — see `DESIGN_DIRECTION.md` for full visual lock.
 
-| Status | Decision |
-|--------|----------|
-| Now | No character |
-| Identity | Choice / Why / Tip are sufficient |
-| Future | Optional only if it increases clarity without replacing it |
+**Name:** YUNO (fork-in-the-road character)
 
-If ever added: visual guide only — not AI avatar, chatbot, virtual human, or mascot-first UI.
+| Rule | Decision |
+|------|----------|
+| Status | **Optional** — product works without YUNO on screen |
+| Tone | **Friendly** |
+| Dominance | **Not dominant** |
+| Chatbot | **Not a chatbot** |
+| Assistant | **Not an assistant** |
+| Duolingo | **Not Duolingo** |
 
-Design System may reserve an optional guide slot. No character asset commitment.
+YUNO is a signature brand detail. YUNO supports Choice / Why / Tip — never replaces them.
+
+Design System may reserve an optional guide slot. YUNO assets are not Stage 22 scope.
 
 ---
 
 ## Visual signature: Clear Sky Blue
 
+**Locked in Stage 21.5** — premium light theme, white surfaces, soft clouds, Dubai atmosphere.
+
 **Dubai clear-sky blue is a brand accent — atmosphere, not a travel poster.**
 
 | Yes | No |
 |-----|-----|
-| Sky blue as clarity accent | Dubai skyline on every screen |
-| Open road / visibility metaphor | Burj Khalifa hero imagery |
-| Warm sand / stone surfaces | Tourist UAE postcard aesthetic |
-| Deep road grey text | Map-first blue navigation UI |
+| Sky blue as clarity accent | Burj Khalifa wallpaper on every in-app screen |
+| Soft cloud atmosphere | Tourist UAE postcard aesthetic |
+| White surfaces, minimal shadows | Map-first blue navigation UI |
+| Open road / visibility metaphor | Dark dashboard overload |
+| Warm sand / stone as secondary | Neon startup chaos |
 
 **Metaphor:** *Clear sky above · Clear decision below*
 
@@ -183,8 +192,8 @@ TONE:        Premium calm
 VOICE:       Short · Local · Emotionally readable
 
 HERO:        The driver
-CHARACTER:   None (Guide Character = optional future, off by default)
-VISUAL:      Calm decision UI + Clear Sky Blue accent + warm neutrals
+CHARACTER:   YUNO — optional fork-guide, friendly, not dominant
+VISUAL:      Premium light · Sky Blue · Clouds · White surfaces
 SACRED:      Choice · Why · Tip
 WHY STYLE:   Tags, not essays
 PRIORITY:    Time · Salik · Short Why

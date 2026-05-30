@@ -10,8 +10,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.clearroad.app.ui.model.ChoiceWhyTipUiModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+@Composable
+internal fun ChoiceWhyTipBlock(
+    model: ChoiceWhyTipUiModel,
+    modifier: Modifier = Modifier,
+) {
+    ChoiceWhyTipBlock(
+        selectedDecisionTitle = model.choice,
+        selectedDecisionWhy = model.why,
+        selectedDecisionTip = model.tip,
+        compact = model.compact,
+        modifier = modifier,
+    )
+}
 
 @Composable
 internal fun ChoiceWhyTipBlock(

@@ -19,12 +19,37 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
 import androidx.compose.ui.unit.dp
 
 /**
  * Route details panel for modal / sheet hosts. Wired from route list selection + metrics helpers.
  */
+@Composable
+internal fun RouteDetailsScreen(
+    model: RouteDetailsUiModel,
+) {
+    RouteDetailsScreen(
+        routeNumber = model.routeNumber,
+        routeReasonTitle = model.routeReasonTitle,
+        routeReasonWhy = model.routeReasonWhy,
+        durationText = model.durationText,
+        distanceText = model.distanceText,
+        tollAed = model.tollAed,
+        confidenceLabel = model.confidenceLabel,
+        costSummaryPrimary = model.costSummaryPrimary,
+        costSummarySecondary = model.costSummarySecondary,
+        decisionSnapshotRecommendedHeading = model.decisionSnapshotRecommendedHeading,
+        decisionSnapshotRecommendedSummary = model.decisionSnapshotRecommendedSummary,
+        decisionSnapshotOthersHeading = model.decisionSnapshotOthersHeading,
+        decisionSnapshotOthersSummary = model.decisionSnapshotOthersSummary,
+        recommendationConfidenceText = model.recommendationConfidenceText,
+        fromLatLng = model.fromLatLng,
+        toLatLng = model.toLatLng,
+    )
+}
+
 @Composable
 internal fun RouteDetailsScreen(
     routeNumber: Int,

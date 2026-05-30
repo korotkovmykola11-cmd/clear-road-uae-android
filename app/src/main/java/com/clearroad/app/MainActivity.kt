@@ -448,10 +448,6 @@ private fun estimateTotalRouteCostAed(
 ): Int =
     tollAED + fuelAED
 
-private fun salikMetaText(tollAed: Int, personality: String): String =
-    if (tollAed > 0) "Salik $tollAed AED · $personality"
-    else "No Salik · $personality"
-
 private fun costSummaryLines(
     mode: PreferenceMode,
     tollAed: Int,
@@ -971,10 +967,12 @@ fun ClearRoadScreen(
                 else -> decision?.tip ?: "Start with a common UAE route."
             }
         ChoiceWhyTipBlock(
-            selectedDecisionTitle = selectedDecisionTitle,
-            selectedDecisionWhy = selectedDecisionWhy,
-            selectedDecisionTip = selectedDecisionTip,
-            compact = showRouteCardOverrides,
+            model = choiceWhyTipUiModel(
+                choice = selectedDecisionTitle,
+                why = selectedDecisionWhy,
+                tip = selectedDecisionTip,
+                compact = showRouteCardOverrides,
+            ),
         )
         Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 2.dp else 6.dp))
         val fromCoords = selectedFromLatLng
@@ -1002,10 +1000,40 @@ fun ClearRoadScreen(
                 AvailableRoutesHeader(routeCount = realRouteDebugDataList.size)
                 for (index in debugRoutes.indices) {
                     val item = debugRoutes[index]
-                    val isUserSelected = index == routeCardSelectionIndex
-                    val showUserSelectedChrome =
-                        isUserSelected && userExplicitRouteSelection
-                    val isRecommended = index == recommendedRouteIndex
+                    val personality =
+                        tollPhraseForCard(
+                            item,
+                            index,
+                            selectedMode,
+                            recommendedRouteIndex,
+                            debugRoutes,
+                        )
+                    val recommendedNuance =
+                        if (index == recommendedRouteIndex) {
+                            confidenceHintBelowRecommendation(
+                                selectedMode,
+                                directionsStatus,
+                                recommendedRouteIndex,
+                                debugRoutes.size,
+                            )
+                        } else {
+                            null
+                        }
+                    val cardModel =
+                        buildRouteCardUiModel(
+                            routeIndex = index,
+                            item = item,
+                            selectedMode = selectedMode,
+                            recommendedRouteIndex = recommendedRouteIndex,
+                            routeCardSelectionIndex = routeCardSelectionIndex,
+                            userExplicitRouteSelection = userExplicitRouteSelection,
+                            salikLine = salikMetaText(item.tollAED, personality),
+                            confidence = routeConfidenceLabel(directionsStatus, item),
+                            recommendedNuance = recommendedNuance,
+                        )
+                    val isUserSelected = cardModel.isUserSelected
+                    val showUserSelectedChrome = cardModel.showUserSelectedChrome
+                    val isRecommended = cardModel.isRecommended
                     val bringIntoViewRequester = remember(index) {
                         BringIntoViewRequester()
                     }
@@ -1097,15 +1125,8 @@ fun ClearRoadScreen(
                         ) {
                             val cardLineGap = 1.dp
                             val metricsLineGap = 0.dp
-                            if (isRecommended) {
-                                val nuance =
-                                    confidenceHintBelowRecommendation(
-                                        selectedMode,
-                                        directionsStatus,
-                                        recommendedRouteIndex,
-                                        debugRoutes.size,
-                                    )
-                                RecommendedBadgeBlock(nuance = nuance)
+                            if (isRecommended && cardModel.recommendedNuance != null) {
+                                RecommendedBadgeBlock(nuance = cardModel.recommendedNuance)
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -1114,7 +1135,7 @@ fun ClearRoadScreen(
                             ) {
                                 RouteTitleBlock(
                                     personality = "",
-                                    title = "Route ${index + 1}",
+                                    title = cardModel.routeTitle,
                                     titleAlpha = 0.93f,
                                     modifier = Modifier.weight(1f),
                                 )
@@ -1142,31 +1163,17 @@ fun ClearRoadScreen(
                             }
                             Spacer(modifier = Modifier.height(cardLineGap))
                             RouteMetricsBlock(
-                                durationText = item.durationText,
-                                distanceText = item.distanceText,
-                                durationOnSurfaceAlpha = when {
-                                    isRecommended -> 0.97f
-                                    isUserSelected -> 0.90f
-                                    else -> 0.94f
-                                },
+                                durationText = cardModel.durationText,
+                                distanceText = cardModel.distanceText,
+                                durationOnSurfaceAlpha = cardModel.durationOnSurfaceAlpha,
                             )
                             Spacer(modifier = Modifier.height(cardLineGap))
-                            val personality =
-                                tollPhraseForCard(
-                                    item,
-                                    index,
-                                    selectedMode,
-                                    recommendedRouteIndex,
-                                    debugRoutes,
-                                )
-                            val confidence =
-                                routeConfidenceLabel(directionsStatus, item)
                             RouteMetaLine(
-                                tollText = salikMetaText(item.tollAED, personality),
+                                tollText = cardModel.salikLine,
                             )
                             Spacer(modifier = Modifier.height(metricsLineGap))
                             RouteFuelConfidenceLine(
-                                text = confidence,
+                                text = cardModel.confidence,
                             )
                             if (showUserSelectedChrome) {
                                 Spacer(modifier = Modifier.height(1.dp))
@@ -1234,29 +1241,29 @@ fun ClearRoadScreen(
                             ),
                         )
                     RouteDetailsScreen(
-                        routeNumber = detailIdx + 1,
-                        routeReasonTitle = routeReasonTitle,
-                        routeReasonWhy = routeReasonWhy,
-                        durationText = detailItem.durationText,
-                        distanceText = detailItem.distanceText,
-                        tollAed = detailItem.tollAED,
-                        confidenceLabel = routeConfidenceLabel(
-                            directionsStatus,
-                            detailItem,
+                        model = buildRouteDetailsUiModel(
+                            routeNumber = detailIdx + 1,
+                            routeReasonTitle = routeReasonTitle,
+                            routeReasonWhy = routeReasonWhy,
+                            item = detailItem,
+                            confidenceLabel = routeConfidenceLabel(
+                                directionsStatus,
+                                detailItem,
+                            ),
+                            costSummaryPrimary = costSummaryPrimary,
+                            costSummarySecondary = costSummarySecondary,
+                            decisionSnapshotRecommendedHeading =
+                                decisionSnapshot.recommendedHeading,
+                            decisionSnapshotRecommendedSummary =
+                                decisionSnapshot.recommendedSummary,
+                            decisionSnapshotOthersHeading =
+                                decisionSnapshot.othersHeading,
+                            decisionSnapshotOthersSummary =
+                                decisionSnapshot.othersSummary,
+                            recommendationConfidenceText = recommendationConfidenceText,
+                            fromLatLng = selectedFromLatLng,
+                            toLatLng = selectedToLatLng,
                         ),
-                        costSummaryPrimary = costSummaryPrimary,
-                        costSummarySecondary = costSummarySecondary,
-                        decisionSnapshotRecommendedHeading =
-                            decisionSnapshot.recommendedHeading,
-                        decisionSnapshotRecommendedSummary =
-                            decisionSnapshot.recommendedSummary,
-                        decisionSnapshotOthersHeading =
-                            decisionSnapshot.othersHeading,
-                        decisionSnapshotOthersSummary =
-                            decisionSnapshot.othersSummary,
-                        recommendationConfidenceText = recommendationConfidenceText,
-                        fromLatLng = selectedFromLatLng,
-                        toLatLng = selectedToLatLng,
                     )
                 }
             }
