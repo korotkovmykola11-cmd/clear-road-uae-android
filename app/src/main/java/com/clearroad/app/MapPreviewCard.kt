@@ -36,7 +36,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 internal const val ROUTE_PREVIEW_DEBUG_TAG = "RoutePreviewDebug"
 
-private val MapPreviewHeight = 170.dp
+private val MapPreviewHeight = 200.dp
 private val RoutePreviewPolylineColor = Color(0xFF00C853)
 private val RoutePreviewPolylineWidth = 15f
 
@@ -89,7 +89,7 @@ internal fun MapPreviewCard(
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = ClearRoadColors.RoadGreyMuted,
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
