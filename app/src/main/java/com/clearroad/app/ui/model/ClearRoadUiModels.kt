@@ -58,5 +58,6 @@ data class RouteDetailsUiModel(
     val mode: PreferenceMode = PreferenceMode.FASTEST,
     val fromLatLng: LatLng? = null,
     val toLatLng: LatLng? = null,
+    val routePathPoints: List<LatLng> = emptyList(),
     val guideSlot: GuideSlotUiModel = GuideSlotUiModel(),
 )

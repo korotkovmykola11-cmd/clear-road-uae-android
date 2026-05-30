@@ -86,6 +86,7 @@ internal fun buildRouteDetailsUiModel(
         mode = selectedMode,
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
+        routePathPoints = item.routePathPoints,
     )
 
 internal fun choiceWhyTipUiModel(

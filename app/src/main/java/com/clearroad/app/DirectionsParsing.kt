@@ -1,6 +1,7 @@
 package com.clearroad.app
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.PolyUtil
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.math.roundToInt
@@ -16,6 +17,7 @@ internal data class RealRouteDebugData(
     val tollAED: Int,
     val hasToll: Boolean,
     val corridorScanText: String = "",
+    val routePathPoints: List<LatLng> = emptyList(),
 )
 
 internal fun buildDirectionsUrl(origin: LatLng, destination: LatLng): String {
@@ -248,6 +250,29 @@ private fun tryExtractFareAed(routeJson: String): Int? {
     return num.roundToInt().coerceAtLeast(0)
 }
 
+private fun extractOverviewPolylinePoints(routeJson: String): String? {
+    val overviewKey = "\"overview_polyline\""
+    val overviewIdx = routeJson.indexOf(overviewKey)
+    if (overviewIdx == -1) return null
+    val open = routeJson.indexOf('{', overviewIdx + overviewKey.length)
+    if (open == -1) return null
+    val close = findMatchingClosingBrace(routeJson, open) ?: return null
+    val overviewObj = routeJson.substring(open, close + 1)
+    val pointsKey = "\"points\""
+    val pointsIdx = overviewObj.indexOf(pointsKey)
+    if (pointsIdx == -1) return null
+    return extractJsonQuotedStringFollowingKey(overviewObj, pointsIdx + pointsKey.length)
+}
+
+internal fun decodeRoutePathPoints(encodedPolyline: String?): List<LatLng> {
+    if (encodedPolyline.isNullOrBlank()) return emptyList()
+    return try {
+        PolyUtil.decode(encodedPolyline)
+    } catch (_: Exception) {
+        emptyList()
+    }
+}
+
 internal fun deriveTollAedFromRouteJson(routeJson: String): Pair<Int, Boolean> {
     val fare = tryExtractFareAed(routeJson)
     return when {
@@ -374,6 +399,8 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
 
         val tollPair = deriveTollAedFromRouteJson(routeJson)
         val corridorScanText = buildCorridorScanText(routeJson)
+        val routePathPoints =
+            decodeRoutePathPoints(extractOverviewPolylinePoints(routeJson))
 
         return RealRouteDebugData(
             distanceText = distanceText,
@@ -383,6 +410,7 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
             tollAED = tollPair.first,
             hasToll = tollPair.second,
             corridorScanText = corridorScanText,
+            routePathPoints = routePathPoints,
         )
     }
 

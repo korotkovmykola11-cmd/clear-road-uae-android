@@ -78,6 +78,7 @@ internal fun RouteDetailsScreen(
             MapPreviewCard(
                 fromLatLng = model.fromLatLng,
                 toLatLng = model.toLatLng,
+                routePathPoints = model.routePathPoints,
                 cardBorder = cardBorder,
             )
             Spacer(modifier = Modifier.height(16.dp))

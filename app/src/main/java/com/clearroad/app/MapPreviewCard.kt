@@ -29,6 +29,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
 private val MapPreviewHeight = 170.dp
@@ -37,17 +38,19 @@ private val MapPreviewHeight = 170.dp
 internal fun MapPreviewCard(
     fromLatLng: LatLng,
     toLatLng: LatLng,
+    routePathPoints: List<LatLng> = emptyList(),
     cardBorder: BorderStroke,
     modifier: Modifier = Modifier,
 ) {
     val cameraPositionState = rememberCameraPositionState()
-    LaunchedEffect(fromLatLng, toLatLng) {
-        val bounds =
-            LatLngBounds.builder()
-                .include(fromLatLng)
-                .include(toLatLng)
-                .build()
-        cameraPositionState.move(CameraUpdateFactory.newLatLngBounds(bounds, 64))
+    LaunchedEffect(fromLatLng, toLatLng, routePathPoints) {
+        val boundsBuilder = LatLngBounds.builder()
+            .include(fromLatLng)
+            .include(toLatLng)
+        routePathPoints.forEach { boundsBuilder.include(it) }
+        cameraPositionState.move(
+            CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 64),
+        )
     }
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -87,6 +90,13 @@ internal fun MapPreviewCard(
                         indoorLevelPickerEnabled = false,
                     ),
                 ) {
+                    if (routePathPoints.isNotEmpty()) {
+                        Polyline(
+                            points = routePathPoints,
+                            color = ClearRoadColors.ClearSkyBlue,
+                            width = 5f,
+                        )
+                    }
                     Marker(
                         state = MarkerState(position = fromLatLng),
                         title = "Start",
