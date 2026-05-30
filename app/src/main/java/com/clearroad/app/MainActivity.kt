@@ -1283,21 +1283,30 @@ fun ClearRoadScreen(
                             0,
                             realRouteDebugDataList.lastIndex,
                         )
+                    val isRecommendedRouteDetails = detailIdx == recIdxForConfidence
                     val recommendationConfidenceText =
-                        confidenceLines(
-                            selectedMode,
-                            directionsStatus,
-                            realRouteDebugDataList,
-                            recIdxForConfidence,
-                        )
+                        if (isRecommendedRouteDetails) {
+                            confidenceLines(
+                                selectedMode,
+                                directionsStatus,
+                                realRouteDebugDataList,
+                                recIdxForConfidence,
+                            )
+                        } else {
+                            ""
+                        }
                     val isHighConfidence =
-                        isHighConfidenceRecommendation(
-                            selectedMode,
-                            realRouteDebugDataList,
-                            recIdxForConfidence,
-                        )
+                        if (isRecommendedRouteDetails) {
+                            isHighConfidenceRecommendation(
+                                selectedMode,
+                                realRouteDebugDataList,
+                                recIdxForConfidence,
+                            )
+                        } else {
+                            false
+                        }
                     val recommendationTradeoffText =
-                        if (directionsStatus == "OK") {
+                        if (isRecommendedRouteDetails && directionsStatus == "OK") {
                             RouteReasoning.routeTradeoffExplanation(selectedMode)
                         } else {
                             null

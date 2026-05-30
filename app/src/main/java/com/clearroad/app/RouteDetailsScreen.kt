@@ -135,13 +135,15 @@ private fun RouteDetailsWhyCard(
                     color = ClearRoadColors.RoadGreyMuted,
                 )
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            RouteDetailsConfidenceCallout(
-                text = model.recommendationConfidenceText,
-                tradeoffText = model.recommendationTradeoffText,
-                isHighConfidence = model.isHighConfidence,
-                modeAccent = modeAccent,
-            )
+            if (model.recommendationConfidenceText.isNotBlank()) {
+                Spacer(modifier = Modifier.height(12.dp))
+                RouteDetailsConfidenceCallout(
+                    text = model.recommendationConfidenceText,
+                    tradeoffText = model.recommendationTradeoffText,
+                    isHighConfidence = model.isHighConfidence,
+                    modeAccent = modeAccent,
+                )
+            }
         }
     }
 }

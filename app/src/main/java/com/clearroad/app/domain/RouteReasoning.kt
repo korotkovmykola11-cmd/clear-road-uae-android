@@ -210,9 +210,9 @@ object RouteReasoning {
             }
         }
         return when (context.mode) {
-            PreferenceMode.FASTEST -> "Best choice if arrival time matters."
+            PreferenceMode.FASTEST -> "Best arrival time among available routes."
             PreferenceMode.NO_TOLLS -> "Good balance between cost and travel time."
-            PreferenceMode.CALM -> "Good choice when reducing driving stress matters."
+            PreferenceMode.CALM -> "Designed for a more relaxed drive."
         }
     }
 
@@ -240,20 +240,20 @@ object RouteReasoning {
                             "Saves about $savedMinutes min compared with the next option."
                         savedMinutes == 1 ->
                             "Saves a minute compared with the next option."
-                        else -> "Fastest available route right now."
+                        else -> "Best arrival time among available routes."
                     }
                 } else if (
                     fastestDurationSeconds > 0 &&
                     recommendedDurationSeconds <= fastestDurationSeconds + 60
                 ) {
-                    "Fastest available route right now."
+                    "Best arrival time among available routes."
                 } else {
-                    "Best choice if arrival time matters."
+                    "Best arrival time among available routes."
                 }
             }
             PreferenceMode.NO_TOLLS ->
                 when {
-                    recommendedTollAed == 0 -> "Keeps toll costs at zero."
+                    recommendedTollAed == 0 -> "Avoids Salik charges on this trip."
                     highConfidence -> "Avoids Salik charges on this trip."
                     else -> "Good balance between cost and travel time."
                 }
@@ -271,8 +271,8 @@ object RouteReasoning {
                         } else {
                             "Slightly longer, but designed for a smoother drive."
                         }
-                    extraSeconds >= 60 -> "Prioritizes a more relaxed trip."
-                    else -> "Good choice when reducing driving stress matters."
+                    extraSeconds >= 60 -> "Designed for a more relaxed drive."
+                    else -> "Designed for a more relaxed drive."
                 }
             }
         }
@@ -283,7 +283,7 @@ object RouteReasoning {
      */
     fun routeTradeoffExplanation(mode: PreferenceMode): String =
         when (mode) {
-            PreferenceMode.FASTEST -> "Alternative routes are slower."
+            PreferenceMode.FASTEST -> "Alternative routes take longer."
             PreferenceMode.NO_TOLLS -> "Other routes may increase Salik spending."
             PreferenceMode.CALM -> "Faster routes may feel busier."
         }
