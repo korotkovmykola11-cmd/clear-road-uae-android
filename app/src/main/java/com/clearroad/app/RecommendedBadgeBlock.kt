@@ -20,6 +20,7 @@ internal fun RecommendedBadgeBlock(
     nuance: String,
     modifier: Modifier = Modifier,
     accentColor: Color = MaterialTheme.colorScheme.primary,
+    compact: Boolean = false,
 ) {
     val chipStyle = MaterialTheme.typography.labelSmall
     Column(modifier = modifier) {
@@ -30,18 +31,24 @@ internal fun RecommendedBadgeBlock(
                     color = accentColor.copy(alpha = 0.14f),
                     shape = RoundedCornerShape(6.dp),
                 )
-                .padding(horizontal = 10.dp, vertical = 2.dp),
+                .padding(
+                    horizontal = 8.dp,
+                    vertical = if (compact) 0.dp else 1.dp,
+                ),
             style = chipStyle.copy(fontWeight = FontWeight.SemiBold),
             color = accentColor,
         )
-        Text(
-            text = nuance,
-            modifier = Modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.bodySmall.copy(
-                fontWeight = FontWeight.Normal,
-                lineHeight = 14.sp,
-            ),
-            color = ClearRoadColors.RoadGreyMuted,
-        )
+        if (nuance.isNotBlank()) {
+            Text(
+                text = nuance,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = if (compact) 12.sp else 13.sp,
+                ),
+                color = ClearRoadColors.RoadGreyMuted,
+                maxLines = if (compact) 1 else Int.MAX_VALUE,
+            )
+        }
     }
 }

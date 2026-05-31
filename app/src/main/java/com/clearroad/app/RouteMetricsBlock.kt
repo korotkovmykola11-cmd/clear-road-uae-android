@@ -17,6 +17,7 @@ internal fun RouteMetricsBlock(
     distanceText: String,
     durationOnSurfaceAlpha: Float,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
     Column(modifier = modifier) {
         Text(
@@ -26,7 +27,7 @@ internal fun RouteMetricsBlock(
             ),
             color = ClearRoadColors.RoadGrey.copy(alpha = durationOnSurfaceAlpha),
         )
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(if (compact) 1.dp else 2.dp))
         Text(
             text = distanceText,
             style = MaterialTheme.typography.bodySmall.copy(

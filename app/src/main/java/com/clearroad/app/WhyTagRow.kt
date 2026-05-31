@@ -22,12 +22,13 @@ internal fun WhyTagRow(
     tags: List<WhyTagUiModel>,
     modifier: Modifier = Modifier,
     accentColor: Color = ClearRoadColors.ClearSkyBlue,
+    compact: Boolean = false,
 ) {
     if (tags.isEmpty()) return
     FlowRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 6.dp),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 4.dp),
     ) {
         tags.forEach { tag ->
             Text(
@@ -37,7 +38,10 @@ internal fun WhyTagRow(
                         color = accentColor.copy(alpha = 0.10f),
                         shape = RoundedCornerShape(6.dp),
                     )
-                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                    .padding(
+                        horizontal = 8.dp,
+                        vertical = if (compact) 2.dp else 3.dp,
+                    ),
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = FontWeight.Medium,
                 ),

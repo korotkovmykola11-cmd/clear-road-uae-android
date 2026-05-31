@@ -24,12 +24,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +56,6 @@ import com.clearroad.app.domain.RouteOption
 import com.clearroad.app.domain.RouteReasoning
 import com.clearroad.app.domain.RouteReasoningContext
 import com.clearroad.app.ui.theme.ClearRoad2Theme
-import com.clearroad.app.ui.theme.ClearRoadShellBackground
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.roundToInt
 import com.google.android.libraries.places.api.Places
@@ -82,16 +78,14 @@ class MainActivity : ComponentActivity() {
             if (Places.isInitialized()) Places.createClient(this) else null
         setContent {
             ClearRoad2Theme {
-                ClearRoadShellBackground {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        containerColor = ClearRoadColors.CloudBackground,
-                    ) { innerPadding ->
-                        ClearRoadScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            placesClient = placesClient,
-                        )
-                    }
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent,
+                ) { innerPadding ->
+                    ClearRoadScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        placesClient = placesClient,
+                    )
                 }
             }
         }
@@ -641,6 +635,7 @@ fun ClearRoadScreen(
     var selectedRouteIndex by remember { mutableStateOf(0) }
     var directionsLoading by remember { mutableStateOf(false) }
     var detailsRouteIndex by remember { mutableStateOf<Int?>(null) }
+    var showRouteInputs by remember { mutableStateOf(false) }
     /** True only after user taps a route card; cleared when system realigns selection. */
     var userExplicitRouteSelection by remember { mutableStateOf(false) }
     val isRouteReady =
@@ -786,243 +781,227 @@ fun ClearRoadScreen(
         }
     }
     Box(modifier = modifier.fillMaxSize()) {
+        HomeDubaiBackground(modifier = Modifier.matchParentSize())
         val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(
-                    start = 24.dp,
-                    top = if (showRouteCardOverrides) 12.dp else 16.dp,
-                    end = 24.dp,
-                )
-                .navigationBarsPadding(),
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp)
+                .padding(top = if (showRouteCardOverrides) 24.dp else 30.dp),
         ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top,
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 12.dp),
-            ) {
-                Text(
-                    text = "Clear Road",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.SemiBold,
-                    ),
-                    color = ClearRoadColors.RoadGrey,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Route decision assistant",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = ClearRoadColors.RoadGreyMuted,
-                )
-            }
-            YunoBrandBlock(corner = true)
-        }
-        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 20.dp else 32.dp))
-
-        OutlinedTextField(
-            value = originText,
-            onValueChange = stopFrom@{ newText ->
-                if (newText.isBlank() || newText.length < 2) {
-                    fromPredictions = emptyList()
-                    selectedFromPlaceId = null
-                    selectedFromLatLng = null
-                    originText = newText
-                    return@stopFrom
+            HomeScreenHeader()
+            Spacer(modifier = Modifier.height(12.dp))
+            HomeYunoBubbleSection()
+            Spacer(modifier = Modifier.height(12.dp))
+            val selectedDecisionTitle =
+                when {
+                    showRouteCardOverrides ->
+                        recommendationAlignedCopy?.first
+                            ?: manualRouteChoice(
+                                selectedMode,
+                                recommendedRouteIndex.coerceIn(
+                                    0,
+                                    realRouteDebugDataList.lastIndex,
+                                ),
+                                recommendationTollAed,
+                            )
+                    else -> decision?.choice ?: "Enter a route"
                 }
-                selectedFromPlaceId = null
-                selectedFromLatLng = null
-                originText = newText
-                if (placesClient == null) {
-                    fromPredictions = emptyList()
-                } else {
-                    val request = FindAutocompletePredictionsRequest.builder()
-                        .setQuery(newText)
-                        .setCountries(listOf("AE"))
-                        .build()
-                    placesClient.findAutocompletePredictions(request)
-                        .addOnSuccessListener { response ->
-                            if (originText == newText &&
-                                originText.length >= 2 &&
-                                originText.isNotBlank()
-                            ) {
-                                fromPredictions = response.autocompletePredictions
-                            } else {
-                                fromPredictions = emptyList()
-                            }
-                        }
-                        .addOnFailureListener {
+            val selectedDecisionWhy =
+                when {
+                    showRouteCardOverrides ->
+                        recommendationAlignedCopy?.second
+                            ?: manualRouteWhy(
+                                selectedMode,
+                                recommendedRouteIndex.coerceIn(
+                                    0,
+                                    realRouteDebugDataList.lastIndex,
+                                ),
+                                recommendationTollAed,
+                            )
+                    else ->
+                        decision?.why
+                            ?: "Add starting point and destination to get a recommendation."
+                }
+            val selectedDecisionTip =
+                when {
+                    showRouteCardOverrides ->
+                        recommendationAlignedCopy?.third
+                            ?: manualRouteTip(
+                                selectedMode,
+                                recommendedRouteIndex.coerceIn(
+                                    0,
+                                    realRouteDebugDataList.lastIndex,
+                                ),
+                                recommendationTollAed,
+                            )
+                    else -> decision?.tip ?: "Start with a common UAE route."
+                }
+            val showRouteInputStep =
+                showRouteInputs ||
+                    originText.isNotBlank() ||
+                    destinationText.isNotBlank()
+            if (!showRouteInputStep) {
+                HomeSearchCapsule(onClick = { showRouteInputs = true })
+            } else {
+                Spacer(modifier = Modifier.height(8.dp))
+                HomeRouteInputGroup(
+                    fromValue = originText,
+                    onFromValueChange = stopFrom@{ newText ->
+                        if (newText.isBlank() || newText.length < 2) {
                             fromPredictions = emptyList()
+                            selectedFromPlaceId = null
+                            selectedFromLatLng = null
+                            originText = newText
+                            return@stopFrom
                         }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("From") },
-            placeholder = { Text("Enter starting point") },
-            singleLine = true,
-            maxLines = 1,
-        )
-        if (fromPredictions.isNotEmpty() &&
-            originText.length >= 2 &&
-            originText.isNotBlank()
-        ) {
-            Column(modifier = Modifier.padding(top = 4.dp)) {
-                fromPredictions.take(5).forEach { prediction ->
-                    val label = prediction.getFullText(null).toString()
-                    Text(
-                        text = label,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                originText = label
-                                fromPredictions = emptyList()
-                                selectedFromPlaceId = prediction.placeId
-                                fetchLatLng(placesClient, prediction.placeId) { result ->
-                                    selectedFromLatLng = result
+                        selectedFromPlaceId = null
+                        selectedFromLatLng = null
+                        originText = newText
+                        if (placesClient == null) {
+                            fromPredictions = emptyList()
+                        } else {
+                            val request = FindAutocompletePredictionsRequest.builder()
+                                .setQuery(newText)
+                                .setCountries(listOf("AE"))
+                                .build()
+                            placesClient.findAutocompletePredictions(request)
+                                .addOnSuccessListener { response ->
+                                    if (originText == newText &&
+                                        originText.length >= 2 &&
+                                        originText.isNotBlank()
+                                    ) {
+                                        fromPredictions = response.autocompletePredictions
+                                    } else {
+                                        fromPredictions = emptyList()
+                                    }
                                 }
-                            }
-                            .padding(vertical = 4.dp, horizontal = 4.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 12.dp else 16.dp))
-        OutlinedTextField(
-            value = destinationText,
-            onValueChange = stopTo@{ newText ->
-                if (newText.isBlank() || newText.length < 2) {
-                    toPredictions = emptyList()
-                    selectedToPlaceId = null
-                    selectedToLatLng = null
-                    destinationText = newText
-                    return@stopTo
-                }
-                selectedToPlaceId = null
-                selectedToLatLng = null
-                destinationText = newText
-                if (placesClient == null) {
-                    toPredictions = emptyList()
-                } else {
-                    val request = FindAutocompletePredictionsRequest.builder()
-                        .setQuery(newText)
-                        .setCountries(listOf("AE"))
-                        .build()
-                    placesClient.findAutocompletePredictions(request)
-                        .addOnSuccessListener { response ->
-                            if (destinationText == newText &&
-                                destinationText.length >= 2 &&
-                                destinationText.isNotBlank()
-                            ) {
-                                toPredictions = response.autocompletePredictions
-                            } else {
-                                toPredictions = emptyList()
-                            }
+                                .addOnFailureListener {
+                                    fromPredictions = emptyList()
+                                }
                         }
-                        .addOnFailureListener {
+                    },
+                    fromPlaceholder = "Enter starting point",
+                    toValue = destinationText,
+                    onToValueChange = stopTo@{ newText ->
+                        if (newText.isBlank() || newText.length < 2) {
                             toPredictions = emptyList()
+                            selectedToPlaceId = null
+                            selectedToLatLng = null
+                            destinationText = newText
+                            return@stopTo
                         }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("To") },
-            placeholder = { Text("Enter destination") },
-            singleLine = true,
-            maxLines = 1,
-        )
-        if (toPredictions.isNotEmpty() &&
-            destinationText.length >= 2 &&
-            destinationText.isNotBlank()
-        ) {
-            Column(modifier = Modifier.padding(top = 4.dp)) {
-                toPredictions.take(5).forEach { prediction ->
-                    val label = prediction.getFullText(null).toString()
-                    Text(
-                        text = label,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                destinationText = label
-                                toPredictions = emptyList()
-                                selectedToPlaceId = prediction.placeId
-                                fetchLatLng(placesClient, prediction.placeId) { result ->
-                                    selectedToLatLng = result
+                        selectedToPlaceId = null
+                        selectedToLatLng = null
+                        destinationText = newText
+                        if (placesClient == null) {
+                            toPredictions = emptyList()
+                        } else {
+                            val request = FindAutocompletePredictionsRequest.builder()
+                                .setQuery(newText)
+                                .setCountries(listOf("AE"))
+                                .build()
+                            placesClient.findAutocompletePredictions(request)
+                                .addOnSuccessListener { response ->
+                                    if (destinationText == newText &&
+                                        destinationText.length >= 2 &&
+                                        destinationText.isNotBlank()
+                                    ) {
+                                        toPredictions = response.autocompletePredictions
+                                    } else {
+                                        toPredictions = emptyList()
+                                    }
+                                }
+                                .addOnFailureListener {
+                                    toPredictions = emptyList()
+                                }
+                        }
+                    },
+                    toPlaceholder = "Enter destination",
+                    fromPredictions = {
+                        if (fromPredictions.isNotEmpty() &&
+                            originText.length >= 2 &&
+                            originText.isNotBlank()
+                        ) {
+                            Column(modifier = Modifier.padding(top = 6.dp, start = 28.dp)) {
+                                fromPredictions.take(5).forEach { prediction ->
+                                    val label = prediction.getFullText(null).toString()
+                                    Text(
+                                        text = label,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable {
+                                                originText = label
+                                                fromPredictions = emptyList()
+                                                selectedFromPlaceId = prediction.placeId
+                                                fetchLatLng(placesClient, prediction.placeId) { result ->
+                                                    selectedFromLatLng = result
+                                                }
+                                            }
+                                            .padding(vertical = 6.dp, horizontal = 8.dp),
+                                        style =
+                                            homeRouteSkyReadableTextStyle(
+                                                MaterialTheme.typography.bodySmall,
+                                            ),
+                                    )
                                 }
                             }
-                            .padding(vertical = 4.dp, horizontal = 4.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                        }
+                    },
+                    toPredictions = {
+                        if (toPredictions.isNotEmpty() &&
+                            destinationText.length >= 2 &&
+                            destinationText.isNotBlank()
+                        ) {
+                            Column(modifier = Modifier.padding(top = 6.dp, start = 28.dp)) {
+                                toPredictions.take(5).forEach { prediction ->
+                                    val label = prediction.getFullText(null).toString()
+                                    Text(
+                                        text = label,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable {
+                                                destinationText = label
+                                                toPredictions = emptyList()
+                                                selectedToPlaceId = prediction.placeId
+                                                fetchLatLng(placesClient, prediction.placeId) { result ->
+                                                    selectedToLatLng = result
+                                                }
+                                            }
+                                            .padding(vertical = 6.dp, horizontal = 8.dp),
+                                        style =
+                                            homeRouteSkyReadableTextStyle(
+                                                MaterialTheme.typography.bodySmall,
+                                            ),
+                                    )
+                                }
+                            }
+                        }
+                    },
+                )
             }
-        }
-        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 12.dp else 16.dp))
-
-        ModeTabs(
-            selectedMode = selectedMode,
-            onModeSelected = { selectedMode = it },
-            tabVerticalPadding = if (showRouteCardOverrides) 8.dp else 11.dp,
-        )
-        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 8.dp else 14.dp))
-
-        val selectedDecisionTitle =
-            when {
-                showRouteCardOverrides ->
-                    recommendationAlignedCopy?.first
-                        ?: manualRouteChoice(
-                            selectedMode,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
-                            recommendationTollAed,
-                        )
-                else -> decision?.choice ?: "Enter a route"
+            Spacer(modifier = Modifier.height(8.dp))
+            HomeGlassModeTabs(
+                selectedMode = selectedMode,
+                onModeSelected = { selectedMode = it },
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            HomeGlassPanel(contentPadding = 10.dp) {
+                ChoiceWhyTipBlock(
+                    model = choiceWhyTipUiModel(
+                        choice = selectedDecisionTitle,
+                        why = selectedDecisionWhy,
+                        tip = selectedDecisionTip,
+                        compact = showRouteCardOverrides,
+                    ),
+                    embedded = true,
+                )
             }
-        val selectedDecisionWhy =
-            when {
-                showRouteCardOverrides ->
-                    recommendationAlignedCopy?.second
-                        ?: manualRouteWhy(
-                            selectedMode,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
-                            recommendationTollAed,
-                        )
-                else ->
-                    decision?.why
-                        ?: "Add starting point and destination to get a recommendation."
-            }
-        val selectedDecisionTip =
-            when {
-                showRouteCardOverrides ->
-                    recommendationAlignedCopy?.third
-                        ?: manualRouteTip(
-                            selectedMode,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
-                            recommendationTollAed,
-                        )
-                else -> decision?.tip ?: "Start with a common UAE route."
-            }
-        ChoiceWhyTipBlock(
-            model = choiceWhyTipUiModel(
-                choice = selectedDecisionTitle,
-                why = selectedDecisionWhy,
-                tip = selectedDecisionTip,
-                compact = showRouteCardOverrides,
-            ),
-        )
-        Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 2.dp else 6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
         val fromCoords = selectedFromLatLng
         val toCoords = selectedToLatLng
         if (fromCoords != null && toCoords != null) {
@@ -1044,7 +1023,6 @@ fun ClearRoadScreen(
                 )
             } else if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
-                Spacer(modifier = Modifier.height(2.dp))
                 AvailableRoutesHeader(routeCount = realRouteDebugDataList.size)
                 for (index in debugRoutes.indices) {
                     val item = debugRoutes[index]
@@ -1097,28 +1075,27 @@ fun ClearRoadScreen(
                         isUserSelected && isRecommended ->
                             BorderStroke(
                                 width = 2.dp,
-                                color = modeAccent.copy(alpha = 0.55f),
+                                color = modeAccent.copy(alpha = 0.52f),
                             )
                         isRecommended ->
                             BorderStroke(
-                                width = 1.5.dp,
-                                color = modeAccent.copy(alpha = 0.45f),
+                                width = 2.dp,
+                                color = modeAccent.copy(alpha = 0.52f),
                             )
                         isUserSelected ->
                             BorderStroke(
                                 width = 1.dp,
-                                color = ClearRoadColors.SalikNeutral.copy(alpha = 0.35f),
+                                color = ClearRoadColors.SalikNeutral.copy(alpha = 0.22f),
                             )
                         else ->
                             BorderStroke(
                                 width = 1.dp,
-                                color = modeAccent.copy(alpha = 0.20f),
+                                color = modeAccent.copy(alpha = 0.10f),
                             )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Card(
+                    Spacer(modifier = Modifier.height(if (isRecommended) 4.dp else 4.dp))
+                    HomeGlassSurface(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .then(
                                 if (showUserSelectedChrome) {
                                     Modifier.bringIntoViewRequester(
@@ -1127,43 +1104,21 @@ fun ClearRoadScreen(
                                 } else {
                                     Modifier
                                 },
-                            )
-                            .clickable {
-                                userExplicitRouteSelection = true
-                                selectedRouteIndex = index
-                            },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = ClearRoadColors.RouteCardSurface,
-                        ),
-                        elevation =
-                            CardDefaults.cardElevation(
-                                defaultElevation = 0.dp,
-                                pressedElevation = 0.dp,
-                                focusedElevation = 0.dp,
-                                hoveredElevation = 0.dp,
-                                draggedElevation = 0.dp,
                             ),
+                        recommended = isRecommended,
                         border = cardBorder,
+                        onClick = {
+                            userExplicitRouteSelection = true
+                            selectedRouteIndex = index
+                        },
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = 12.dp,
-                                    vertical = when {
-                                        showUserSelectedChrome -> 12.dp
-                                        isRecommended -> 11.dp
-                                        else -> 10.dp
-                                    },
-                                ),
-                        ) {
-                            val cardLineGap = 4.dp
-                            val metricsLineGap = 2.dp
+                            val cardLineGap = if (isRecommended) 1.dp else 1.dp
+                            val metricsLineGap = 0.dp
                             if (isRecommended && cardModel.recommendedNuance != null) {
                                 RecommendedBadgeBlock(
                                     nuance = cardModel.recommendedNuance,
                                     accentColor = modeAccent,
+                                    compact = true,
                                 )
                             }
                             Row(
@@ -1174,7 +1129,7 @@ fun ClearRoadScreen(
                                 RouteTitleBlock(
                                     personality = "",
                                     title = cardModel.routeTitle,
-                                    titleAlpha = 0.93f,
+                                    titleAlpha = 1f,
                                     modifier = Modifier.weight(1f),
                                 )
                                 if (showUserSelectedChrome) {
@@ -1203,12 +1158,14 @@ fun ClearRoadScreen(
                             RouteMetricsBlock(
                                 durationText = cardModel.durationText,
                                 distanceText = cardModel.distanceText,
-                                durationOnSurfaceAlpha = cardModel.durationOnSurfaceAlpha,
+                                durationOnSurfaceAlpha = 1f,
+                                compact = true,
                             )
                             Spacer(modifier = Modifier.height(cardLineGap))
                             WhyTagRow(
                                 tags = cardModel.whyTags,
                                 accentColor = modeAccent,
+                                compact = !isRecommended,
                             )
                             Spacer(modifier = Modifier.height(cardLineGap))
                             RouteMetaLine(
@@ -1225,7 +1182,6 @@ fun ClearRoadScreen(
                                         if (isRecommended) 0.46f else 0.54f,
                                 )
                             }
-                        }
                     }
                 }
                 val lastRouteSelected =
@@ -1240,7 +1196,7 @@ fun ClearRoadScreen(
                 )
             }
         }
-    }
+        }
 
         detailsRouteIndex?.let { detailIdx ->
             val detailItem = realRouteDebugDataList.getOrNull(detailIdx)

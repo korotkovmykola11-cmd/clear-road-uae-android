@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Clear Road UAE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .app {
+      min-height: 100vh;
+      width: 100%;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 30%, #E0F4FF 60%, #F0F9FF 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Dubai Skyline Background */
+    .skyline {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 45%;
+      background: linear-gradient(180deg, transparent 0%, rgba(135, 206, 235, 0.1) 100%);
+      pointer-events: none;
+    }
+
+    .skyline svg {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Clouds */
+    .clouds {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 100px;
+      filter: blur(1px);
+    }
+
+    .cloud-1 {
+      width: 120px;
+      height: 40px;
+      top: 30px;
+      left: 10%;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .cloud-2 {
+      width: 80px;
+      height: 30px;
+      top: 60px;
+      left: 60%;
+      animation: float 25s ease-in-out infinite reverse;
+    }
+
+    .cloud-3 {
+      width: 100px;
+      height: 35px;
+      top: 20px;
+      left: 35%;
+      animation: float 22s ease-in-out infinite;
+    }
+
+    .cloud-4 {
+      width: 60px;
+      height: 25px;
+      top: 80px;
+      left: 80%;
+      animation: float 18s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateX(0) translateY(0); }
+      50% { transform: translateX(20px) translateY(-5px); }
+    }
+
+    /* Main Content */
+    .content {
+      position: relative;
+      z-index: 10;
+      padding: 16px;
+      padding-top: 48px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header-subtitle {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(0, 80, 120, 0.7);
+      margin-bottom: 4px;
+    }
+
+    .header-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0A3D5C;
+      letter-spacing: -0.5px;
+    }
+
+    .header-title span {
+      background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Glass Panel */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 
+        0 8px 32px rgba(0, 80, 120, 0.12),
+        0 2px 8px rgba(0, 80, 120, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* YUNO Character */
+    .yuno-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .yuno-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .yuno-avatar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
+    }
+
+    .yuno-avatar svg {
+      width: 28px;
+      height: 28px;
+      color: white;
+      position: relative;
+      z-index: 1;
+    }
+
+    .yuno-bubble {
+      flex: 1;
+      background: rgba(14, 165, 233, 0.08);
+      border-radius: 16px;
+      border-top-left-radius: 4px;
+      padding: 12px 14px;
+      border: 1px solid rgba(14, 165, 233, 0.15);
+    }
+
+    .yuno-text {
+      font-size: 14px;
+      color: #0A3D5C;
+      line-height: 1.5;
+    }
+
+    .yuno-text strong {
+      color: #0891B2;
+    }
+
+    /* Input Fields */
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(0, 80, 120, 0.1);
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #0EA5E9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    .input-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .input-dot.from {
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      box-shadow: 0 2px 6px rgba(34, 197, 94, 0.4);
+    }
+
+    .input-dot.to {
+      background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.4);
+    }
+
+    .input-field {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 500;
+      color: #0A3D5C;
+      outline: none;
+    }
+
+    .input-field::placeholder {
+      color: rgba(10, 61, 92, 0.4);
+      font-weight: 400;
+    }
+
+    /* Route Connector */
+    .route-connector {
+      position: absolute;
+      left: 37px;
+      top: 52px;
+      width: 2px;
+      height: 32px;
+      background: linear-gradient(180deg, #22C55E 0%, #0EA5E9 100%);
+      border-radius: 1px;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    /* Mode Selector */
+    .mode-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 10px 8px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(0, 80, 120, 0.1);
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(10, 61, 92, 0.6);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .mode-btn:not(.active):hover {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(14, 165, 233, 0.3);
+    }
+
+    /* Find Routes Button */
+    .find-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #0A3D5C 0%, #0F4C75 100%);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(10, 61, 92, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .find-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(10, 61, 92, 0.4);
+    }
+
+    .find-btn:active {
+      transform: translateY(0);
+    }
+
+    .find-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Route Cards */
+    .routes-section {
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(10, 61, 92, 0.5);
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    .route-card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 16px rgba(0, 80, 120, 0.08);
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .route-card.recommended {
+      border: 1.5px solid rgba(14, 165, 233, 0.3);
+    }
+
+    .route-card.recommended::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #0EA5E9, #06B6D4, #14B8A6);
+    }
+
+    .recommended-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .route-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .route-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .route-icon.highway {
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    }
+
+    .route-icon.local {
+      background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    }
+
+    .route-icon svg {
+      width: 22px;
+      height: 22px;
+      color: white;
+    }
+
+    .route-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #0A3D5C;
+    }
+
+    .route-via {
+      font-size: 12px;
+      color: rgba(10, 61, 92, 0.5);
+      margin-top: 2px;
+    }
+
+    .route-stats {
+      display: flex;
+      gap: 16px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-icon {
+      width: 18px;
+      height: 18px;
+      color: rgba(10, 61, 92, 0.4);
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0A3D5C;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: rgba(10, 61, 92, 0.5);
+      margin-left: 2px;
+    }
+
+    .traffic-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0, 80, 120, 0.08);
+    }
+
+    .traffic-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .traffic-dot.green {
+      background: #22C55E;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    }
+
+    .traffic-dot.yellow {
+      background: #EAB308;
+      box-shadow: 0 0 8px rgba(234, 179, 8, 0.5);
+    }
+
+    .traffic-dot.red {
+      background: #EF4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    }
+
+    .traffic-text {
+      font-size: 13px;
+      color: rgba(10, 61, 92, 0.6);
+    }
+
+    /* Palm Trees SVG */
+    .palm-left, .palm-right {
+      position: absolute;
+      bottom: 0;
+      width: 80px;
+      height: auto;
+      z-index: 5;
+      opacity: 0.9;
+    }
+
+    .palm-left {
+      left: -10px;
+    }
+
+    .palm-right {
+      right: -10px;
+      transform: scaleX(-1);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Clouds -->
+    <div class="clouds">
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+      <div class="cloud cloud-4"></div>
+    </div>
+
+    <!-- Dubai Skyline -->
+    <div class="skyline">
+      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
+        <!-- Sky gradient overlay -->
+        <defs>
+          <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:rgba(135,206,235,0);"/>
+            <stop offset="100%" style="stop-color:rgba(135,206,235,0.3);"/>
+          </linearGradient>
+          <linearGradient id="buildingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#C4D4E0;"/>
+            <stop offset="100%" style="stop-color:#9BB5C9;"/>
+          </linearGradient>
+          <linearGradient id="burjGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#B8C9D9;"/>
+            <stop offset="100%" style="stop-color:#8BA5BC;"/>
+          </linearGradient>
+          <linearGradient id="palmGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#2D5A3D;"/>
+            <stop offset="100%" style="stop-color:#1E3D2A;"/>
+          </linearGradient>
+        </defs>
+        
+        <!-- Background buildings -->
+        <rect x="20" y="180" width="25" height="120" fill="url(#buildingGrad)" opacity="0.6"/>
+        <rect x="50" y="160" width="30" height="140" fill="url(#buildingGrad)" opacity="0.5"/>
+        <rect x="85" y="140" width="22" height="160" fill="url(#buildingGrad)" opacity="0.6"/>
+        
+        <!-- Burj Khalifa -->
+        <path d="M200 20 L195 50 L192 100 L188 180 L185 300 L215 300 L212 180 L208 100 L205 50 Z" fill="url(#burjGrad)"/>
+        <rect x="193" y="50" width="14" height="2" fill="rgba(255,255,255,0.3)"/>
+        <rect x="191" y="80" width="18" height="2" fill="rgba(255,255,255,0.3)"/>
+        <rect x="189" y="120" width="22" height="2" fill="rgba(255,255,255,0.3)"/>
+        <rect x="187" y="160" width="26" height="2" fill="rgba(255,255,255,0.3)"/>
+        
+        <!-- Right side buildings -->
+        <rect x="240" y="150" width="28" height="150" fill="url(#buildingGrad)" opacity="0.6"/>
+        <rect x="275" y="170" width="35" height="130" fill="url(#buildingGrad)" opacity="0.5"/>
+        <rect x="315" y="130" width="25" height="170" fill="url(#buildingGrad)" opacity="0.6"/>
+        <rect x="345" y="160" width="30" height="140" fill="url(#buildingGrad)" opacity="0.5"/>
+        
+        <!-- More left buildings -->
+        <rect x="115" y="170" width="28" height="130" fill="url(#buildingGrad)" opacity="0.5"/>
+        <rect x="150" y="190" width="20" height="110" fill="url(#buildingGrad)" opacity="0.6"/>
+        
+        <!-- Palm trees left -->
+        <g transform="translate(15, 220)">
+          <path d="M15 80 L17 40 L15 0 L13 40 Z" fill="#5D4E37"/>
+          <ellipse cx="15" cy="5" rx="20" ry="8" fill="url(#palmGrad)"/>
+          <ellipse cx="5" cy="15" rx="18" ry="6" fill="url(#palmGrad)" transform="rotate(-30 5 15)"/>
+          <ellipse cx="25" cy="15" rx="18" ry="6" fill="url(#palmGrad)" transform="rotate(30 25 15)"/>
+          <ellipse cx="0" cy="25" rx="16" ry="5" fill="url(#palmGrad)" transform="rotate(-50 0 25)"/>
+          <ellipse cx="30" cy="25" rx="16" ry="5" fill="url(#palmGrad)" transform="rotate(50 30 25)"/>
+        </g>
+        
+        <!-- Palm trees right -->
+        <g transform="translate(355, 230)">
+          <path d="M15 70 L17 35 L15 0 L13 35 Z" fill="#5D4E37"/>
+          <ellipse cx="15" cy="5" rx="18" ry="7" fill="url(#palmGrad)"/>
+          <ellipse cx="5" cy="13" rx="16" ry="5" fill="url(#palmGrad)" transform="rotate(-30 5 13)"/>
+          <ellipse cx="25" cy="13" rx="16" ry="5" fill="url(#palmGrad)" transform="rotate(30 25 13)"/>
+          <ellipse cx="0" cy="22" rx="14" ry="4" fill="url(#palmGrad)" transform="rotate(-50 0 22)"/>
+          <ellipse cx="30" cy="22" rx="14" ry="4" fill="url(#palmGrad)" transform="rotate(50 30 22)"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-subtitle">Route Decision Assistant</div>
+        <h1 class="header-title">Clear <span>Road</span></h1>
+      </div>
+
+      <!-- Main Glass Panel -->
+      <div class="glass-panel">
+        <!-- YUNO Assistant -->
+        <div class="yuno-section">
+          <div class="yuno-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </div>
+          <div class="yuno-bubble">
+            <p class="yuno-text">Hello! I'm <strong>YUNO</strong>. Where would you like to go today?</p>
+          </div>
+        </div>
+
+        <!-- Input Fields -->
+        <div class="input-group">
+          <div class="route-connector"></div>
+          <div class="input-wrapper">
+            <div class="input-dot from"></div>
+            <input type="text" class="input-field" placeholder="From: Current location" id="fromInput">
+          </div>
+          <div class="input-wrapper">
+            <div class="input-dot to"></div>
+            <input type="text" class="input-field" placeholder="To: Where to?" id="toInput">
+          </div>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+          <button class="mode-btn active" data-mode="fastest">Fastest</button>
+          <button class="mode-btn" data-mode="no-tolls">No Tolls</button>
+          <button class="mode-btn" data-mode="calm">Calm</button>
+        </div>
+
+        <!-- Find Routes Button -->
+        <button class="find-btn" id="findBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+          Find Best Routes
+        </button>
+      </div>
+
+      <!-- Routes Section -->
+      <div class="routes-section" id="routesSection" style="display: none;">
+        <div class="section-title">Recommended Routes</div>
+        
+        <!-- Route Card 1 -->
+        <div class="route-card recommended">
+          <div class="recommended-badge">Best</div>
+          <div class="route-header">
+            <div class="route-icon highway">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v20M2 12h20"/>
+              </svg>
+            </div>
+            <div>
+              <div class="route-name">Sheikh Zayed Road</div>
+              <div class="route-via">via E11 Highway</div>
+            </div>
+          </div>
+          <div class="route-stats">
+            <div class="stat">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+              <span class="stat-value">18</span>
+              <span class="stat-label">min</span>
+            </div>
+            <div class="stat">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <span class="stat-value">14.2</span>
+              <span class="stat-label">km</span>
+            </div>
+          </div>
+          <div class="traffic-indicator">
+            <div class="traffic-dot green"></div>
+            <span class="traffic-text">Light traffic - Clear roads ahead</span>
+          </div>
+        </div>
+
+        <!-- Route Card 2 -->
+        <div class="route-card">
+          <div class="route-header">
+            <div class="route-icon local">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="route-name">Al Khail Road</div>
+              <div class="route-via">via E44 Local</div>
+            </div>
+          </div>
+          <div class="route-stats">
+            <div class="stat">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+              <span class="stat-value">24</span>
+              <span class="stat-label">min</span>
+            </div>
+            <div class="stat">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <span class="stat-value">16.8</span>
+              <span class="stat-label">km</span>
+            </div>
+          </div>
+          <div class="traffic-indicator">
+            <div class="traffic-dot yellow"></div>
+            <span class="traffic-text">Moderate traffic - Some delays expected</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mode selector
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Find routes button
+    document.getElementById('findBtn').addEventListener('click', function() {
+      const routesSection = document.getElementById('routesSection');
+      const fromInput = document.getElementById('fromInput').value;
+      const toInput = document.getElementById('toInput').value;
+      
+      if (fromInput && toInput) {
+        routesSection.style.display = 'block';
+        routesSection.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // Demo: show routes anyway
+        routesSection.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
