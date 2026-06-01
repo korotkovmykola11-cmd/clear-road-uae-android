@@ -6,12 +6,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +41,8 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
@@ -59,9 +63,9 @@ private const val HOME_BACKGROUND_DRAWABLE = "home_hero_dubai"
 private const val HOME_BRAND_ICON_DRAWABLE = "home_brand_marshio_icon"
 private const val HOME_BRAND_WORD_DRAWABLE = "home_brand_marshio_word"
 private const val YUNO_CHARACTER_DRAWABLE = "yuno_character"
-private const val HOME_MODE_NO_TOLLS_DRAWABLE = "home_mode_no_tolls_salik"
-private const val HOME_MODE_CALM_DRAWABLE = "home_mode_calm_road"
 private const val HOME_MODE_FASTEST_DRAWABLE = "home_mode_fastest_lightning"
+private const val HOME_MODE_SAVE_AED_DRAWABLE = "home_mode_save_aed"
+private const val HOME_MODE_SMOOTH_DRIVE_DRAWABLE = "home_mode_smooth_drive"
 
 /** Full-screen Dubai road photo — docs/design/img_3.png */
 @Composable
@@ -492,45 +496,137 @@ private fun HomeRouteInputRow(
     }
 }
 
-/** docs/index.html `.mode-selector` — separate personality pills */
-private val HomeModeTabIconSize = 22.dp
-private val HomeModeNoTollsIconSize = HomeModeTabIconSize * 2
-private val HomeModePillShape = RoundedCornerShape(22.dp)
-private val HomeModeIconFastest = Color(0xFF2563EB)
-private val HomeModeIconNoTolls = Color(0xFF059669)
-private val HomeModeIconCalm = Color(0xFF7C3AED)
+/** Stage 30.3 — vertical mode selection cards (visual only). */
+private val HomeModeCardIconSize = 60.dp
+private val HomeModeCardSecondaryIconRenderSize = 75.dp
+private val HomeModeCardActiveIconSize = 67.dp
+private val HomeModeCardActiveSecondaryIconRenderSize = 84.dp
+private val HomeModeInactivePlinthShape = RoundedCornerShape(14.dp)
+private val HomeModeCardHeight = 80.dp
+private val HomeModeCardSpacing = 8.dp
+private val HomeModeCardBlockWidthFraction = 0.84f
+private val HomeModeCardIconTextGap = 12.dp
+private val HomeModeInactivePlinthHorizontalPadding = 10.dp
+private val HomeModeInactivePlinthVerticalPadding = 6.dp
 
-@Composable
-private fun HomeModeTabIcon(
-    mode: PreferenceMode,
-    tint: Color,
-    modifier: Modifier = Modifier,
-) {
+private val HomeModeInactiveTitleShadow =
+    Shadow(
+        color = Color.White.copy(alpha = 0.94f),
+        offset = Offset(0f, 0.5f),
+        blurRadius = 5f,
+    )
+
+private val HomeModeActiveTitleShadow =
+    Shadow(
+        color = Color.White.copy(alpha = 0.98f),
+        offset = Offset(0f, 0.5f),
+        blurRadius = 6f,
+    )
+
+private fun homeModeInactivePlinthTint(mode: PreferenceMode): Color =
+    when (mode) {
+        PreferenceMode.FASTEST -> ClearRoadColors.HomeAccentStart.copy(alpha = 0.14f)
+        PreferenceMode.NO_TOLLS -> Color(0xFF059669).copy(alpha = 0.12f)
+        PreferenceMode.CALM -> Color(0xFF6366F1).copy(alpha = 0.12f)
+    }
+
+private fun Modifier.homeModeInactiveContentPlinth(mode: PreferenceMode): Modifier {
+    val plinthTint = homeModeInactivePlinthTint(mode)
+    return shadow(
+        elevation = 3.dp,
+        shape = HomeModeInactivePlinthShape,
+        ambientColor = ClearRoadColors.HomeShadow.copy(alpha = 0.10f),
+        spotColor = ClearRoadColors.HomeShadow.copy(alpha = 0.06f),
+    )
+        .clip(HomeModeInactivePlinthShape)
+        .background(
+            Brush.linearGradient(
+                colors = listOf(
+                    plinthTint,
+                    Color.White.copy(alpha = 0.46f),
+                    Color.White.copy(alpha = 0.40f),
+                ),
+            ),
+        )
+        .border(
+            width = 1.dp,
+            color = Color.White.copy(alpha = 0.42f),
+            shape = HomeModeInactivePlinthShape,
+        )
+        .padding(
+            horizontal = HomeModeInactivePlinthHorizontalPadding,
+            vertical = HomeModeInactivePlinthVerticalPadding,
+        )
+}
+
+private fun Modifier.homeModeActiveContentPlinth(mode: PreferenceMode): Modifier {
+    val plinthTint = homeModeInactivePlinthTint(mode)
+    return shadow(
+        elevation = 5.dp,
+        shape = HomeModeInactivePlinthShape,
+        ambientColor = ClearRoadColors.HomeAccentStart.copy(alpha = 0.12f),
+        spotColor = ClearRoadColors.HomeAccentEnd.copy(alpha = 0.08f),
+    )
+        .clip(HomeModeInactivePlinthShape)
+        .background(
+            Brush.linearGradient(
+                colors = listOf(
+                    ClearRoadColors.HomeAccentStart.copy(alpha = 0.10f),
+                    ClearRoadColors.HomeAccentStart.copy(alpha = 0.07f),
+                    Color.White.copy(alpha = 0.50f),
+                    plinthTint,
+                    ClearRoadColors.HomeAccentEnd.copy(alpha = 0.08f),
+                ),
+            ),
+        )
+        .border(
+            width = 1.75.dp,
+            color = ClearRoadColors.HomeAccentStart.copy(alpha = 0.80f),
+            shape = HomeModeInactivePlinthShape,
+        )
+        .padding(
+            horizontal = HomeModeInactivePlinthHorizontalPadding,
+            vertical = HomeModeInactivePlinthVerticalPadding,
+        )
+}
+
+private fun homeModeCardTitle(mode: PreferenceMode): String =
+    when (mode) {
+        PreferenceMode.FASTEST -> "FASTEST"
+        PreferenceMode.NO_TOLLS -> "SAVE AED"
+        PreferenceMode.CALM -> "SMOOTH DRIVE"
+    }
+
+private fun homeModeCardDrawable(mode: PreferenceMode): String =
+    when (mode) {
+        PreferenceMode.FASTEST -> HOME_MODE_FASTEST_DRAWABLE
+        PreferenceMode.NO_TOLLS -> HOME_MODE_SAVE_AED_DRAWABLE
+        PreferenceMode.CALM -> HOME_MODE_SMOOTH_DRIVE_DRAWABLE
+    }
+
+private fun homeModeCardIconRenderSize(mode: PreferenceMode, selected: Boolean): Dp =
     when (mode) {
         PreferenceMode.FASTEST ->
-            HomeModeFastestIcon(
-                modifier = modifier.size(HomeModeNoTollsIconSize),
-            )
-        PreferenceMode.NO_TOLLS ->
-            HomeModeNoTollsIcon(
-                modifier = modifier.size(HomeModeNoTollsIconSize),
-            )
-        PreferenceMode.CALM ->
-            HomeModeCalmIcon(
-                modifier = modifier.size(HomeModeNoTollsIconSize),
-            )
+            if (selected) HomeModeCardActiveIconSize else HomeModeCardIconSize
+        PreferenceMode.NO_TOLLS, PreferenceMode.CALM ->
+            if (selected) {
+                HomeModeCardActiveSecondaryIconRenderSize
+            } else {
+                HomeModeCardSecondaryIconRenderSize
+            }
     }
-}
 
 @Composable
-private fun HomeModeFastestIcon(
+private fun HomeModeCardIcon(
+    mode: PreferenceMode,
+    selected: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val drawableId =
-        remember(context) {
+        remember(context, mode) {
             context.resources.getIdentifier(
-                HOME_MODE_FASTEST_DRAWABLE,
+                homeModeCardDrawable(mode),
                 "drawable",
                 context.packageName,
             )
@@ -539,57 +635,9 @@ private fun HomeModeFastestIcon(
     if (drawableId != 0) {
         Image(
             painter = painterResource(drawableId),
-            contentDescription = "Fastest",
+            contentDescription = homeModeCardTitle(mode),
             contentScale = ContentScale.Fit,
-            modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun HomeModeNoTollsIcon(
-    modifier: Modifier = Modifier,
-) {
-    val context = LocalContext.current
-    val drawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                HOME_MODE_NO_TOLLS_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-
-    if (drawableId != 0) {
-        Image(
-            painter = painterResource(drawableId),
-            contentDescription = "No tolls",
-            contentScale = ContentScale.Fit,
-            modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun HomeModeCalmIcon(
-    modifier: Modifier = Modifier,
-) {
-    val context = LocalContext.current
-    val drawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                HOME_MODE_CALM_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-
-    if (drawableId != 0) {
-        Image(
-            painter = painterResource(drawableId),
-            contentDescription = "Calm",
-            contentScale = ContentScale.Fit,
-            modifier = modifier,
+            modifier = modifier.size(homeModeCardIconRenderSize(mode, selected)),
         )
     }
 }
@@ -601,84 +649,73 @@ private fun HomeModePersonalityPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val label =
-        when (mode) {
-            PreferenceMode.FASTEST -> "Fastest"
-            PreferenceMode.NO_TOLLS -> "No tolls"
-            PreferenceMode.CALM -> "Calm"
-        }
-    val accentColor =
-        when (mode) {
-            PreferenceMode.FASTEST -> HomeModeIconFastest
-            PreferenceMode.NO_TOLLS -> HomeModeIconNoTolls
-            PreferenceMode.CALM -> HomeModeIconCalm
-        }
-    val iconTint = if (selected) Color.White else accentColor
-    val textColor =
-        if (selected) {
-            Color.White
-        } else {
-            ClearRoadColors.RouteDecisionChoiceText.copy(alpha = 0.82f)
-        }
+    val title = homeModeCardTitle(mode)
+    val titleColor = ClearRoadColors.RouteDecisionChoiceText
+    val titleStyle =
+        MaterialTheme.typography.labelLarge.copy(
+            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold,
+            fontSize = 14.sp,
+            letterSpacing = if (selected) 0.9.sp else 0.8.sp,
+            lineHeight = 18.sp,
+            shadow =
+                if (selected) {
+                    HomeModeActiveTitleShadow
+                } else {
+                    HomeModeInactiveTitleShadow
+                },
+        )
+    val iconRenderSize = homeModeCardIconRenderSize(mode, selected)
+    val iconSlotModifier =
+        Modifier
+            .size(iconRenderSize)
+            .then(
+                if (selected) {
+                    Modifier.shadow(
+                        elevation = 3.dp,
+                        shape = RoundedCornerShape(10.dp),
+                        ambientColor = ClearRoadColors.HomeAccentStart.copy(alpha = 0.16f),
+                        spotColor = ClearRoadColors.HomeAccentEnd.copy(alpha = 0.10f),
+                    )
+                } else {
+                    Modifier.shadow(
+                        elevation = 2.dp,
+                        shape = RoundedCornerShape(10.dp),
+                        ambientColor = Color.White.copy(alpha = 0.55f),
+                        spotColor = ClearRoadColors.HomeShadow.copy(alpha = 0.08f),
+                    )
+                },
+            )
 
     Box(
         modifier = modifier
-            .shadow(
-                elevation = if (selected) 8.dp else 4.dp,
-                shape = HomeModePillShape,
-                ambientColor = ClearRoadColors.HomeShadow.copy(alpha = if (selected) 0.14f else 0.08f),
-                spotColor = ClearRoadColors.HomeShadow.copy(alpha = if (selected) 0.12f else 0.06f),
-            )
-            .clip(HomeModePillShape)
-            .then(
-                if (selected) {
-                    Modifier.background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                ClearRoadColors.HomeAccentStart,
-                                ClearRoadColors.HomeAccentEnd,
-                            ),
-                        ),
-                    )
-                } else {
-                    Modifier.background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                ClearRoadColors.GlassPanelFill,
-                                ClearRoadColors.GlassPanelFillDeep,
-                            ),
-                        ),
-                    )
-                },
-            )
-            .border(
-                width = 1.dp,
-                color = if (selected) {
-                    Color.White.copy(alpha = 0.28f)
-                } else {
-                    ClearRoadColors.GlassPanelBorder
-                },
-                shape = HomeModePillShape,
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 10.dp),
-        contentAlignment = Alignment.Center,
+            .fillMaxWidth()
+            .height(HomeModeCardHeight)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.CenterStart,
     ) {
         Row(
-            horizontalArrangement = Arrangement.Center,
+            modifier =
+                (if (selected) {
+                    Modifier.homeModeActiveContentPlinth(mode)
+                } else {
+                    Modifier.homeModeInactiveContentPlinth(mode)
+                })
+                    .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
         ) {
-            HomeModeTabIcon(mode = mode, tint = iconTint)
-            Spacer(modifier = Modifier.width(5.dp))
+            Box(
+                modifier = iconSlotModifier,
+                contentAlignment = Alignment.Center,
+            ) {
+                HomeModeCardIcon(mode = mode, selected = selected)
+            }
+            Spacer(modifier = Modifier.width(HomeModeCardIconTextGap))
             Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                    fontSize = 12.sp,
-                    letterSpacing = 0.1.sp,
-                ),
-                color = textColor,
-                textAlign = TextAlign.Center,
+                text = title,
+                style = titleStyle,
+                color = titleColor,
+                textAlign = TextAlign.Start,
                 maxLines = 1,
             )
         }
@@ -691,17 +728,24 @@ internal fun HomeGlassModeTabs(
     onModeSelected: (PreferenceMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.Start,
     ) {
-        PreferenceMode.entries.forEach { mode ->
-            HomeModePersonalityPill(
-                mode = mode,
-                selected = mode == selectedMode,
-                onClick = { onModeSelected(mode) },
-                modifier = Modifier.weight(1f),
-            )
+        Column(
+            modifier = Modifier
+                .width(IntrinsicSize.Max)
+                .fillMaxWidth(HomeModeCardBlockWidthFraction),
+            verticalArrangement = Arrangement.spacedBy(HomeModeCardSpacing),
+        ) {
+            PreferenceMode.entries.forEach { mode ->
+                HomeModePersonalityPill(
+                    mode = mode,
+                    selected = mode == selectedMode,
+                    onClick = { onModeSelected(mode) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }
