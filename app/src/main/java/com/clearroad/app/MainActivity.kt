@@ -55,6 +55,7 @@ import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.domain.RouteOption
 import com.clearroad.app.domain.RouteReasoning
 import com.clearroad.app.domain.RouteReasoningContext
+import com.clearroad.app.domain.SimilarOutcomeDetection
 import com.clearroad.app.ui.theme.ClearRoad2Theme
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.roundToInt
@@ -734,6 +735,23 @@ fun ClearRoadScreen(
         recommendedRoutePersonalityLine?.let {
             recommendationAlignedExplanation(it, selectedMode)
         }
+    val similarOutcomeGuidance =
+        if (showRouteCardOverrides && realRouteDebugDataList.size >= 2) {
+            SimilarOutcomeDetection.detect(
+                routes =
+                    realRouteDebugDataList.map { item ->
+                        SimilarOutcomeDetection.SimilarOutcomeRouteInput(
+                            durationSeconds = item.durationSeconds,
+                            tollAed = item.tollAED,
+                        )
+                    },
+                recommendedIndex =
+                    recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex),
+                mode = selectedMode,
+            )
+        } else {
+            null
+        }
     LaunchedEffect(selectedMode, realRouteDebugDataList.size, recommendedRouteIndex) {
         if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
         userExplicitRouteSelection = false
@@ -798,7 +816,8 @@ fun ClearRoadScreen(
             val selectedDecisionTitle =
                 when {
                     showRouteCardOverrides ->
-                        recommendationAlignedCopy?.first
+                        similarOutcomeGuidance?.choice
+                            ?: recommendationAlignedCopy?.first
                             ?: manualRouteChoice(
                                 selectedMode,
                                 recommendedRouteIndex.coerceIn(
@@ -812,7 +831,8 @@ fun ClearRoadScreen(
             val selectedDecisionWhy =
                 when {
                     showRouteCardOverrides ->
-                        recommendationAlignedCopy?.second
+                        similarOutcomeGuidance?.why
+                            ?: recommendationAlignedCopy?.second
                             ?: manualRouteWhy(
                                 selectedMode,
                                 recommendedRouteIndex.coerceIn(
@@ -824,20 +844,6 @@ fun ClearRoadScreen(
                     else ->
                         decision?.why
                             ?: "Add starting point and destination to get a recommendation."
-                }
-            val selectedDecisionTip =
-                when {
-                    showRouteCardOverrides ->
-                        recommendationAlignedCopy?.third
-                            ?: manualRouteTip(
-                                selectedMode,
-                                recommendedRouteIndex.coerceIn(
-                                    0,
-                                    realRouteDebugDataList.lastIndex,
-                                ),
-                                recommendationTollAed,
-                            )
-                    else -> decision?.tip ?: "Start with a common UAE route."
                 }
             val showRouteInputStep =
                 showRouteInputs ||
@@ -990,17 +996,11 @@ fun ClearRoadScreen(
                 onModeSelected = { selectedMode = it },
             )
             Spacer(modifier = Modifier.height(8.dp))
-            HomeGlassPanel(contentPadding = 10.dp) {
-                ChoiceWhyTipBlock(
-                    model = choiceWhyTipUiModel(
-                        choice = selectedDecisionTitle,
-                        why = selectedDecisionWhy,
-                        tip = selectedDecisionTip,
-                        compact = showRouteCardOverrides,
-                    ),
-                    embedded = true,
-                )
-            }
+            YunoCompactRecommendationBlock(
+                ready = isRouteReady || showRouteCardOverrides,
+                choice = selectedDecisionTitle,
+                why = selectedDecisionWhy,
+            )
             Spacer(modifier = Modifier.height(4.dp))
         val fromCoords = selectedFromLatLng
         val toCoords = selectedToLatLng
