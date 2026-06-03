@@ -807,27 +807,14 @@ fun ClearRoadScreen(
                 .verticalScroll(scrollState)
                 .navigationBarsPadding()
                 .padding(horizontal = 16.dp)
-                .padding(top = if (showRouteCardOverrides) 24.dp else 30.dp),
+                .padding(top = if (showRouteCardOverrides) 18.dp else 22.dp),
         ) {
             HomeScreenHeader()
-            Spacer(modifier = Modifier.height(12.dp))
-            HomeYunoBubbleSection()
-            Spacer(modifier = Modifier.height(12.dp))
-            val selectedDecisionTitle =
-                when {
-                    showRouteCardOverrides ->
-                        similarOutcomeGuidance?.choice
-                            ?: recommendationAlignedCopy?.first
-                            ?: manualRouteChoice(
-                                selectedMode,
-                                recommendedRouteIndex.coerceIn(
-                                    0,
-                                    realRouteDebugDataList.lastIndex,
-                                ),
-                                recommendationTollAed,
-                            )
-                    else -> decision?.choice ?: "Enter a route"
-                }
+            Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 4.dp else 6.dp))
+            if (!showRouteCardOverrides && !ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
+                HomeYunoBubbleSection()
+                Spacer(modifier = Modifier.height(6.dp))
+            }
             val selectedDecisionWhy =
                 when {
                     showRouteCardOverrides ->
@@ -846,13 +833,14 @@ fun ClearRoadScreen(
                             ?: "Add starting point and destination to get a recommendation."
                 }
             val showRouteInputStep =
-                showRouteInputs ||
+                ArchitectureValidation.RECOMMENDATION_ONLY_HOME ||
+                    showRouteInputs ||
                     originText.isNotBlank() ||
                     destinationText.isNotBlank()
             if (!showRouteInputStep) {
                 HomeSearchCapsule(onClick = { showRouteInputs = true })
             } else {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 HomeRouteInputGroup(
                     fromValue = originText,
                     onFromValueChange = stopFrom@{ newText ->
@@ -995,17 +983,88 @@ fun ClearRoadScreen(
                 selectedMode = selectedMode,
                 onModeSelected = { selectedMode = it },
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            YunoCompactRecommendationBlock(
-                ready = isRouteReady || showRouteCardOverrides,
-                choice = selectedDecisionTitle,
-                why = selectedDecisionWhy,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-        val fromCoords = selectedFromLatLng
-        val toCoords = selectedToLatLng
-        if (fromCoords != null && toCoords != null) {
-            if (directionsLoading) {
+            Spacer(modifier = Modifier.height(10.dp))
+            val fromCoords = selectedFromLatLng
+            val toCoords = selectedToLatLng
+            val recommendationLoading =
+                directionsLoading && fromCoords != null && toCoords != null
+            val recommendationLoadingMessage =
+                when (selectedMode) {
+                    PreferenceMode.FASTEST -> "Checking route options..."
+                    PreferenceMode.NO_TOLLS -> "Looking for the best route balance..."
+                    PreferenceMode.CALM -> "Finding calmer route choices..."
+                }
+            val recommendedBannerIdentity =
+                if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
+                    val recIdx =
+                        recommendedRouteIndex.coerceIn(
+                            0,
+                            realRouteDebugDataList.lastIndex,
+                        )
+                    tollPhraseForCard(
+                        realRouteDebugDataList[recIdx],
+                        recIdx,
+                        selectedMode,
+                        recommendedRouteIndex,
+                        realRouteDebugDataList,
+                    )
+                } else {
+                    ""
+                }
+            val recommendationHighConfidence =
+                if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
+                    isHighConfidenceRecommendation(
+                        selectedMode,
+                        realRouteDebugDataList,
+                        recommendedRouteIndex,
+                    )
+                } else {
+                    false
+                }
+            val openRecommendedViewDetails: (() -> Unit)? =
+                if (
+                    showRouteCardOverrides &&
+                        realRouteDebugDataList.isNotEmpty()
+                ) {
+                    {
+                        detailsRouteIndex =
+                            recommendedRouteIndex.coerceIn(
+                                0,
+                                realRouteDebugDataList.lastIndex,
+                            )
+                    }
+                } else {
+                    null
+                }
+            if (ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
+                RecommendationSurface(
+                    model = buildRecommendationSurfaceUiModel(
+                        ready = showRouteCardOverrides,
+                        loading = recommendationLoading,
+                        loadingMessage = recommendationLoadingMessage,
+                        routes = realRouteDebugDataList,
+                        recommendedRouteIndex = recommendedRouteIndex,
+                        routeIdentity = recommendedBannerIdentity,
+                        mode = selectedMode,
+                        highConfidence = recommendationHighConfidence,
+                    ),
+                    onViewDetails = openRecommendedViewDetails,
+                )
+            } else {
+                MarshallRecommendationBanner(
+                    model = buildMarshallRecommendationBannerUiModel(
+                        ready = isRouteReady || showRouteCardOverrides,
+                        routes = realRouteDebugDataList,
+                        recommendedRouteIndex = recommendedRouteIndex,
+                        routeIdentity = recommendedBannerIdentity,
+                        whyText = selectedDecisionWhy,
+                    ),
+                    onViewDetails = null,
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            if (fromCoords != null && toCoords != null) {
+            if (directionsLoading && !ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = when (selectedMode) {
@@ -1023,6 +1082,7 @@ fun ClearRoadScreen(
                 )
             } else if (realRouteDebugDataList.isNotEmpty()) {
                 val debugRoutes = realRouteDebugDataList
+                if (!ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
                 AvailableRoutesHeader(routeCount = realRouteDebugDataList.size)
                 for (index in debugRoutes.indices) {
                     val item = debugRoutes[index]
@@ -1074,13 +1134,13 @@ fun ClearRoadScreen(
                     val cardBorder = when {
                         isUserSelected && isRecommended ->
                             BorderStroke(
-                                width = 2.dp,
-                                color = modeAccent.copy(alpha = 0.52f),
+                                width = 1.5.dp,
+                                color = ClearRoadColors.ExecutiveGold.copy(alpha = 0.92f),
                             )
                         isRecommended ->
                             BorderStroke(
-                                width = 2.dp,
-                                color = modeAccent.copy(alpha = 0.52f),
+                                width = 1.5.dp,
+                                color = ClearRoadColors.ExecutiveGold.copy(alpha = 0.88f),
                             )
                         isUserSelected ->
                             BorderStroke(
@@ -1112,89 +1172,40 @@ fun ClearRoadScreen(
                             selectedRouteIndex = index
                         },
                     ) {
-                            val cardLineGap = if (isRecommended) 1.dp else 1.dp
-                            val metricsLineGap = 0.dp
-                            if (isRecommended && cardModel.recommendedNuance != null) {
-                                RecommendedBadgeBlock(
-                                    nuance = cardModel.recommendedNuance,
-                                    accentColor = modeAccent,
-                                    compact = true,
-                                )
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                RouteTitleBlock(
-                                    personality = "",
-                                    title = cardModel.routeTitle,
-                                    titleAlpha = 1f,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                if (showUserSelectedChrome) {
-                                    Text(
-                                        text = "View details →",
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(
-                                                modeAccent.copy(alpha = 0.10f),
-                                            )
-                                            .clickable {
-                                                detailsRouteIndex = index
-                                            }
-                                            .padding(
-                                                horizontal = 10.dp,
-                                                vertical = 4.dp,
-                                            ),
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontWeight = FontWeight.Medium,
-                                        ),
-                                        color = modeAccent.copy(alpha = 0.92f),
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(cardLineGap))
-                            RouteMetricsBlock(
-                                durationText = cardModel.durationText,
-                                distanceText = cardModel.distanceText,
-                                durationOnSurfaceAlpha = 1f,
-                                compact = true,
-                            )
-                            Spacer(modifier = Modifier.height(cardLineGap))
-                            WhyTagRow(
-                                tags = cardModel.whyTags,
-                                accentColor = modeAccent,
-                                compact = !isRecommended,
-                            )
-                            Spacer(modifier = Modifier.height(cardLineGap))
-                            RouteMetaLine(
-                                tollText = cardModel.salikLine,
-                            )
-                            Spacer(modifier = Modifier.height(metricsLineGap))
-                            RouteFuelConfidenceLine(
-                                text = cardModel.confidence,
-                            )
-                            if (showUserSelectedChrome) {
-                                Spacer(modifier = Modifier.height(1.dp))
-                                SelectedLabelBlock(
-                                    labelAlpha =
-                                        if (isRecommended) 0.46f else 0.54f,
-                                )
-                            }
+                        DecisionFirstRouteCardContent(
+                            cardModel = cardModel,
+                            personality = personality,
+                            modeAccent = modeAccent,
+                            showUserSelectedChrome = showUserSelectedChrome,
+                            onViewDetails = { detailsRouteIndex = index },
+                        )
                     }
                 }
+                }
                 val lastRouteSelected =
-                    userExplicitRouteSelection &&
+                    !ArchitectureValidation.RECOMMENDATION_ONLY_HOME &&
+                        userExplicitRouteSelection &&
                         debugRoutes.isNotEmpty() &&
                         routeCardSelectionIndex == debugRoutes.lastIndex
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .height(if (lastRouteSelected) 144.dp else 72.dp),
-                )
+                if (!ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .height(
+                                if (lastRouteSelected) 144.dp else 72.dp,
+                            ),
+                    )
+                }
             }
+        }
+        if (ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .height(72.dp),
+            )
         }
         }
 

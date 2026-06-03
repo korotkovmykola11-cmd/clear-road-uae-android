@@ -137,11 +137,11 @@ internal fun HomeDubaiBackground(modifier: Modifier = Modifier) {
 
 private val YunoIdentitySubtitleColor = Color(0xFF000000)
 private val YunoHomeMarkSize = 129.dp
-private val HomeBrandIconMaxHeight = 77.dp
-private val HomeBrandWordMaxHeight = 20.dp
-private val HomeBrandTextBlockLift = 12.dp
-private val HomeBrandHeroTopInset = 34.dp
-private val HomeBrandBlockRaise = 61.dp
+private val HomeBrandIconMaxHeight = 68.dp
+private val HomeBrandWordMaxHeight = 18.dp
+private val HomeBrandTextBlockLift = 10.dp
+private val HomeBrandHeroTopInset = 20.dp
+private val HomeBrandBlockRaise = 48.dp
 
 /** MARSHIO logo from docs/img_1.png — icon + word split for text vertical tuning */
 @Composable
@@ -212,9 +212,9 @@ internal fun HomeScreenHeader(modifier: Modifier = Modifier) {
                         text = "UAE Route Decision Assistant",
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp,
-                            letterSpacing = 0.6.sp,
-                            lineHeight = 18.sp,
+                            fontSize = 13.sp,
+                            letterSpacing = 0.5.sp,
+                            lineHeight = 16.sp,
                             shadow = Shadow(
                                 color = Color.White.copy(alpha = 0.82f),
                                 offset = Offset(0f, 0.5f),
@@ -398,9 +398,9 @@ internal fun HomeRouteInputGroup(
     Box(modifier = modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier
-                .offset(x = 21.dp, y = 24.dp)
+                .offset(x = 21.dp, y = 18.dp)
                 .width(2.dp)
-                .height(20.dp)
+                .height(16.dp)
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
@@ -458,7 +458,7 @@ private fun HomeRouteInputRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -497,13 +497,13 @@ private fun HomeRouteInputRow(
 }
 
 /** Stage 30.3 — vertical mode selection cards (visual only). */
-private val HomeModeCardIconSize = 60.dp
-private val HomeModeCardSecondaryIconRenderSize = 75.dp
-private val HomeModeCardActiveIconSize = 67.dp
-private val HomeModeCardActiveSecondaryIconRenderSize = 84.dp
+private val HomeModeCardIconSize = 52.dp
+private val HomeModeCardSecondaryIconRenderSize = 64.dp
+private val HomeModeCardActiveIconSize = 58.dp
+private val HomeModeCardActiveSecondaryIconRenderSize = 72.dp
 private val HomeModeInactivePlinthShape = RoundedCornerShape(14.dp)
-private val HomeModeCardHeight = 80.dp
-private val HomeModeCardSpacing = 8.dp
+private val HomeModeCardHeight = 64.dp
+private val HomeModeCardSpacing = 6.dp
 private val HomeModeCardBlockWidthFraction = 0.84f
 private val HomeModeCardIconTextGap = 12.dp
 private val HomeModeInactivePlinthHorizontalPadding = 10.dp
@@ -771,7 +771,7 @@ internal fun HomeGlassSurface(
     val elevation = if (recommended) 10.dp else 1.dp
     val defaultBorder =
         if (recommended) {
-            BorderStroke(2.dp, ClearRoadColors.HomeAccentStart.copy(alpha = 0.48f))
+            BorderStroke(1.5.dp, ClearRoadColors.ExecutiveGold.copy(alpha = 0.88f))
         } else {
             BorderStroke(1.dp, ClearRoadColors.GlassInputBorder.copy(alpha = 0.10f))
         }
@@ -802,13 +802,13 @@ internal fun HomeGlassSurface(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(4.dp)
+                        .height(3.dp)
                         .background(
                             Brush.horizontalGradient(
                                 colors = listOf(
-                                    ClearRoadColors.HomeAccentStart,
-                                    ClearRoadColors.HomeAccentEnd,
-                                    ClearRoadColors.HomeAccentTeal,
+                                    ClearRoadColors.ExecutiveGold.copy(alpha = 0.55f),
+                                    ClearRoadColors.ExecutiveGold,
+                                    ClearRoadColors.ExecutiveGold.copy(alpha = 0.55f),
                                 ),
                             ),
                         ),

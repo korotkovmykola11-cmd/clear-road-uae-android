@@ -47,6 +47,13 @@ object ClearRoadColors {
     val RouteDecisionChoicePlinthFill = Color(0xFFF0F7FB)
     val InputDotFrom = Color(0xFF22C55E)
     val InputDotTo = Color(0xFF0EA5E9)
+
+    // MARSHIO Home v2.2 executive banner + recommended route frame
+    val ExecutiveGold = Color(0xFFC9A861)
+    val ExecutiveCream = Color(0xFFF5EDDB)
+    val ExecutiveNavyStart = Color(0xFF1A2332)
+    val ExecutiveNavyEnd = Color(0xFF0F1623)
+    val ExecutiveBodyMuted = Color(0xFFB8A88A)
 }
 
 fun PreferenceMode.accentColor(): Color =
