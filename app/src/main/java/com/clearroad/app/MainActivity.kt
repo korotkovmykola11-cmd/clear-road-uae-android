@@ -1320,33 +1320,19 @@ fun ClearRoadScreen(
                                 realRouteDebugDataList.lastIndex,
                             ),
                         )
-                    val recommendationConfidenceText =
+                    val recommendationConfidenceCopy =
                         if (isRecommendedRouteDetails) {
-                            confidenceLines(
-                                selectedMode,
-                                directionsStatus,
-                                realRouteDebugDataList,
-                                recIdxForConfidence,
-                            )
-                        } else {
-                            ""
-                        }
-                    val isHighConfidence =
-                        if (isRecommendedRouteDetails) {
-                            isHighConfidenceRecommendation(
-                                selectedMode,
-                                realRouteDebugDataList,
-                                recIdxForConfidence,
-                            )
-                        } else {
-                            false
-                        }
-                    val recommendationTradeoffText =
-                        if (isRecommendedRouteDetails && directionsStatus == "OK") {
-                            RouteReasoning.routeTradeoffExplanation(selectedMode)
+                            RecommendationConfidenceLayer.forMode(selectedMode)
                         } else {
                             null
                         }
+                    val recommendationConfidenceTitle =
+                        recommendationConfidenceCopy?.title.orEmpty()
+                    val recommendationConfidenceText =
+                        recommendationConfidenceCopy?.body.orEmpty()
+                    val isHighConfidence =
+                        recommendationConfidenceCopy?.isHighConfidence ?: false
+                    val recommendationTradeoffText: String? = null
                     RouteDetailsScreen(
                         model = buildRouteDetailsUiModel(
                             routeIndex = detailIdx,
@@ -1370,6 +1356,7 @@ fun ClearRoadScreen(
                                 decisionSnapshot.othersHeading,
                             decisionSnapshotOthersSummary =
                                 decisionSnapshot.othersSummary,
+                            recommendationConfidenceTitle = recommendationConfidenceTitle,
                             recommendationConfidenceText = recommendationConfidenceText,
                             recommendationTradeoffText = recommendationTradeoffText,
                             isHighConfidence = isHighConfidence,

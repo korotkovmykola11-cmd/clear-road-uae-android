@@ -144,9 +144,12 @@ private fun RouteDetailsWhyCard(
                     color = ClearRoadColors.RoadGreyMuted,
                 )
             }
-            if (model.recommendationConfidenceText.isNotBlank()) {
+            if (model.recommendationConfidenceTitle.isNotBlank() ||
+                model.recommendationConfidenceText.isNotBlank()
+            ) {
                 Spacer(modifier = Modifier.height(12.dp))
                 RouteDetailsConfidenceCallout(
+                    title = model.recommendationConfidenceTitle,
                     text = model.recommendationConfidenceText,
                     tradeoffText = model.recommendationTradeoffText,
                     isHighConfidence = model.isHighConfidence,
@@ -159,6 +162,7 @@ private fun RouteDetailsWhyCard(
 
 @Composable
 private fun RouteDetailsConfidenceCallout(
+    title: String,
     text: String,
     tradeoffText: String?,
     isHighConfidence: Boolean,
@@ -190,10 +194,18 @@ private fun RouteDetailsConfidenceCallout(
             )
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
+        if (title.isNotBlank()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = ClearRoadColors.RoadGrey,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = if (isHighConfidence) FontWeight.Medium else FontWeight.Normal,
+                fontWeight = if (isHighConfidence && title.isBlank()) FontWeight.Medium else FontWeight.Normal,
             ),
             color = ClearRoadColors.RoadGrey,
         )

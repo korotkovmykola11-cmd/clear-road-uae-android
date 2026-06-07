@@ -77,6 +77,7 @@ data class RouteDetailsUiModel(
     val decisionSnapshotRecommendedSummary: String,
     val decisionSnapshotOthersHeading: String,
     val decisionSnapshotOthersSummary: String,
+    val recommendationConfidenceTitle: String = "",
     val recommendationConfidenceText: String,
     val recommendationTradeoffText: String? = null,
     val isHighConfidence: Boolean = false,
