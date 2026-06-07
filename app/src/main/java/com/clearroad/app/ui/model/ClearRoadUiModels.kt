@@ -24,6 +24,7 @@ data class RecommendationSurfaceUiModel(
     val decisionSummary: String = "Best Decision Right Now",
     val decisionLabel: String = "",
     val recommendationBadge: String = "",
+    val recommendationReason: String = "",
     val confidenceDisplay: String = "",
     val narrative: String = "",
     val mode: PreferenceMode = PreferenceMode.FASTEST,

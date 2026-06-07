@@ -159,6 +159,10 @@ private fun RecommendationReadyContent(
             accentColor = model.mode.accentColor(),
         )
     }
+    if (model.recommendationReason.isNotBlank()) {
+        Spacer(modifier = Modifier.height(6.dp))
+        RecommendationReasonChip(text = model.recommendationReason)
+    }
     Spacer(modifier = Modifier.height(8.dp))
     Text(
         text = model.travelTime,
@@ -221,6 +225,25 @@ private fun RecommendationReadyContent(
             textAlign = TextAlign.Center,
         )
     }
+}
+
+@Composable
+private fun RecommendationReasonChip(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .background(
+                color = ClearRoadColors.SalikNeutral.copy(alpha = 0.10f),
+                shape = RoundedCornerShape(6.dp),
+            )
+            .padding(horizontal = 8.dp, vertical = 2.dp),
+        style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+        ),
+        color = HomeProductBodyColor,
+        maxLines = 1,
+    )
 }
 
 @Composable

@@ -39,6 +39,12 @@ internal fun buildRecommendationSurfaceUiModel(
         mode = mode,
         decisionLabel = DecisionLabelLayer.label(),
         recommendationBadge = RecommendationBadgeLayer.forMode(mode),
+        recommendationReason = RecommendationReasonLayer.reason(
+            mode = mode,
+            recommended = recommended,
+            routes = routes,
+            recommendedIndex = recIdx,
+        ),
         decisionSummary = RecommendationSummaryLayer.forMode(mode),
         narrative = DecisionNarrativeSynthesis.narrative(
             mode = mode,
