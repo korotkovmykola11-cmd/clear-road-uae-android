@@ -45,6 +45,7 @@ internal fun buildRecommendationSurfaceUiModel(
             routes = routes,
             recommendedIndex = recIdx,
         ),
+        confidenceDisplay = RecommendationConfidenceLayer.chipLabel(mode),
         decisionSummary = RecommendationSummaryLayer.forMode(mode),
         narrative = DecisionNarrativeSynthesis.narrative(
             mode = mode,

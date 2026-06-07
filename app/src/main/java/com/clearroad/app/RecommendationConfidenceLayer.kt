@@ -36,4 +36,7 @@ internal object RecommendationConfidenceLayer {
                     isHighConfidence = false,
                 )
         }
+
+    /** Stage 32.8 — one-line confidence chip for the Home recommendation card. */
+    fun chipLabel(mode: PreferenceMode): String = forMode(mode).title
 }

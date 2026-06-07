@@ -40,4 +40,28 @@ class RecommendationConfidenceLayerTest {
         )
         assertFalse(copy.isHighConfidence)
     }
+
+    @Test
+    fun fastestChipLabelIsHighConfidence() {
+        assertEquals(
+            "High confidence",
+            RecommendationConfidenceLayer.chipLabel(PreferenceMode.FASTEST),
+        )
+    }
+
+    @Test
+    fun saveAedChipLabelIsMediumConfidence() {
+        assertEquals(
+            "Medium confidence",
+            RecommendationConfidenceLayer.chipLabel(PreferenceMode.NO_TOLLS),
+        )
+    }
+
+    @Test
+    fun smoothDriveChipLabelIsMediumConfidence() {
+        assertEquals(
+            "Medium confidence",
+            RecommendationConfidenceLayer.chipLabel(PreferenceMode.CALM),
+        )
+    }
 }
