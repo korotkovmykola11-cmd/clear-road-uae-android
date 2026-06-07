@@ -56,12 +56,28 @@ object RouteReasoning {
                     Pair("Time is the main factor.", "Salik $tollAed AED on this route.")
                 }
             PreferenceMode.NO_TOLLS ->
-                Pair("Salik kept low on this route.", "May add a few minutes.")
+                if (tollAed > 0) {
+                    Pair(
+                        "Lower Salik exposure on this route.",
+                        "Google estimates Salik $tollAed AED here.",
+                    )
+                } else {
+                    Pair(
+                        "Lower Salik exposure on this route.",
+                        "May take a few extra minutes versus the fastest option.",
+                    )
+                }
             PreferenceMode.CALM ->
                 if (tollAed > 0) {
-                    Pair("Extra time buys a smoother drive.", "Salik $tollAed AED on this route.")
+                    Pair(
+                        "Smoother pacing on this route.",
+                        "Google estimates Salik $tollAed AED on this route.",
+                    )
                 } else {
-                    Pair("Extra time buys a smoother drive.", "No Salik on this route.")
+                    Pair(
+                        "Smoother pacing on this route.",
+                        "May add a few minutes for calmer flow.",
+                    )
                 }
         }
 
@@ -270,25 +286,23 @@ object RouteReasoning {
                             .roundToInt()
                     when {
                         savedMinutes >= 2 ->
-                            "Saves about $savedMinutes min compared with the next option."
+                            "Fastest available route — about $savedMinutes minutes ahead of the next option."
                         savedMinutes == 1 ->
-                            "Saves a minute compared with the next option."
-                        else -> "Best arrival time among available routes."
+                            "Fastest available route — about a minute ahead of the next option."
+                        else -> "Fastest available route for this trip."
                     }
-                } else if (
-                    fastestDurationSeconds > 0 &&
-                    recommendedDurationSeconds <= fastestDurationSeconds + 60
-                ) {
-                    "Best arrival time among available routes."
                 } else {
-                    "Best arrival time among available routes."
+                    "Fastest available route for this trip."
                 }
             }
             PreferenceMode.NO_TOLLS ->
                 when {
-                    recommendedTollAed == 0 -> "Avoids Salik charges on this trip."
-                    highConfidence -> "Avoids Salik charges on this trip."
-                    else -> "Good balance between cost and travel time."
+                    recommendedTollAed > 0 ->
+                        "Lower Salik exposure — Google estimates ${recommendedTollAed} AED on this route."
+                    highConfidence ->
+                        "Lower Salik exposure than other options on this trip."
+                    else ->
+                        "MARSHIO kept Salik risk lower on this route."
                 }
             PreferenceMode.CALM -> {
                 val extraSeconds =
@@ -300,12 +314,14 @@ object RouteReasoning {
                 when {
                     extraSeconds >= 300 ->
                         if (compact) {
-                            "Slightly longer — smoother drive."
+                            "Smoother drive — a few extra minutes for calmer flow."
                         } else {
-                            "Slightly longer, but designed for a smoother drive."
+                            "Smoother drive — a few extra minutes for calmer, more predictable flow."
                         }
-                    extraSeconds >= 60 -> "Designed for a more relaxed drive."
-                    else -> "Designed for a more relaxed drive."
+                    extraSeconds >= 60 ->
+                        "Smoother drive — slightly longer, with steadier pacing."
+                    else ->
+                        "Smoother drive — similar arrival time with calmer flow."
                 }
             }
         }
@@ -316,9 +332,9 @@ object RouteReasoning {
      */
     fun routeTradeoffExplanation(mode: PreferenceMode): String =
         when (mode) {
-            PreferenceMode.FASTEST -> "Alternative routes take longer."
-            PreferenceMode.NO_TOLLS -> "Other routes may increase Salik spending."
-            PreferenceMode.CALM -> "Faster routes may feel busier."
+            PreferenceMode.FASTEST -> "Other routes on this trip take longer."
+            PreferenceMode.NO_TOLLS -> "Faster routes may carry more Salik exposure."
+            PreferenceMode.CALM -> "Faster routes may feel busier along this corridor."
         }
 
     fun engineWhy(route: RouteOption, mode: PreferenceMode): String {

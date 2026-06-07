@@ -1282,10 +1282,31 @@ fun ClearRoadScreen(
                     )
                     val detailAligned =
                         recommendationAlignedExplanation(detailPersonality, selectedMode)
+                    val recIdxForConfidence =
+                        recommendedRouteIndex.coerceIn(
+                            0,
+                            realRouteDebugDataList.lastIndex,
+                        )
+                    val isRecommendedRouteDetails = detailIdx == recIdxForConfidence
+                    val recommendedWhyCopy =
+                        if (isRecommendedRouteDetails) {
+                            WhyThisRouteLayer.recommendedRouteCopy(
+                                mode = selectedMode,
+                                recommended = detailItem,
+                                routes = realRouteDebugDataList,
+                                recommendedIndex = recIdxForConfidence,
+                                directionsStatus = directionsStatus,
+                            )
+                        } else {
+                            null
+                        }
                     val routeReasonTitle =
-                        detailAligned?.first ?: detailPersonality
+                        recommendedWhyCopy?.title
+                            ?: detailAligned?.first
+                            ?: detailPersonality
                     val routeReasonWhy =
-                        detailAligned?.second.orEmpty()
+                        recommendedWhyCopy?.why
+                            ?: detailAligned?.second.orEmpty()
                     val (costSummaryPrimary, costSummarySecondary) =
                         costSummaryLines(
                             selectedMode,
@@ -1299,12 +1320,6 @@ fun ClearRoadScreen(
                                 realRouteDebugDataList.lastIndex,
                             ),
                         )
-                    val recIdxForConfidence =
-                        recommendedRouteIndex.coerceIn(
-                            0,
-                            realRouteDebugDataList.lastIndex,
-                        )
-                    val isRecommendedRouteDetails = detailIdx == recIdxForConfidence
                     val recommendationConfidenceText =
                         if (isRecommendedRouteDetails) {
                             confidenceLines(
