@@ -60,9 +60,9 @@ private const val RecommendationEmptyClosing =
 
 private fun recommendationModeContextLine(mode: PreferenceMode): String =
     when (mode) {
-        PreferenceMode.FASTEST -> "Best route for FASTEST"
-        PreferenceMode.NO_TOLLS -> "Best route for SAVE AED"
-        PreferenceMode.CALM -> "Best route for SMOOTH DRIVE"
+        PreferenceMode.FASTEST -> "Fastest way to get there"
+        PreferenceMode.NO_TOLLS -> "Best value route"
+        PreferenceMode.CALM -> "Smoother drive option"
     }
 
 private fun Modifier.homeRecommendationCardSurface(): Modifier =
@@ -86,6 +86,7 @@ internal fun RecommendationSurface(
     model: RecommendationSurfaceUiModel,
     modifier: Modifier = Modifier,
     onViewDetails: (() -> Unit)? = null,
+    onRefreshRoute: (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
@@ -117,6 +118,7 @@ internal fun RecommendationSurface(
                 RecommendationReadyContent(
                     model = model,
                     onViewDetails = onViewDetails,
+                    onRefreshRoute = onRefreshRoute,
                 )
             }
             else -> {
@@ -130,6 +132,7 @@ internal fun RecommendationSurface(
 private fun RecommendationReadyContent(
     model: RecommendationSurfaceUiModel,
     onViewDetails: (() -> Unit)?,
+    onRefreshRoute: (() -> Unit)?,
 ) {
     if (model.decisionLabel.isNotBlank()) {
         Text(
@@ -208,8 +211,25 @@ private fun RecommendationReadyContent(
     }
     Spacer(modifier = Modifier.height(16.dp))
     RecommendationYunoOwnerBlock()
+    if (onRefreshRoute != null) {
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "Refresh route",
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(onClick = onRefreshRoute)
+                .padding(vertical = 6.dp),
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 13.sp,
+            ),
+            color = HomeProductTitleColor,
+            textAlign = TextAlign.Center,
+        )
+    }
     if (onViewDetails != null) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "Why This Route",
             modifier = Modifier

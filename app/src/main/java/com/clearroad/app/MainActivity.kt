@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,6 +70,7 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient
 import java.util.Locale
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -643,6 +645,48 @@ private fun logSalikScoringProbe(
     }
 }
 
+private const val DIRECTIONS_FETCH_TAG = "DirectionsFetch"
+
+private data class DirectionsFetchResult(
+    val raw: String?,
+    val status: String?,
+    val distanceDuration: Pair<String, String>?,
+    val distanceDurationValues: Pair<Int, Int>?,
+    val singleRoute: RealRouteDebugData?,
+    val routes: List<RealRouteDebugData>,
+)
+
+private suspend fun fetchDirectionsForRoute(
+    from: LatLng,
+    to: LatLng,
+): DirectionsFetchResult {
+    Log.d(
+        DIRECTIONS_FETCH_TAG,
+        "Fetching directions ${from.latitude},${from.longitude} -> ${to.latitude},${to.longitude}",
+    )
+    val raw = fetchDirectionsRaw(buildDirectionsUrl(from, to))
+    val distanceDuration = raw?.let { extractFirstLegDistanceDuration(it) }
+    val distanceDurationValues = raw?.let { extractFirstLegDistanceDurationValues(it) }
+    val singleRoute = buildRealRouteDebugData(
+        distanceDuration,
+        distanceDurationValues,
+        raw?.let(::firstRouteObjectJson),
+    )
+    val routes = raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
+    Log.d(
+        DIRECTIONS_FETCH_TAG,
+        "Directions fetch complete status=${raw?.let(::extractDirectionsStatus)} routes=${routes.size}",
+    )
+    return DirectionsFetchResult(
+        raw = raw,
+        status = raw?.let { extractDirectionsStatus(it) },
+        distanceDuration = distanceDuration,
+        distanceDurationValues = distanceDurationValues,
+        singleRoute = singleRoute,
+        routes = routes,
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClearRoadScreen(
@@ -684,6 +728,26 @@ fun ClearRoadScreen(
     var directionsLoading by remember { mutableStateOf(false) }
     var detailsRouteIndex by remember { mutableStateOf<Int?>(null) }
     var showRouteInputs by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    fun applyDirectionsFetchResult(result: DirectionsFetchResult) {
+        directionsResponse = result.raw
+        directionsStatus = result.status
+        directionsDistanceDuration = result.distanceDuration
+        directionsDistanceDurationValues = result.distanceDurationValues
+        realRouteDebugData = result.singleRoute
+        realRouteDebugDataList = result.routes
+    }
+
+    suspend fun loadDirections(from: LatLng, to: LatLng) {
+        directionsLoading = true
+        try {
+            applyDirectionsFetchResult(fetchDirectionsForRoute(from, to))
+        } finally {
+            directionsLoading = false
+        }
+    }
+
     /** True only after user taps a route card; cleared when system realigns selection. */
     var userExplicitRouteSelection by remember { mutableStateOf(false) }
     val isRouteReady =
@@ -828,22 +892,7 @@ fun ClearRoadScreen(
         val from = selectedFromLatLng
         val to = selectedToLatLng
         if (from == null || to == null) return@LaunchedEffect
-        directionsLoading = true
-        val raw = fetchDirectionsRaw(buildDirectionsUrl(from, to))
-        directionsResponse = raw
-        directionsStatus = raw?.let { extractDirectionsStatus(it) }
-        directionsDistanceDuration =
-            raw?.let { extractFirstLegDistanceDuration(it) }
-        directionsDistanceDurationValues =
-            raw?.let { extractFirstLegDistanceDurationValues(it) }
-        realRouteDebugData = buildRealRouteDebugData(
-            directionsDistanceDuration,
-            directionsDistanceDurationValues,
-            raw?.let(::firstRouteObjectJson),
-        )
-        realRouteDebugDataList =
-            raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
-        directionsLoading = false
+        loadDirections(from, to)
     }
     LaunchedEffect(realRouteDebugDataList) {
         val idx = detailsRouteIndex ?: return@LaunchedEffect
@@ -1092,6 +1141,18 @@ fun ClearRoadScreen(
                 } else {
                     null
                 }
+            val onRefreshRoute: (() -> Unit)? =
+                if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
+                    {
+                        val from = selectedFromLatLng
+                        val to = selectedToLatLng
+                        if (from != null && to != null) {
+                            scope.launch { loadDirections(from, to) }
+                        }
+                    }
+                } else {
+                    null
+                }
             if (ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
                 RecommendationSurface(
                     model = buildRecommendationSurfaceUiModel(
@@ -1105,6 +1166,7 @@ fun ClearRoadScreen(
                         highConfidence = recommendationHighConfidence,
                     ),
                     onViewDetails = openRecommendedViewDetails,
+                    onRefreshRoute = onRefreshRoute,
                 )
             } else {
                 MarshallRecommendationBanner(
