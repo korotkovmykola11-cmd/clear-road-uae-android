@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.model.RecommendationSurfaceUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
+import com.clearroad.app.ui.theme.accentColor
 
 private const val YUNO_CHARACTER_DRAWABLE = "yuno_character"
 private const val RecommendationSectionLabel = "MARSHIO Recommends One Route"
@@ -41,6 +42,7 @@ private val HomeProductCardShape = RoundedCornerShape(14.dp)
 private val HomeProductCardBg = Color.White
 private val HomeProductCardBorder = ClearRoadColors.SalikNeutral.copy(alpha = 0.20f)
 private val HomeProductLabelColor = ClearRoadColors.RoadGreyMuted
+private val HomeDecisionEyebrowColor = ClearRoadColors.RoadGreyMuted.copy(alpha = 0.62f)
 private val HomeProductTitleColor = ClearRoadColors.RoadGrey
 private val HomeProductBodyColor = ClearRoadColors.RoadGreyMuted
 
@@ -128,6 +130,19 @@ private fun RecommendationReadyContent(
     model: RecommendationSurfaceUiModel,
     onViewDetails: (() -> Unit)?,
 ) {
+    if (model.decisionLabel.isNotBlank()) {
+        Text(
+            text = model.decisionLabel,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 10.sp,
+                lineHeight = 13.sp,
+                letterSpacing = 0.4.sp,
+            ),
+            color = HomeDecisionEyebrowColor,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
     Text(
         text = recommendationModeContextLine(model.mode),
         style = MaterialTheme.typography.bodyMedium.copy(
@@ -137,6 +152,13 @@ private fun RecommendationReadyContent(
         ),
         color = HomeProductTitleColor,
     )
+    if (model.recommendationBadge.isNotBlank()) {
+        Spacer(modifier = Modifier.height(8.dp))
+        RecommendationBadgeChip(
+            text = model.recommendationBadge,
+            accentColor = model.mode.accentColor(),
+        )
+    }
     Spacer(modifier = Modifier.height(8.dp))
     Text(
         text = model.travelTime,
@@ -199,6 +221,28 @@ private fun RecommendationReadyContent(
             textAlign = TextAlign.Center,
         )
     }
+}
+
+@Composable
+private fun RecommendationBadgeChip(
+    text: String,
+    accentColor: Color,
+) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .background(
+                color = accentColor.copy(alpha = 0.14f),
+                shape = RoundedCornerShape(6.dp),
+            )
+            .padding(horizontal = 8.dp, vertical = 2.dp),
+        style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 13.sp,
+        ),
+        color = accentColor,
+        maxLines = 1,
+    )
 }
 
 @Composable
