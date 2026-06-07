@@ -1,12 +1,10 @@
 package com.clearroad.app
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,18 +30,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
@@ -58,8 +54,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.theme.ClearRoadColors
+import com.clearroad.app.ui.theme.accentColor
 
-private const val HOME_BACKGROUND_DRAWABLE = "home_hero_dubai"
 private const val HOME_BRAND_ICON_DRAWABLE = "home_brand_marshio_icon"
 private const val HOME_BRAND_WORD_DRAWABLE = "home_brand_marshio_word"
 private const val YUNO_CHARACTER_DRAWABLE = "yuno_character"
@@ -67,83 +63,56 @@ private const val HOME_MODE_FASTEST_DRAWABLE = "home_mode_fastest_lightning"
 private const val HOME_MODE_SAVE_AED_DRAWABLE = "home_mode_save_aed"
 private const val HOME_MODE_SMOOTH_DRIVE_DRAWABLE = "home_mode_smooth_drive"
 
-/** Full-screen Dubai road photo — docs/design/img_3.png */
+private val HomeSurfaceLight = Color(0xFFF5F9FF)
+private val HomeCardSurface = Color.White
+private val HomeProductBorder = ClearRoadColors.SalikNeutral.copy(alpha = 0.20f)
+private val HomeProductMutedText = ClearRoadColors.RoadGreyMuted
+private val HomeProductPrimaryText = ClearRoadColors.RoadGrey
+private val HomeProductTagline = "One decision. Before Google Maps."
+private val HomeProductCardShape = RoundedCornerShape(14.dp)
+
+/** Stage Home 9.0 — vertical rhythm between home sections. */
+internal val HomeSpacingAfterHeader = 10.dp
+internal val HomeSpacingAfterRouteInput = 14.dp
+internal val HomeSpacingBeforeRecommendation = 16.dp
+
+/** Light utility surface — aligned with Route Details product tone. */
 @Composable
 internal fun HomeDubaiBackground(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val drawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                HOME_BACKGROUND_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-
-    Box(modifier = modifier.fillMaxSize()) {
-        if (drawableId != 0) {
-            Image(
-                painter = painterResource(drawableId),
-                contentDescription = "Dubai road",
-                contentScale = ContentScale.Crop,
-                alignment = BiasAlignment(0.5f, 0.22f),
-                modifier = Modifier.fillMaxSize(),
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                ClearRoadColors.CloudHighlight,
-                                ClearRoadColors.CloudBackground,
-                            ),
-                        ),
-                    ),
-            )
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0f to Color.Transparent,
-                            0.40f to Color.White.copy(alpha = 0.05f),
-                            0.70f to Color.White.copy(alpha = 0.18f),
-                            1f to Color.White.copy(alpha = 0.32f),
-                        ),
-                    ),
-                ),
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(148.dp)
-                .align(Alignment.TopCenter)
-                .background(
-                    Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0f to Color.White.copy(alpha = 0.58f),
-                            0.55f to Color.White.copy(alpha = 0.28f),
-                            1f to Color.Transparent,
-                        ),
-                    ),
-                ),
-        )
-    }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(HomeSurfaceLight),
+    )
 }
+
+private fun Modifier.homeLightCardSurface(
+    shape: Shape = HomeProductCardShape,
+): Modifier =
+    shadow(
+        elevation = 2.dp,
+        shape = shape,
+        ambientColor = Color.Black.copy(alpha = 0.04f),
+        spotColor = Color.Black.copy(alpha = 0.06f),
+    )
+        .clip(shape)
+        .background(HomeCardSurface)
+        .border(
+            width = 1.dp,
+            color = HomeProductBorder,
+            shape = shape,
+        )
 
 private val YunoIdentitySubtitleColor = Color(0xFF000000)
 private val YunoHomeMarkSize = 129.dp
 private val HomeBrandIconMaxHeight = 68.dp
-private val HomeBrandWordMaxHeight = 18.dp
+private val HomeBrandWordMaxHeight = 22.dp
+private val HomeRouteInputPanelShape = RoundedCornerShape(14.dp)
 private val HomeBrandTextBlockLift = 10.dp
 private val HomeBrandHeroTopInset = 20.dp
 private val HomeBrandBlockRaise = 48.dp
 
-/** MARSHIO logo from docs/img_1.png — icon + word split for text vertical tuning */
+/** MARSHIO brand header — product promise first. */
 @Composable
 internal fun HomeScreenHeader(modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -164,11 +133,10 @@ internal fun HomeScreenHeader(modifier: Modifier = Modifier) {
             )
         }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = HomeBrandHeroTopInset),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (iconDrawableId != 0 && wordDrawableId != 0) {
             Column(
@@ -204,24 +172,24 @@ internal fun HomeScreenHeader(modifier: Modifier = Modifier) {
                         contentDescription = "MARSHIO",
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.TopCenter,
+                        colorFilter = ColorFilter.tint(
+                            ClearRoadColors.BrandTitleClear,
+                            BlendMode.SrcIn,
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = HomeBrandWordMaxHeight),
                     )
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "UAE Route Decision Assistant",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp,
-                            letterSpacing = 0.5.sp,
-                            lineHeight = 16.sp,
-                            shadow = Shadow(
-                                color = Color.White.copy(alpha = 0.82f),
-                                offset = Offset(0f, 0.5f),
-                                blurRadius = 2f,
-                            ),
+                        text = HomeProductTagline,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp,
+                            letterSpacing = 0.15.sp,
+                            lineHeight = 19.sp,
                         ),
-                        color = ClearRoadColors.RouteDecisionChoiceText,
+                        color = HomeProductMutedText,
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -395,19 +363,19 @@ internal fun HomeRouteInputGroup(
     fromPredictions: @Composable ColumnScope.() -> Unit = {},
     toPredictions: @Composable ColumnScope.() -> Unit = {},
 ) {
-    Box(modifier = modifier.fillMaxWidth()) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .homeLightCardSurface(shape = HomeRouteInputPanelShape)
+            .padding(vertical = 6.dp),
+    ) {
         Box(
             modifier = Modifier
                 .offset(x = 21.dp, y = 18.dp)
                 .width(2.dp)
                 .height(16.dp)
                 .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            ClearRoadColors.InputDotFrom,
-                            ClearRoadColors.InputDotTo,
-                        ),
-                    ),
+                    ClearRoadColors.SalikNeutral.copy(alpha = 0.35f),
                 ),
         )
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -429,23 +397,15 @@ internal fun HomeRouteInputGroup(
     }
 }
 
-private val HomeRouteInputSkyTextShadow =
-    Shadow(
-        color = Color.White.copy(alpha = 0.88f),
-        offset = Offset(0f, 0.5f),
-        blurRadius = 3f,
-    )
-
 internal fun homeRouteSkyReadableTextStyle(
     base: androidx.compose.ui.text.TextStyle,
     placeholder: Boolean = false,
 ): androidx.compose.ui.text.TextStyle =
     base.copy(
         color =
-            ClearRoadColors.RouteDecisionChoiceText.copy(
-                alpha = if (placeholder) 0.66f else 1f,
+            ClearRoadColors.RoadGrey.copy(
+                alpha = if (placeholder) 0.45f else 0.92f,
             ),
-        shadow = HomeRouteInputSkyTextShadow,
     )
 
 @Composable
@@ -464,9 +424,9 @@ private fun HomeRouteInputRow(
     ) {
         Box(
             modifier = Modifier
-                .size(12.dp)
+                .size(10.dp)
                 .clip(CircleShape)
-                .background(dotColor),
+                .background(dotColor.copy(alpha = 0.72f)),
         )
         BasicTextField(
             value = value,
@@ -474,7 +434,9 @@ private fun HomeRouteInputRow(
             singleLine = true,
             textStyle =
                 homeRouteSkyReadableTextStyle(MaterialTheme.typography.bodyMedium).copy(
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp,
+                    lineHeight = 20.sp,
                 ),
             modifier = Modifier.weight(1f),
             decorationBox = { inner ->
@@ -486,6 +448,9 @@ private fun HomeRouteInputRow(
                                 homeRouteSkyReadableTextStyle(
                                     MaterialTheme.typography.bodyMedium,
                                     placeholder = true,
+                                ).copy(
+                                    fontSize = 15.sp,
+                                    lineHeight = 20.sp,
                                 ),
                         )
                     }
@@ -497,91 +462,38 @@ private fun HomeRouteInputRow(
 }
 
 /** Stage 30.3 — vertical mode selection cards (visual only). */
-private val HomeModeCardIconSize = 52.dp
-private val HomeModeCardSecondaryIconRenderSize = 64.dp
-private val HomeModeCardActiveIconSize = 58.dp
-private val HomeModeCardActiveSecondaryIconRenderSize = 72.dp
-private val HomeModeInactivePlinthShape = RoundedCornerShape(14.dp)
-private val HomeModeCardHeight = 64.dp
-private val HomeModeCardSpacing = 6.dp
-private val HomeModeCardBlockWidthFraction = 0.84f
-private val HomeModeCardIconTextGap = 12.dp
-private val HomeModeInactivePlinthHorizontalPadding = 10.dp
-private val HomeModeInactivePlinthVerticalPadding = 6.dp
+private val HomeModeCardIconSize = 40.dp
+private val HomeModeCardSecondaryIconRenderSize = 48.dp
+private val HomeModeCardActiveIconSize = 44.dp
+private val HomeModeCardActiveSecondaryIconRenderSize = 52.dp
+private val HomeModeInactivePlinthShape = RoundedCornerShape(12.dp)
+private val HomeModeCardHeight = 50.dp
+private val HomeModeCardSpacing = 4.dp
+private val HomeModeCardIconTextGap = 10.dp
+private val HomeModeInactivePlinthHorizontalPadding = 14.dp
+private val HomeModeInactivePlinthVerticalPadding = 4.dp
 
-private val HomeModeInactiveTitleShadow =
-    Shadow(
-        color = Color.White.copy(alpha = 0.94f),
-        offset = Offset(0f, 0.5f),
-        blurRadius = 5f,
-    )
-
-private val HomeModeActiveTitleShadow =
-    Shadow(
-        color = Color.White.copy(alpha = 0.98f),
-        offset = Offset(0f, 0.5f),
-        blurRadius = 6f,
-    )
-
-private fun homeModeInactivePlinthTint(mode: PreferenceMode): Color =
-    when (mode) {
-        PreferenceMode.FASTEST -> ClearRoadColors.HomeAccentStart.copy(alpha = 0.14f)
-        PreferenceMode.NO_TOLLS -> Color(0xFF059669).copy(alpha = 0.12f)
-        PreferenceMode.CALM -> Color(0xFF6366F1).copy(alpha = 0.12f)
-    }
-
-private fun Modifier.homeModeInactiveContentPlinth(mode: PreferenceMode): Modifier {
-    val plinthTint = homeModeInactivePlinthTint(mode)
+private fun Modifier.homeModeContentSurface(
+    mode: PreferenceMode,
+    selected: Boolean,
+): Modifier {
+    val borderColor =
+        if (selected) {
+            mode.accentColor().copy(alpha = 0.28f)
+        } else {
+            HomeProductBorder
+        }
     return shadow(
-        elevation = 3.dp,
+        elevation = 1.dp,
         shape = HomeModeInactivePlinthShape,
-        ambientColor = ClearRoadColors.HomeShadow.copy(alpha = 0.10f),
-        spotColor = ClearRoadColors.HomeShadow.copy(alpha = 0.06f),
+        ambientColor = Color.Black.copy(alpha = 0.03f),
+        spotColor = Color.Black.copy(alpha = 0.05f),
     )
         .clip(HomeModeInactivePlinthShape)
-        .background(
-            Brush.linearGradient(
-                colors = listOf(
-                    plinthTint,
-                    Color.White.copy(alpha = 0.46f),
-                    Color.White.copy(alpha = 0.40f),
-                ),
-            ),
-        )
+        .background(HomeCardSurface)
         .border(
             width = 1.dp,
-            color = Color.White.copy(alpha = 0.42f),
-            shape = HomeModeInactivePlinthShape,
-        )
-        .padding(
-            horizontal = HomeModeInactivePlinthHorizontalPadding,
-            vertical = HomeModeInactivePlinthVerticalPadding,
-        )
-}
-
-private fun Modifier.homeModeActiveContentPlinth(mode: PreferenceMode): Modifier {
-    val plinthTint = homeModeInactivePlinthTint(mode)
-    return shadow(
-        elevation = 5.dp,
-        shape = HomeModeInactivePlinthShape,
-        ambientColor = ClearRoadColors.HomeAccentStart.copy(alpha = 0.12f),
-        spotColor = ClearRoadColors.HomeAccentEnd.copy(alpha = 0.08f),
-    )
-        .clip(HomeModeInactivePlinthShape)
-        .background(
-            Brush.linearGradient(
-                colors = listOf(
-                    ClearRoadColors.HomeAccentStart.copy(alpha = 0.10f),
-                    ClearRoadColors.HomeAccentStart.copy(alpha = 0.07f),
-                    Color.White.copy(alpha = 0.50f),
-                    plinthTint,
-                    ClearRoadColors.HomeAccentEnd.copy(alpha = 0.08f),
-                ),
-            ),
-        )
-        .border(
-            width = 1.75.dp,
-            color = ClearRoadColors.HomeAccentStart.copy(alpha = 0.80f),
+            color = borderColor,
             shape = HomeModeInactivePlinthShape,
         )
         .padding(
@@ -650,41 +562,21 @@ private fun HomeModePersonalityPill(
     modifier: Modifier = Modifier,
 ) {
     val title = homeModeCardTitle(mode)
-    val titleColor = ClearRoadColors.RouteDecisionChoiceText
+    val titleColor =
+        if (selected) {
+            HomeProductPrimaryText
+        } else {
+            HomeProductMutedText
+        }
     val titleStyle =
         MaterialTheme.typography.labelLarge.copy(
-            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold,
-            fontSize = 14.sp,
-            letterSpacing = if (selected) 0.9.sp else 0.8.sp,
-            lineHeight = 18.sp,
-            shadow =
-                if (selected) {
-                    HomeModeActiveTitleShadow
-                } else {
-                    HomeModeInactiveTitleShadow
-                },
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            fontSize = 12.sp,
+            letterSpacing = 0.5.sp,
+            lineHeight = 15.sp,
         )
     val iconRenderSize = homeModeCardIconRenderSize(mode, selected)
-    val iconSlotModifier =
-        Modifier
-            .size(iconRenderSize)
-            .then(
-                if (selected) {
-                    Modifier.shadow(
-                        elevation = 3.dp,
-                        shape = RoundedCornerShape(10.dp),
-                        ambientColor = ClearRoadColors.HomeAccentStart.copy(alpha = 0.16f),
-                        spotColor = ClearRoadColors.HomeAccentEnd.copy(alpha = 0.10f),
-                    )
-                } else {
-                    Modifier.shadow(
-                        elevation = 2.dp,
-                        shape = RoundedCornerShape(10.dp),
-                        ambientColor = Color.White.copy(alpha = 0.55f),
-                        spotColor = ClearRoadColors.HomeShadow.copy(alpha = 0.08f),
-                    )
-                },
-            )
+    val iconSlotModifier = Modifier.size(iconRenderSize)
 
     Box(
         modifier = modifier
@@ -695,11 +587,8 @@ private fun HomeModePersonalityPill(
     ) {
         Row(
             modifier =
-                (if (selected) {
-                    Modifier.homeModeActiveContentPlinth(mode)
-                } else {
-                    Modifier.homeModeInactiveContentPlinth(mode)
-                })
+                Modifier
+                    .homeModeContentSurface(mode = mode, selected = selected)
                     .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
@@ -730,12 +619,9 @@ internal fun HomeGlassModeTabs(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
     ) {
         Column(
-            modifier = Modifier
-                .width(IntrinsicSize.Max)
-                .fillMaxWidth(HomeModeCardBlockWidthFraction),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(HomeModeCardSpacing),
         ) {
             PreferenceMode.entries.forEach { mode ->

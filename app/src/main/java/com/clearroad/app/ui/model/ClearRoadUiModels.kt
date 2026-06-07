@@ -24,6 +24,7 @@ data class RecommendationSurfaceUiModel(
     val decisionSummary: String = "Best Decision Right Now",
     val confidenceDisplay: String = "",
     val narrative: String = "",
+    val mode: PreferenceMode = PreferenceMode.FASTEST,
     val emptyTitle: String = "YUNO is ready to help choose the best route.",
     val emptySubtitle: String =
         "Enter origin and destination to receive a recommendation.",

@@ -24,10 +24,11 @@ internal fun buildRecommendationSurfaceUiModel(
             ready = false,
             loading = true,
             loadingMessage = loadingMessage,
+            mode = mode,
         )
     }
     if (!ready || routes.isEmpty()) {
-        return RecommendationSurfaceUiModel(ready = false)
+        return RecommendationSurfaceUiModel(ready = false, mode = mode)
     }
     val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
     val recommended = routes[recIdx]
@@ -35,7 +36,7 @@ internal fun buildRecommendationSurfaceUiModel(
         ready = true,
         routeName = routeIdentity,
         travelTime = recommended.durationText,
-        confidenceDisplay = DecisionNarrativeSynthesis.confidenceDisplayLabel(highConfidence),
+        mode = mode,
         narrative = DecisionNarrativeSynthesis.narrative(
             mode = mode,
             recommendedTollAed = recommended.tollAED,
