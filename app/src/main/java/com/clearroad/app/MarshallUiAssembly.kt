@@ -37,6 +37,7 @@ internal fun buildRecommendationSurfaceUiModel(
         routeName = routeIdentity,
         travelTime = recommended.durationText,
         mode = mode,
+        decisionSummary = RecommendationSummaryLayer.forMode(mode),
         narrative = DecisionNarrativeSynthesis.narrative(
             mode = mode,
             recommendedTollAed = recommended.tollAED,

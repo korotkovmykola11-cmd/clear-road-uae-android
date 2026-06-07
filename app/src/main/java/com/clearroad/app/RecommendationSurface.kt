@@ -149,6 +149,19 @@ private fun RecommendationReadyContent(
         color = HomeProductTitleColor,
         maxLines = 1,
     )
+    if (model.decisionSummary.isNotBlank()) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = model.decisionSummary,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 17.sp,
+                lineHeight = 25.sp,
+            ),
+            color = HomeProductTitleColor,
+            maxLines = 1,
+        )
+    }
     if (model.narrative.isNotBlank()) {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
