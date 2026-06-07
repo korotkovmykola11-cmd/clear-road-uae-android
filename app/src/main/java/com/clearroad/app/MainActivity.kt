@@ -1,6 +1,7 @@
 package com.clearroad.app
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -53,6 +54,7 @@ import com.clearroad.app.ui.theme.accentColor
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.domain.RouteOption
+import com.clearroad.app.domain.SalikDetection
 import com.clearroad.app.domain.RouteReasoning
 import com.clearroad.app.domain.RouteReasoningContext
 import com.clearroad.app.domain.SimilarOutcomeDetection
@@ -574,6 +576,14 @@ private fun calculateAedPerMinute(
     if (durationMinutes <= 0) totalCostAed
     else totalCostAed / durationMinutes
 
+private const val SALIK_SCORING_PROBE_TAG = "SalikScoringProbe"
+
+private fun effectiveTollAedForScoring(item: RealRouteDebugData): Int {
+    if (item.tollAED > 0) return item.tollAED
+    if (!ArchitectureValidation.USE_HEURISTIC_SALIK_FOR_SCORING) return 0
+    return SalikDetection.estimate(item.corridorScanText).estimatedSalikPenaltyAed
+}
+
 private fun calculateRouteScore(
     mode: PreferenceMode,
     durationMinutes: Int,
@@ -593,6 +603,43 @@ private fun calculateRouteScore(
         PreferenceMode.CALM ->
             durationMinutes * 0.6 + totalCostAED * 1.2 + distanceKm * 0.15 +
                 aedPerMinute * 0.3
+    }
+}
+
+private fun logSalikScoringProbe(
+    routes: List<RealRouteDebugData>,
+    mode: PreferenceMode,
+    recommendedRouteIndex: Int,
+) {
+    if (!ArchitectureValidation.USE_HEURISTIC_SALIK_FOR_SCORING) return
+    routes.forEachIndexed { index, item ->
+        val salikEstimate = SalikDetection.estimate(item.corridorScanText)
+        val effectiveToll = effectiveTollAedForScoring(item)
+        val distanceKm = item.distanceMeters / 1000.0
+        val fuelAed = estimateFuelCostAed(distanceKm)
+        val totalCostAed =
+            estimateTotalRouteCostAed(effectiveToll, fuelAed).toDouble()
+        val score =
+            calculateRouteScore(
+                mode,
+                item.durationSeconds / 60,
+                distanceKm,
+                effectiveToll.toDouble(),
+                totalCostAed,
+            )
+        Log.d(
+            SALIK_SCORING_PROBE_TAG,
+            "routeIndex=$index " +
+                "duration=${item.durationText} " +
+                "distance=${item.distanceText} " +
+                "googleTollAED=${item.tollAED} " +
+                "estimatedSalikPenaltyAed=${salikEstimate.estimatedSalikPenaltyAed} " +
+                "exposure=${salikEstimate.exposure} " +
+                "reason=${salikEstimate.reason} " +
+                "selectedMode=$mode " +
+                "score=$score " +
+                "recommendedRouteIndex=$recommendedRouteIndex",
+        )
     }
 }
 
@@ -688,14 +735,15 @@ fun ClearRoadScreen(
                     { idx ->
                         val item = realRouteDebugDataList[idx]
                         val distanceKm = item.distanceMeters / 1000.0
+                        val effectiveToll = effectiveTollAedForScoring(item)
                         val fuelAed = estimateFuelCostAed(distanceKm)
                         val totalCostAed =
-                            estimateTotalRouteCostAed(item.tollAED, fuelAed).toDouble()
+                            estimateTotalRouteCostAed(effectiveToll, fuelAed).toDouble()
                         calculateRouteScore(
                             selectedMode,
                             item.durationSeconds / 60,
                             distanceKm,
-                            item.tollAED.toDouble(),
+                            effectiveToll.toDouble(),
                             totalCostAed,
                         )
                     },
@@ -703,6 +751,14 @@ fun ClearRoadScreen(
                 ),
             )
         }
+    LaunchedEffect(realRouteDebugDataList, selectedMode, recommendedRouteIndex) {
+        if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
+        logSalikScoringProbe(
+            routes = realRouteDebugDataList,
+            mode = selectedMode,
+            recommendedRouteIndex = recommendedRouteIndex,
+        )
+    }
     val routeCardSelectionIndex =
         if (showRouteCardOverrides) {
             selectedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
@@ -810,7 +866,7 @@ fun ClearRoadScreen(
                 .padding(top = if (showRouteCardOverrides) 18.dp else 22.dp),
         ) {
             HomeScreenHeader()
-            Spacer(modifier = Modifier.height(if (showRouteCardOverrides) 4.dp else 6.dp))
+            Spacer(modifier = Modifier.height(HomeSpacingAfterHeader))
             if (!showRouteCardOverrides && !ArchitectureValidation.RECOMMENDATION_ONLY_HOME) {
                 HomeYunoBubbleSection()
                 Spacer(modifier = Modifier.height(6.dp))
@@ -840,7 +896,7 @@ fun ClearRoadScreen(
             if (!showRouteInputStep) {
                 HomeSearchCapsule(onClick = { showRouteInputs = true })
             } else {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 HomeRouteInputGroup(
                     fromValue = originText,
                     onFromValueChange = stopFrom@{ newText ->
@@ -978,21 +1034,21 @@ fun ClearRoadScreen(
                     },
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(HomeSpacingAfterRouteInput))
             HomeGlassModeTabs(
                 selectedMode = selectedMode,
                 onModeSelected = { selectedMode = it },
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(HomeSpacingBeforeRecommendation))
             val fromCoords = selectedFromLatLng
             val toCoords = selectedToLatLng
             val recommendationLoading =
                 directionsLoading && fromCoords != null && toCoords != null
             val recommendationLoadingMessage =
                 when (selectedMode) {
-                    PreferenceMode.FASTEST -> "Checking route options..."
-                    PreferenceMode.NO_TOLLS -> "Looking for the best route balance..."
-                    PreferenceMode.CALM -> "Finding calmer route choices..."
+                    PreferenceMode.FASTEST -> "Finding the best FASTEST route..."
+                    PreferenceMode.NO_TOLLS -> "Finding the best SAVE AED route..."
+                    PreferenceMode.CALM -> "Finding the smoothest route..."
                 }
             val recommendedBannerIdentity =
                 if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
@@ -1068,10 +1124,10 @@ fun ClearRoadScreen(
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = when (selectedMode) {
-                        PreferenceMode.FASTEST -> "Checking route options..."
+                        PreferenceMode.FASTEST -> "Finding the best FASTEST route..."
                         PreferenceMode.NO_TOLLS ->
-                            "Looking for the best route balance..."
-                        PreferenceMode.CALM -> "Finding calmer route choices..."
+                            "Finding the best SAVE AED route..."
+                        PreferenceMode.CALM -> "Finding the smoothest route..."
                     },
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.bodySmall,

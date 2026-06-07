@@ -12,4 +12,10 @@ package com.clearroad.app
  */
 internal object ArchitectureValidation {
     const val RECOMMENDATION_ONLY_HOME = true
+
+    /**
+     * Stage 31.5 — when true, [SalikDetection] augments scoring only if Google tollAED is 0.
+     * UI still shows Google tollAED. Flip to false to disable heuristic ranking.
+     */
+    const val USE_HEURISTIC_SALIK_FOR_SCORING = true
 }
