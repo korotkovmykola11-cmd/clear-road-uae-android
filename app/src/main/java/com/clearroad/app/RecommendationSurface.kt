@@ -17,7 +17,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +38,7 @@ import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.model.RecommendationSurfaceUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
+import kotlinx.coroutines.delay
 
 private const val YUNO_CHARACTER_DRAWABLE = "yuno_character"
 private const val RecommendationSectionLabel = "MARSHIO Recommends One Route"
@@ -57,6 +62,8 @@ private const val RecommendationEmptyHero = "Enter your route"
 private const val RecommendationEmptyCompareLead = "We compare:"
 private const val RecommendationEmptyClosing =
     "and recommends ONE route for your selected mode."
+private const val RecommendationRefreshFeedbackMessage = "Updated just now"
+private const val RecommendationRefreshFeedbackDurationMs = 5_000L
 
 private fun recommendationModeContextLine(mode: PreferenceMode): String =
     when (mode) {
@@ -88,6 +95,23 @@ internal fun RecommendationSurface(
     onViewDetails: (() -> Unit)? = null,
     onRefreshRoute: (() -> Unit)? = null,
 ) {
+    var refreshConfirmKey by remember { mutableIntStateOf(0) }
+    val showRefreshFeedback = refreshConfirmKey > 0
+    val wrappedOnRefreshRoute =
+        onRefreshRoute?.let { callback ->
+            {
+                callback()
+                refreshConfirmKey++
+                Unit
+            }
+        }
+
+    LaunchedEffect(refreshConfirmKey, model.loading, model.ready) {
+        if (refreshConfirmKey == 0 || model.loading || !model.ready) return@LaunchedEffect
+        delay(RecommendationRefreshFeedbackDurationMs)
+        refreshConfirmKey = 0
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -118,7 +142,8 @@ internal fun RecommendationSurface(
                 RecommendationReadyContent(
                     model = model,
                     onViewDetails = onViewDetails,
-                    onRefreshRoute = onRefreshRoute,
+                    onRefreshRoute = wrappedOnRefreshRoute,
+                    showRefreshFeedback = showRefreshFeedback,
                 )
             }
             else -> {
@@ -133,6 +158,7 @@ private fun RecommendationReadyContent(
     model: RecommendationSurfaceUiModel,
     onViewDetails: (() -> Unit)?,
     onRefreshRoute: (() -> Unit)?,
+    showRefreshFeedback: Boolean,
 ) {
     if (model.decisionLabel.isNotBlank()) {
         Text(
@@ -213,6 +239,20 @@ private fun RecommendationReadyContent(
     RecommendationYunoOwnerBlock()
     if (onRefreshRoute != null) {
         Spacer(modifier = Modifier.height(12.dp))
+        if (showRefreshFeedback) {
+            Text(
+                text = RecommendationRefreshFeedbackMessage,
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 11.sp,
+                    lineHeight = 14.sp,
+                ),
+                color = HomeConfidenceChipColor,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
         Text(
             text = "Refresh route",
             modifier = Modifier

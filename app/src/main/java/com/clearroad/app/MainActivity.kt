@@ -417,18 +417,34 @@ private fun buildRealRouteDebugData(
     if (distanceDuration == null || distanceDurationValues == null) return null
     val (distanceText, durationText) = distanceDuration
     val (distanceMeters, durationSeconds) = distanceDurationValues
+    val parsedDuration =
+        routeJsonForToll?.let { routeJson ->
+            val legsIdx = routeJson.indexOf("\"legs\"")
+            if (legsIdx == -1) return@let null
+            val legsBracket = routeJson.indexOf('[', legsIdx)
+            if (legsBracket == -1) return@let null
+            val firstLegBrace = routeJson.indexOf('{', legsBracket)
+            if (firstLegBrace == -1) return@let null
+            val stepsIdx = routeJson.indexOf("\"steps\"", firstLegBrace)
+            val legScanEnd = if (stepsIdx == -1) routeJson.length else stepsIdx
+            parseLegDurationFields(routeJson, firstLegBrace, legScanEnd)
+        }
     val tollPair =
         routeJsonForToll?.let { deriveTollAedFromRouteJson(it) } ?: Pair(0, false)
     val corridorScanText =
         routeJsonForToll?.let(::buildCorridorScanText).orEmpty()
     return RealRouteDebugData(
         distanceText = distanceText,
-        durationText = durationText,
+        durationText = parsedDuration?.selectedDurationText ?: durationText,
         distanceMeters = distanceMeters,
-        durationSeconds = durationSeconds,
+        durationSeconds = parsedDuration?.selectedDurationSeconds ?: durationSeconds,
         tollAED = tollPair.first,
         hasToll = tollPair.second,
         corridorScanText = corridorScanText,
+        baseDurationText = parsedDuration?.baseDurationText ?: durationText,
+        baseDurationSeconds = parsedDuration?.baseDurationSeconds ?: durationSeconds,
+        durationInTrafficText = parsedDuration?.durationInTrafficText,
+        durationInTrafficSeconds = parsedDuration?.durationInTrafficSeconds,
     )
 }
 
@@ -646,6 +662,43 @@ private fun logSalikScoringProbe(
 }
 
 private const val DIRECTIONS_FETCH_TAG = "DirectionsFetch"
+private const val DIRECTIONS_AUDIT_TAG = "DirectionsAudit"
+
+private fun directionsAuditSalikCount(item: RealRouteDebugData): Int {
+    val scan = item.corridorScanText.lowercase(Locale.US)
+    val tollRoadCount = SalikDetection.countOccurrences(scan, "toll road")
+    if (tollRoadCount > 0) return tollRoadCount
+    if (item.tollAED > 0) {
+        return (item.tollAED + SalikDetection.AED_PER_TOLL_ROAD - 1) /
+            SalikDetection.AED_PER_TOLL_ROAD
+    }
+    return 0
+}
+
+private fun logDirectionsAuditRoutes(
+    status: String?,
+    routes: List<RealRouteDebugData>,
+) {
+    if (status != "OK") return
+    routes.forEachIndexed { index, route ->
+        val trafficText =
+            route.durationInTrafficText?.let { text ->
+                val seconds = route.durationInTrafficSeconds
+                if (seconds != null) {
+                    "$text ($seconds sec)"
+                } else {
+                    text
+                }
+            } ?: "n/a"
+        Log.d(
+            DIRECTIONS_AUDIT_TAG,
+            "Route $index | duration=${route.baseDurationText} " +
+                "(${route.baseDurationSeconds} sec) | duration_in_traffic=$trafficText | " +
+                "selected=${route.durationText} (${route.durationSeconds} sec) | " +
+                "${route.distanceText} | Salik=${directionsAuditSalikCount(route)}",
+        )
+    }
+}
 
 private data class DirectionsFetchResult(
     val raw: String?,
@@ -673,13 +726,15 @@ private suspend fun fetchDirectionsForRoute(
         raw?.let(::firstRouteObjectJson),
     )
     val routes = raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
+    val status = raw?.let { extractDirectionsStatus(it) }
+    logDirectionsAuditRoutes(status, routes)
     Log.d(
         DIRECTIONS_FETCH_TAG,
-        "Directions fetch complete status=${raw?.let(::extractDirectionsStatus)} routes=${routes.size}",
+        "Directions fetch complete status=$status routes=${routes.size}",
     )
     return DirectionsFetchResult(
         raw = raw,
-        status = raw?.let { extractDirectionsStatus(it) },
+        status = status,
         distanceDuration = distanceDuration,
         distanceDurationValues = distanceDurationValues,
         singleRoute = singleRoute,

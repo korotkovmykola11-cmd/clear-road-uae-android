@@ -18,13 +18,24 @@ internal data class RealRouteDebugData(
     val hasToll: Boolean,
     val corridorScanText: String = "",
     val routePathPoints: List<LatLng> = emptyList(),
+    val baseDurationText: String = durationText,
+    val baseDurationSeconds: Int = durationSeconds,
+    val durationInTrafficText: String? = null,
+    val durationInTrafficSeconds: Int? = null,
 )
 
 internal fun buildDirectionsUrl(origin: LatLng, destination: LatLng): String {
     val o = "${origin.latitude},${origin.longitude}"
     val d = "${destination.latitude},${destination.longitude}"
     val key = BuildConfig.PLACES_API_KEY
-    return "https://maps.googleapis.com/maps/api/directions/json?origin=$o&destination=$d&mode=driving&alternatives=true&key=$key"
+    return "https://maps.googleapis.com/maps/api/directions/json" +
+        "?origin=$o" +
+        "&destination=$d" +
+        "&mode=driving" +
+        "&alternatives=true" +
+        "&departure_time=now" +
+        "&traffic_model=best_guess" +
+        "&key=$key"
 }
 
 internal suspend fun fetchDirectionsRaw(url: String): String? =
@@ -61,30 +72,111 @@ internal fun extractDirectionsStatus(json: String): String? {
     return json.substring(start, end)
 }
 
-internal fun extractFirstLegDistanceDuration(json: String): Pair<String, String>? {
-    fun textFromDistanceOrDurationKey(keyIndex: Int): String? {
-        val colon = json.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < json.length && json[i].isWhitespace()) i++
-        if (i >= json.length || json[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = json.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val textMarker = "\"text\""
-        val textIdx = json.indexOf(textMarker, innerStart)
-        if (textIdx == -1 || textIdx >= innerClose) return null
-        val textColon = json.indexOf(':', textIdx + textMarker.length)
-        if (textColon == -1 || textColon >= innerClose) return null
-        var j = textColon + 1
-        while (j < innerClose && json[j].isWhitespace()) j++
-        if (j >= innerClose || json[j] != '"') return null
-        val strStart = j + 1
-        val strEnd = json.indexOf('"', strStart)
-        if (strEnd == -1 || strEnd > innerClose) return null
-        return json.substring(strStart, strEnd)
-    }
+private fun textFromDistanceOrDurationKey(json: String, keyIndex: Int): String? {
+    val colon = json.indexOf(':', keyIndex)
+    if (colon == -1) return null
+    var i = colon + 1
+    while (i < json.length && json[i].isWhitespace()) i++
+    if (i >= json.length || json[i] != '{') return null
+    val innerStart = i + 1
+    val innerClose = json.indexOf('}', innerStart)
+    if (innerClose == -1) return null
+    val textMarker = "\"text\""
+    val textIdx = json.indexOf(textMarker, innerStart)
+    if (textIdx == -1 || textIdx >= innerClose) return null
+    val textColon = json.indexOf(':', textIdx + textMarker.length)
+    if (textColon == -1 || textColon >= innerClose) return null
+    var j = textColon + 1
+    while (j < innerClose && json[j].isWhitespace()) j++
+    if (j >= innerClose || json[j] != '"') return null
+    val strStart = j + 1
+    val strEnd = json.indexOf('"', strStart)
+    if (strEnd == -1 || strEnd > innerClose) return null
+    return json.substring(strStart, strEnd)
+}
 
+private fun intValueFromDistanceOrDurationKey(json: String, keyIndex: Int): Int? {
+    val colon = json.indexOf(':', keyIndex)
+    if (colon == -1) return null
+    var i = colon + 1
+    while (i < json.length && json[i].isWhitespace()) i++
+    if (i >= json.length || json[i] != '{') return null
+    val innerStart = i + 1
+    val innerClose = json.indexOf('}', innerStart)
+    if (innerClose == -1) return null
+    val valueMarker = "\"value\""
+    val valueIdx = json.indexOf(valueMarker, innerStart)
+    if (valueIdx == -1 || valueIdx >= innerClose) return null
+    val valueColon = json.indexOf(':', valueIdx + valueMarker.length)
+    if (valueColon == -1 || valueColon >= innerClose) return null
+    var j = valueColon + 1
+    while (j < innerClose && json[j].isWhitespace()) j++
+    val numStart = j
+    while (j < innerClose && json[j].isDigit()) j++
+    if (j == numStart) return null
+    return json.substring(numStart, j).toIntOrNull()
+}
+
+private fun indexOfLegJsonKey(
+    json: String,
+    key: String,
+    from: Int,
+    end: Int,
+): Int {
+    val marker = "\"$key\""
+    val idx = json.indexOf(marker, from)
+    if (idx == -1 || idx >= end) return -1
+    return idx
+}
+
+internal data class ParsedLegDuration(
+    val baseDurationText: String,
+    val baseDurationSeconds: Int,
+    val durationInTrafficText: String?,
+    val durationInTrafficSeconds: Int?,
+) {
+    val selectedDurationText: String
+        get() = durationInTrafficText ?: baseDurationText
+
+    val selectedDurationSeconds: Int
+        get() = durationInTrafficSeconds ?: baseDurationSeconds
+}
+
+internal fun parseLegDurationFields(
+    json: String,
+    firstLegBrace: Int,
+    legScanEnd: Int,
+): ParsedLegDuration? {
+    val durationIdx = indexOfLegJsonKey(json, "duration", firstLegBrace, legScanEnd)
+    if (durationIdx == -1) return null
+    val baseDurationText = textFromDistanceOrDurationKey(json, durationIdx) ?: return null
+    val baseDurationSeconds =
+        intValueFromDistanceOrDurationKey(json, durationIdx) ?: return null
+
+    val trafficIdx =
+        indexOfLegJsonKey(json, "duration_in_traffic", firstLegBrace, legScanEnd)
+    val durationInTrafficText =
+        if (trafficIdx == -1) {
+            null
+        } else {
+            textFromDistanceOrDurationKey(json, trafficIdx)
+        }
+    val durationInTrafficSeconds =
+        if (trafficIdx == -1) {
+            null
+        } else {
+            intValueFromDistanceOrDurationKey(json, trafficIdx)
+        }
+
+    return ParsedLegDuration(
+        baseDurationText = baseDurationText,
+        baseDurationSeconds = baseDurationSeconds,
+        durationInTrafficText = durationInTrafficText,
+        durationInTrafficSeconds = durationInTrafficSeconds,
+    )
+}
+
+private fun locateFirstLegBounds(json: String): Pair<Int, Int>? {
     val routesIdx = json.indexOf("\"routes\"")
     if (routesIdx == -1) return null
     val routesBracket = json.indexOf('[', routesIdx)
@@ -97,67 +189,27 @@ internal fun extractFirstLegDistanceDuration(json: String): Pair<String, String>
     if (legsBracket == -1) return null
     val firstLegBrace = json.indexOf('{', legsBracket)
     if (firstLegBrace == -1) return null
-
     val stepsIdx = json.indexOf("\"steps\"", firstLegBrace)
     val legScanEnd = if (stepsIdx == -1) json.length else stepsIdx
+    return firstLegBrace to legScanEnd
+}
 
+internal fun extractFirstLegDistanceDuration(json: String): Pair<String, String>? {
+    val (firstLegBrace, legScanEnd) = locateFirstLegBounds(json) ?: return null
     val distanceIdx = json.indexOf("\"distance\"", firstLegBrace)
     if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
-    val durationIdx = json.indexOf("\"duration\"", firstLegBrace)
-    if (durationIdx == -1 || durationIdx >= legScanEnd) return null
-
-    val distanceText = textFromDistanceOrDurationKey(distanceIdx) ?: return null
-    val durationText = textFromDistanceOrDurationKey(durationIdx) ?: return null
-    return Pair(distanceText, durationText)
+    val distanceText = textFromDistanceOrDurationKey(json, distanceIdx) ?: return null
+    val duration = parseLegDurationFields(json, firstLegBrace, legScanEnd) ?: return null
+    return Pair(distanceText, duration.selectedDurationText)
 }
 
 internal fun extractFirstLegDistanceDurationValues(json: String): Pair<Int, Int>? {
-    fun intValueFromDistanceOrDurationKey(keyIndex: Int): Int? {
-        val colon = json.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < json.length && json[i].isWhitespace()) i++
-        if (i >= json.length || json[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = json.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val valueMarker = "\"value\""
-        val valueIdx = json.indexOf(valueMarker, innerStart)
-        if (valueIdx == -1 || valueIdx >= innerClose) return null
-        val valueColon = json.indexOf(':', valueIdx + valueMarker.length)
-        if (valueColon == -1 || valueColon >= innerClose) return null
-        var j = valueColon + 1
-        while (j < innerClose && json[j].isWhitespace()) j++
-        val numStart = j
-        while (j < innerClose && json[j].isDigit()) j++
-        if (j == numStart) return null
-        return json.substring(numStart, j).toIntOrNull()
-    }
-
-    val routesIdx = json.indexOf("\"routes\"")
-    if (routesIdx == -1) return null
-    val routesBracket = json.indexOf('[', routesIdx)
-    if (routesBracket == -1) return null
-    val firstRouteBrace = json.indexOf('{', routesBracket)
-    if (firstRouteBrace == -1) return null
-    val legsIdx = json.indexOf("\"legs\"", firstRouteBrace)
-    if (legsIdx == -1) return null
-    val legsBracket = json.indexOf('[', legsIdx)
-    if (legsBracket == -1) return null
-    val firstLegBrace = json.indexOf('{', legsBracket)
-    if (firstLegBrace == -1) return null
-
-    val stepsIdx = json.indexOf("\"steps\"", firstLegBrace)
-    val legScanEnd = if (stepsIdx == -1) json.length else stepsIdx
-
+    val (firstLegBrace, legScanEnd) = locateFirstLegBounds(json) ?: return null
     val distanceIdx = json.indexOf("\"distance\"", firstLegBrace)
     if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
-    val durationIdx = json.indexOf("\"duration\"", firstLegBrace)
-    if (durationIdx == -1 || durationIdx >= legScanEnd) return null
-
-    val distanceValue = intValueFromDistanceOrDurationKey(distanceIdx) ?: return null
-    val durationValue = intValueFromDistanceOrDurationKey(durationIdx) ?: return null
-    return Pair(distanceValue, durationValue)
+    val distanceValue = intValueFromDistanceOrDurationKey(json, distanceIdx) ?: return null
+    val duration = parseLegDurationFields(json, firstLegBrace, legScanEnd) ?: return null
+    return Pair(distanceValue, duration.selectedDurationSeconds)
 }
 
 private fun skipJsonStringContent(json: String, openQuoteIndex: Int): Int {
@@ -377,51 +429,6 @@ private fun findMatchingClosingBrace(json: String, openBraceIndex: Int): Int? {
 }
 
 internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
-    fun textFromDistanceOrDurationKey(routeJson: String, keyIndex: Int): String? {
-        val colon = routeJson.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < routeJson.length && routeJson[i].isWhitespace()) i++
-        if (i >= routeJson.length || routeJson[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = routeJson.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val textMarker = "\"text\""
-        val textIdx = routeJson.indexOf(textMarker, innerStart)
-        if (textIdx == -1 || textIdx >= innerClose) return null
-        val textColon = routeJson.indexOf(':', textIdx + textMarker.length)
-        if (textColon == -1 || textColon >= innerClose) return null
-        var j = textColon + 1
-        while (j < innerClose && routeJson[j].isWhitespace()) j++
-        if (j >= innerClose || routeJson[j] != '"') return null
-        val strStart = j + 1
-        val strEnd = routeJson.indexOf('"', strStart)
-        if (strEnd == -1 || strEnd > innerClose) return null
-        return routeJson.substring(strStart, strEnd)
-    }
-
-    fun intValueFromDistanceOrDurationKey(routeJson: String, keyIndex: Int): Int? {
-        val colon = routeJson.indexOf(':', keyIndex)
-        if (colon == -1) return null
-        var i = colon + 1
-        while (i < routeJson.length && routeJson[i].isWhitespace()) i++
-        if (i >= routeJson.length || routeJson[i] != '{') return null
-        val innerStart = i + 1
-        val innerClose = routeJson.indexOf('}', innerStart)
-        if (innerClose == -1) return null
-        val valueMarker = "\"value\""
-        val valueIdx = routeJson.indexOf(valueMarker, innerStart)
-        if (valueIdx == -1 || valueIdx >= innerClose) return null
-        val valueColon = routeJson.indexOf(':', valueIdx + valueMarker.length)
-        if (valueColon == -1 || valueColon >= innerClose) return null
-        var j = valueColon + 1
-        while (j < innerClose && routeJson[j].isWhitespace()) j++
-        val numStart = j
-        while (j < innerClose && routeJson[j].isDigit()) j++
-        if (j == numStart) return null
-        return routeJson.substring(numStart, j).toIntOrNull()
-    }
-
     fun firstLegDebugFromRouteObject(routeJson: String): RealRouteDebugData? {
         val legsIdx = routeJson.indexOf("\"legs\"")
         if (legsIdx == -1) return null
@@ -435,17 +442,13 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
 
         val distanceIdx = routeJson.indexOf("\"distance\"", firstLegBrace)
         if (distanceIdx == -1 || distanceIdx >= legScanEnd) return null
-        val durationIdx = routeJson.indexOf("\"duration\"", firstLegBrace)
-        if (durationIdx == -1 || durationIdx >= legScanEnd) return null
+        val duration = parseLegDurationFields(routeJson, firstLegBrace, legScanEnd)
+            ?: return null
 
         val distanceText =
             textFromDistanceOrDurationKey(routeJson, distanceIdx) ?: return null
-        val durationText =
-            textFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
         val distanceMeters =
             intValueFromDistanceOrDurationKey(routeJson, distanceIdx) ?: return null
-        val durationSeconds =
-            intValueFromDistanceOrDurationKey(routeJson, durationIdx) ?: return null
 
         val tollPair = deriveTollAedFromRouteJson(routeJson)
         val corridorScanText = buildCorridorScanText(routeJson)
@@ -454,13 +457,17 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
 
         return RealRouteDebugData(
             distanceText = distanceText,
-            durationText = durationText,
+            durationText = duration.selectedDurationText,
             distanceMeters = distanceMeters,
-            durationSeconds = durationSeconds,
+            durationSeconds = duration.selectedDurationSeconds,
             tollAED = tollPair.first,
             hasToll = tollPair.second,
             corridorScanText = corridorScanText,
             routePathPoints = routePathPoints,
+            baseDurationText = duration.baseDurationText,
+            baseDurationSeconds = duration.baseDurationSeconds,
+            durationInTrafficText = duration.durationInTrafficText,
+            durationInTrafficSeconds = duration.durationInTrafficSeconds,
         )
     }
 
