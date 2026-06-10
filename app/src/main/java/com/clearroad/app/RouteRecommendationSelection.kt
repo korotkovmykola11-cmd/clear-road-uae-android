@@ -2,9 +2,7 @@ package com.clearroad.app
 
 import android.util.Log
 import com.clearroad.app.domain.PreferenceMode
-import com.clearroad.app.domain.SalikDetection
 import com.clearroad.app.domain.SmoothDriveScoring
-import kotlin.math.roundToInt
 
 /**
  * Home route recommendation index selection.
@@ -13,8 +11,6 @@ import kotlin.math.roundToInt
 internal object RouteRecommendationSelection {
 
     private const val SMOOTH_LOG_TAG = "SmoothDriveScoring"
-    private const val UAE_FUEL_PRICE_PER_LITER = 2.8
-    private const val AVERAGE_CAR_KM_PER_LITER = 12.0
 
     fun toSmoothDriveRouteInput(item: RealRouteDebugData): SmoothDriveScoring.RouteInput? {
         val trafficSeconds =
@@ -217,42 +213,5 @@ internal object RouteRecommendationSelection {
             tollAed = effectiveToll.toDouble(),
             totalCostAed = totalCostAed,
         )
-    }
-
-    private fun effectiveTollAedForScoring(item: RealRouteDebugData): Int {
-        if (item.tollAED > 0) return item.tollAED
-        if (!ArchitectureValidation.USE_HEURISTIC_SALIK_FOR_SCORING) return 0
-        return SalikDetection.estimate(item.corridorScanText).estimatedSalikPenaltyAed
-    }
-
-    private fun estimateFuelCostAed(distanceKm: Double): Int {
-        val litersUsed = distanceKm / AVERAGE_CAR_KM_PER_LITER
-        return (litersUsed * UAE_FUEL_PRICE_PER_LITER).roundToInt()
-    }
-
-    private fun estimateTotalRouteCostAed(tollAed: Int, fuelAed: Int): Int =
-        tollAed + fuelAed
-
-    private fun calculateLegacyRouteScore(
-        mode: PreferenceMode,
-        durationMinutes: Int,
-        distanceKm: Double,
-        tollAed: Double,
-        totalCostAed: Double,
-    ): Double {
-        val aedPerMinute =
-            if (durationMinutes <= 0) totalCostAed
-            else totalCostAed / durationMinutes
-        return when (mode) {
-            PreferenceMode.FASTEST ->
-                durationMinutes + totalCostAed * 0.15 + distanceKm * 0.05 +
-                    aedPerMinute * 0.2
-            PreferenceMode.NO_TOLLS ->
-                totalCostAed * 4.0 + tollAed * 6.0 + durationMinutes * 0.35 +
-                    aedPerMinute * 0.4
-            PreferenceMode.CALM ->
-                durationMinutes * 0.6 + totalCostAed * 1.2 + distanceKm * 0.15 +
-                    aedPerMinute * 0.3
-        }
     }
 }

@@ -55,20 +55,17 @@ import com.clearroad.app.ui.theme.accentColor
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteDecisionEngine
 import com.clearroad.app.domain.RouteOption
-import com.clearroad.app.domain.SalikDetection
 import com.clearroad.app.domain.RouteReasoning
 import com.clearroad.app.domain.RouteReasoningContext
 import com.clearroad.app.domain.SimilarOutcomeDetection
 import com.clearroad.app.ui.theme.ClearRoad2Theme
 import com.google.android.gms.maps.model.LatLng
-import kotlin.math.roundToInt
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
-import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -97,48 +94,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private const val UAE_FUEL_PRICE_PER_LITER = 2.8
-private const val AVERAGE_CAR_KM_PER_LITER = 12.0
-
-private enum class UaeCorridorTollHint {
-    HIGH_LIKELIHOOD,
-    LOW_LIKELIHOOD,
-    NEUTRAL,
-}
-
-private val uaeHighTollCorridorKeywords = listOf(
-    "sheikh zayed road",
-    "szr",
-    "e11",
-    "al garhoud",
-    "downtown dubai",
-    "business bay",
-    "financial centre",
-    "financial center",
-    "dubai marina",
-)
-
-private val uaeLowerTollCorridorKeywords = listOf(
-    "mohammed bin zayed road",
-    "mbz road",
-    "e311",
-    "emirates road",
-    "e611",
-    "ajman",
-    "sharjah",
-)
-
-private fun corridorTollHintFromScan(scanText: String): UaeCorridorTollHint {
-    val lc = scanText.lowercase(Locale.US)
-    val highHits = uaeHighTollCorridorKeywords.count { lc.contains(it) }
-    val lowHits = uaeLowerTollCorridorKeywords.count { lc.contains(it) }
-    return when {
-        highHits > lowHits -> UaeCorridorTollHint.HIGH_LIKELIHOOD
-        lowHits > highHits -> UaeCorridorTollHint.LOW_LIKELIHOOD
-        else -> UaeCorridorTollHint.NEUTRAL
-    }
-}
-
 private fun preferenceModeLabel(mode: PreferenceMode): String =
     when (mode) {
         PreferenceMode.FASTEST -> "Fastest"
@@ -163,115 +118,6 @@ private fun confidenceHintBelowRecommendation(
         recommendedRouteIndex = recommendedRouteIndex,
         compact = true,
     )
-
-private fun getTollLevel(tollAED: Int): String =
-    when {
-        tollAED == 0 -> "none"
-        tollAED in 1..8 -> "low"
-        tollAED in 9..20 -> "medium"
-        else -> "high"
-    }
-
-private fun tollPhraseForCard(
-    item: RealRouteDebugData,
-    routeIndex: Int,
-    selectedMode: PreferenceMode,
-    recommendedRouteIndex: Int,
-    routes: List<RealRouteDebugData>,
-): String {
-    if (
-        selectedMode == PreferenceMode.NO_TOLLS &&
-        routeIndex == recommendedRouteIndex
-    ) {
-        return "Lowest toll route"
-    }
-    val minDurIdx =
-        routes.indices.minByOrNull { routes[it].durationSeconds } ?: routeIndex
-    val fastest = routes[minDurIdx]
-    val thisTotal =
-        estimateTotalRouteCostAed(
-            item.tollAED,
-            estimateFuelCostAed(item.distanceMeters / 1000.0),
-        )
-    val fastestTotal =
-        estimateTotalRouteCostAed(
-            fastest.tollAED,
-            estimateFuelCostAed(fastest.distanceMeters / 1000.0),
-        )
-    if (
-        item.durationSeconds > fastest.durationSeconds &&
-        thisTotal < fastestTotal
-    ) {
-        return when (selectedMode) {
-            PreferenceMode.NO_TOLLS -> "Salik-saving leg"
-            else -> "Smoother city approach"
-        }
-    }
-    if (item.durationSeconds <= 0 || item.distanceMeters <= 0) {
-        return "Toll estimate"
-    }
-    val corridorHint = corridorTollHintFromScan(item.corridorScanText)
-    val isFastestTimeRoute = routeIndex == minDurIdx
-    val durationStretchVsFastest =
-        if (fastest.durationSeconds <= 0) {
-            0f
-        } else {
-            (item.durationSeconds - fastest.durationSeconds).toFloat() /
-                fastest.durationSeconds.toFloat()
-        }
-    val tollBand = getTollLevel(item.tollAED)
-
-    return when (selectedMode) {
-        PreferenceMode.FASTEST ->
-            when {
-                isFastestTimeRoute &&
-                    (
-                        corridorHint == UaeCorridorTollHint.HIGH_LIKELIHOOD ||
-                            tollBand == "medium" ||
-                            tollBand == "high"
-                        ) ->
-                    "Faster urban stretch"
-                isFastestTimeRoute -> "Dubai corridor"
-                corridorHint == UaeCorridorTollHint.HIGH_LIKELIHOOD ->
-                    "More Salik ahead"
-                corridorHint == UaeCorridorTollHint.LOW_LIKELIHOOD ->
-                    "Steadier corridor leg"
-                durationStretchVsFastest > 0.12f -> "Easier traffic stretch"
-                tollBand == "none" -> "Fast city run"
-                tollBand == "low" -> "Main motorway stretch"
-                routeIndex % 2 == 0 -> "Main motorway stretch"
-                else -> "More Salik ahead"
-            }
-        PreferenceMode.NO_TOLLS ->
-            when (corridorHint) {
-                UaeCorridorTollHint.HIGH_LIKELIHOOD ->
-                    if (item.tollAED >= fastest.tollAED) {
-                        "Higher toll pick"
-                    } else {
-                        "More Salik ahead"
-                    }
-                UaeCorridorTollHint.LOW_LIKELIHOOD -> "Lower Salik route"
-                UaeCorridorTollHint.NEUTRAL ->
-                    when (tollBand) {
-                        "none" -> "Budget-friendly drive"
-                        "low" -> "Salik-saving leg"
-                        else ->
-                            if (routeIndex % 2 == 0) {
-                                "Main motorway stretch"
-                            } else {
-                                "More Salik ahead"
-                            }
-                    }
-            }
-        PreferenceMode.CALM ->
-            when {
-                durationStretchVsFastest > 0.1f -> "Smoother UAE leg"
-                corridorHint == UaeCorridorTollHint.LOW_LIKELIHOOD -> "Lower Salik route"
-                corridorHint == UaeCorridorTollHint.HIGH_LIKELIHOOD -> "More Salik ahead"
-                else -> "Smoother city approach"
-            }
-    }
-}
 
 private fun recommendationAlignedExplanation(
     personality: String,
@@ -458,18 +304,6 @@ private fun routeConfidenceLabel(
     return if (tollKnownFromFare) "Steady" else "Typical"
 }
 
-private fun estimateFuelCostAed(distanceKm: Double): Int {
-    val litersUsed = distanceKm / AVERAGE_CAR_KM_PER_LITER
-    val fuelCost = litersUsed * UAE_FUEL_PRICE_PER_LITER
-    return fuelCost.roundToInt()
-}
-
-private fun estimateTotalRouteCostAed(
-    tollAED: Int,
-    fuelAED: Int,
-): Int =
-    tollAED + fuelAED
-
 private fun costSummaryLines(
     mode: PreferenceMode,
     tollAed: Int,
@@ -587,118 +421,7 @@ private fun confidenceLines(
         compact = false,
     )
 
-private fun calculateAedPerMinute(
-    totalCostAed: Double,
-    durationMinutes: Int,
-): Double =
-    if (durationMinutes <= 0) totalCostAed
-    else totalCostAed / durationMinutes
-
-private const val SALIK_SCORING_PROBE_TAG = "SalikScoringProbe"
-
-private fun effectiveTollAedForScoring(item: RealRouteDebugData): Int {
-    if (item.tollAED > 0) return item.tollAED
-    if (!ArchitectureValidation.USE_HEURISTIC_SALIK_FOR_SCORING) return 0
-    return SalikDetection.estimate(item.corridorScanText).estimatedSalikPenaltyAed
-}
-
-private fun calculateRouteScore(
-    mode: PreferenceMode,
-    durationMinutes: Int,
-    distanceKm: Double,
-    tollAED: Double,
-    totalCostAED: Double,
-): Double {
-    val aedPerMinute =
-        calculateAedPerMinute(totalCostAED, durationMinutes)
-    return when (mode) {
-        PreferenceMode.FASTEST ->
-            durationMinutes + totalCostAED * 0.15 + distanceKm * 0.05 +
-                aedPerMinute * 0.2
-        PreferenceMode.NO_TOLLS ->
-            totalCostAED * 4.0 + tollAED * 6.0 + durationMinutes * 0.35 +
-                aedPerMinute * 0.4
-        PreferenceMode.CALM ->
-            durationMinutes * 0.6 + totalCostAED * 1.2 + distanceKm * 0.15 +
-                aedPerMinute * 0.3
-    }
-}
-
-private fun logSalikScoringProbe(
-    routes: List<RealRouteDebugData>,
-    mode: PreferenceMode,
-    recommendedRouteIndex: Int,
-) {
-    if (!ArchitectureValidation.USE_HEURISTIC_SALIK_FOR_SCORING) return
-    routes.forEachIndexed { index, item ->
-        val salikEstimate = SalikDetection.estimate(item.corridorScanText)
-        val effectiveToll = effectiveTollAedForScoring(item)
-        val distanceKm = item.distanceMeters / 1000.0
-        val fuelAed = estimateFuelCostAed(distanceKm)
-        val totalCostAed =
-            estimateTotalRouteCostAed(effectiveToll, fuelAed).toDouble()
-        val score =
-            calculateRouteScore(
-                mode,
-                item.durationSeconds / 60,
-                distanceKm,
-                effectiveToll.toDouble(),
-                totalCostAed,
-            )
-        Log.d(
-            SALIK_SCORING_PROBE_TAG,
-            "routeIndex=$index " +
-                "duration=${item.durationText} " +
-                "distance=${item.distanceText} " +
-                "googleTollAED=${item.tollAED} " +
-                "estimatedSalikPenaltyAed=${salikEstimate.estimatedSalikPenaltyAed} " +
-                "exposure=${salikEstimate.exposure} " +
-                "reason=${salikEstimate.reason} " +
-                "selectedMode=$mode " +
-                "score=$score " +
-                "recommendedRouteIndex=$recommendedRouteIndex",
-        )
-    }
-}
-
 private const val DIRECTIONS_FETCH_TAG = "DirectionsFetch"
-private const val DIRECTIONS_AUDIT_TAG = "DirectionsAudit"
-
-private fun directionsAuditSalikCount(item: RealRouteDebugData): Int {
-    val scan = item.corridorScanText.lowercase(Locale.US)
-    val tollRoadCount = SalikDetection.countOccurrences(scan, "toll road")
-    if (tollRoadCount > 0) return tollRoadCount
-    if (item.tollAED > 0) {
-        return (item.tollAED + SalikDetection.AED_PER_TOLL_ROAD - 1) /
-            SalikDetection.AED_PER_TOLL_ROAD
-    }
-    return 0
-}
-
-private fun logDirectionsAuditRoutes(
-    status: String?,
-    routes: List<RealRouteDebugData>,
-) {
-    if (status != "OK") return
-    routes.forEachIndexed { index, route ->
-        val trafficText =
-            route.durationInTrafficText?.let { text ->
-                val seconds = route.durationInTrafficSeconds
-                if (seconds != null) {
-                    "$text ($seconds sec)"
-                } else {
-                    text
-                }
-            } ?: "n/a"
-        Log.d(
-            DIRECTIONS_AUDIT_TAG,
-            "Route $index | duration=${route.baseDurationText} " +
-                "(${route.baseDurationSeconds} sec) | duration_in_traffic=$trafficText | " +
-                "selected=${route.durationText} (${route.durationSeconds} sec) | " +
-                "${route.distanceText} | Salik=${directionsAuditSalikCount(route)}",
-        )
-    }
-}
 
 private data class DirectionsFetchResult(
     val raw: String?,
