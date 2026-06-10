@@ -1,6 +1,7 @@
 package com.clearroad.app
 
 import com.clearroad.app.domain.PreferenceMode
+import com.clearroad.app.domain.SmoothDriveScoring
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -110,6 +111,55 @@ class RouteRecommendationSelectionTest {
     @Test
     fun calm_emptyRoutes_returnsZero() {
         assertEquals(0, RouteRecommendationSelection.pickRecommendedRouteIndex(emptyList(), PreferenceMode.CALM))
+    }
+
+    @Test
+    fun toSmoothDriveRouteInput_zeroDelayWhenTrafficFieldMissing() {
+        val route =
+            RealRouteDebugData(
+                distanceText = "10 km",
+                durationText = "30 mins",
+                distanceMeters = 10_000,
+                durationSeconds = 30 * 60,
+                tollAED = 0,
+                hasToll = false,
+                baseDurationSeconds = 30 * 60,
+                durationInTrafficSeconds = null,
+            )
+        val input = RouteRecommendationSelection.toSmoothDriveRouteInput(route)!!
+        val score =
+            SmoothDriveScoring.scoreRoute(
+                route = input,
+                fastestTrafficSeconds = input.durationInTrafficSeconds,
+                minDistanceMeters = input.distanceMeters,
+            )
+        assertEquals(0.0, score.delayMin, 0.001)
+        assertEquals(0.0, score.delayRatio, 0.001)
+        assertEquals(0.0, score.delayRatioComponent, 0.001)
+        assertEquals(0.0, score.delayMinComponent, 0.001)
+    }
+
+    @Test
+    fun parsedSharjahDowntownFixture_hasNonZeroTrafficDelay() {
+        val fixture = java.io.File("../docs/stage-35-0-audit/sharjah-downtown.json")
+        if (!fixture.exists()) return
+
+        val routes = extractRouteLegsDebugData(fixture.readText())
+        assertTrue(routes.isNotEmpty())
+        val input = RouteRecommendationSelection.toSmoothDriveRouteInput(routes[0])!!
+        val score =
+            SmoothDriveScoring.scoreRoute(
+                route = input,
+                fastestTrafficSeconds = routes.maxOf {
+                    RouteRecommendationSelection.toSmoothDriveRouteInput(it)!!
+                        .durationInTrafficSeconds
+                },
+                minDistanceMeters = routes.minOf { it.distanceMeters },
+            )
+        assertTrue(
+            "Expected non-zero delay from duration_in_traffic in fixture",
+            score.delayMin > 0.0 || score.delayRatio > 0.0,
+        )
     }
 
     private fun route(

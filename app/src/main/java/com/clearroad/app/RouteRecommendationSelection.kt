@@ -62,28 +62,100 @@ internal object RouteRecommendationSelection {
             smoothInputs.minOf { it.durationInTrafficSeconds }
         val timeBudgetMinutes =
             SmoothDriveScoring.timeBudgetMinutes(fastestTrafficSeconds)
+        val minDistanceMeters = smoothInputs.minOf { it.distanceMeters }
+        val allDelaySignalsZero =
+            scores.all { it.delayRatio <= 0.0 && it.delayMin <= 0.0 }
+        val allTrafficFieldsMissing =
+            routes.all { it.durationInTrafficSeconds == null }
 
         Log.d(SMOOTH_LOG_TAG, "=== SMOOTH AUDIT ===")
+        Log.d(
+            SMOOTH_LOG_TAG,
+            "DATA_SOURCE leg.duration -> RealRouteDebugData.baseDurationSeconds; " +
+                "leg.duration_in_traffic -> RealRouteDebugData.durationInTrafficSeconds " +
+                "(null => traffic falls back to durationSeconds, usually equal to base)",
+        )
+        Log.d(
+            SMOOTH_LOG_TAG,
+            "fastestTrafficSeconds=$fastestTrafficSeconds " +
+                "timeBudgetMinutes=${formatMinutes(timeBudgetMinutes)} " +
+                "minDistanceMeters=$minDistanceMeters",
+        )
+        if (allTrafficFieldsMissing) {
+            Log.w(
+                SMOOTH_LOG_TAG,
+                "DELAY_SIGNAL_INACTIVE reason=missing_duration_in_traffic " +
+                    "all routes use fallback traffic=base => Delay and DelayRatio stay 0",
+            )
+        } else if (allDelaySignalsZero) {
+            Log.w(
+                SMOOTH_LOG_TAG,
+                "DELAY_SIGNAL_INACTIVE reason=traffic_leq_base " +
+                    "Google duration_in_traffic <= duration on every route at fetch time",
+            )
+        }
         Log.d(SMOOTH_LOG_TAG, "")
         routes.forEachIndexed { index, route ->
             val input = smoothInputs[index]
             val breakdown = scores[index]
-            val baseMin = input.baseDurationSeconds / 60.0
-            val trafficMin = input.durationInTrafficSeconds / 60.0
-            val distanceKm = input.distanceMeters / 1000.0
+            val delaySeconds =
+                SmoothDriveScoring.trafficDelaySeconds(
+                    input.baseDurationSeconds,
+                    input.durationInTrafficSeconds,
+                )
             Log.d(SMOOTH_LOG_TAG, "Route $index")
-            Log.d(SMOOTH_LOG_TAG, "Corridor: ${corridorAuditLabel(route.corridorScanText)}")
-            Log.d(SMOOTH_LOG_TAG, "Base: ${formatMinutes(baseMin)}")
-            Log.d(SMOOTH_LOG_TAG, "Traffic: ${formatMinutes(trafficMin)}")
-            Log.d(SMOOTH_LOG_TAG, "Delay: ${formatMinutes(breakdown.delayMin)}")
-            Log.d(SMOOTH_LOG_TAG, "DelayRatio: ${formatRatio(breakdown.delayRatio)}")
-            Log.d(SMOOTH_LOG_TAG, "Distance km: ${"%.1f".format(distanceKm)}")
-            Log.d(SMOOTH_LOG_TAG, "P_delayRatio: ${formatScore(breakdown.delayRatioComponent)}")
-            Log.d(SMOOTH_LOG_TAG, "P_delayAbs: ${formatScore(breakdown.delayMinComponent)}")
-            Log.d(SMOOTH_LOG_TAG, "P_time: ${formatScore(breakdown.timePenaltyComponent)}")
-            Log.d(SMOOTH_LOG_TAG, "P_corridor: ${formatScore(breakdown.corridorComponent)}")
-            Log.d(SMOOTH_LOG_TAG, "P_dist: ${formatScore(breakdown.distanceComponent)}")
-            Log.d(SMOOTH_LOG_TAG, "SMOOTH_SCORE: ${formatScore(breakdown.total)}")
+            Log.d(
+                SMOOTH_LOG_TAG,
+                "DATA baseDurationSeconds=${route.baseDurationSeconds} " +
+                    "durationInTrafficSeconds=${route.durationInTrafficSeconds ?: "null"} " +
+                    "durationSeconds=${route.durationSeconds} " +
+                    "trafficSource=${smoothTrafficSourceLabel(route)}",
+            )
+            Log.d(
+                SMOOTH_LOG_TAG,
+                "Corridor: ${corridorAuditLabel(route.corridorScanText)} " +
+                    "class=${SmoothDriveScoring.classifyCorridor(input.corridorText)}",
+            )
+            Log.d(
+                SMOOTH_LOG_TAG,
+                "FORMULA delaySeconds=max(0, trafficSec-baseSec)=max(0, " +
+                    "${input.durationInTrafficSeconds}-${input.baseDurationSeconds})=$delaySeconds",
+            )
+            Log.d(
+                SMOOTH_LOG_TAG,
+                "FORMULA delayMin=delaySeconds/60=${formatMinutes(breakdown.delayMin)} " +
+                    "delayRatio=delaySeconds/baseSec=$delaySeconds/${input.baseDurationSeconds}=" +
+                    formatRatio(breakdown.delayRatio),
+            )
+            val deltaMinutes =
+                (input.durationInTrafficSeconds - fastestTrafficSeconds)
+                    .coerceAtLeast(0) / 60.0
+            val timeOverrunMinutes =
+                kotlin.math.max(0.0, deltaMinutes - timeBudgetMinutes)
+            Log.d(
+                SMOOTH_LOG_TAG,
+                "FORMULA deltaMin=(trafficSec-fastestTrafficSec)/60=" +
+                    formatMinutes(deltaMinutes) +
+                    " timeOverrun=max(0, deltaMin-timeBudget)=" +
+                    formatMinutes(timeOverrunMinutes),
+            )
+            Log.d(
+                SMOOTH_LOG_TAG,
+                "FORMULA P_delayRatio=delayRatio*${SmoothDriveScoring.DELAY_RATIO_WEIGHT}=" +
+                    formatScore(breakdown.delayRatioComponent) +
+                    " P_delayAbs=delayMin*${SmoothDriveScoring.DELAY_MIN_WEIGHT}=" +
+                    formatScore(breakdown.delayMinComponent) +
+                    " P_time=${SmoothDriveScoring.TIME_OVERRUN_MULTIPLIER}*" +
+                    "timeOverrun^${SmoothDriveScoring.TIME_OVERRUN_EXPONENT}=" +
+                    formatScore(breakdown.timePenaltyComponent) +
+                    " P_corridor=${formatScore(breakdown.corridorComponent)}" +
+                    " P_dist=${formatScore(breakdown.distanceComponent)}",
+            )
+            Log.d(
+                SMOOTH_LOG_TAG,
+                "SCORE total=${formatScore(breakdown.total)} " +
+                    "= P_delayRatio + P_delayAbs + P_time + P_corridor + P_dist",
+            )
             Log.d(SMOOTH_LOG_TAG, "")
         }
 
@@ -93,7 +165,17 @@ internal object RouteRecommendationSelection {
 
         Log.d(SMOOTH_LOG_TAG, "FASTEST WINNER: $fastestWinner")
         Log.d(SMOOTH_LOG_TAG, "SAVE WINNER: $saveWinner")
-        Log.d(SMOOTH_LOG_TAG, "SMOOTH WINNER: $smoothWinner")
+        if (allDelaySignalsZero && scores.any { it.corridorComponent != 0.0 || it.distanceComponent != 0.0 }) {
+            Log.w(
+                SMOOTH_LOG_TAG,
+                "WINNER_DRIVER likely corridor/distance tie-break " +
+                    "because P_delayRatio and P_delayAbs are 0 on all routes",
+            )
+        }
+        Log.d(
+            SMOOTH_LOG_TAG,
+            "WINNER route=$smoothWinner score=${formatScore(scores[smoothWinner].total)}",
+        )
         Log.d(SMOOTH_LOG_TAG, "")
         logSmoothExplanation(
             scores = scores,
@@ -157,6 +239,15 @@ internal object RouteRecommendationSelection {
             "- corridor tie-break used? ${if (corridorTieBreak) "yes" else "no"}",
         )
     }
+
+    private fun smoothTrafficSourceLabel(route: RealRouteDebugData): String =
+        when {
+            route.durationInTrafficSeconds != null &&
+                route.durationInTrafficSeconds > 0 ->
+                "GOOGLE_duration_in_traffic"
+            else ->
+                "FALLBACK_durationSeconds"
+        }
 
     private fun corridorAuditLabel(scan: String): String {
         val trimmed = scan.trim()

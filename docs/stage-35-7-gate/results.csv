@@ -1,0 +1,9 @@
+run_id,route_id,window,timestamp_gst,alternatives_count,delay_gt_zero_count,delay_active_pct,traffic_source,max_delay_ratio,delay_spread,smooth_winner,winner_driver,delay_signal_inactive,notes
+R1-morning,,morning,,,,,,,,,,,
+R1-evening,,evening,,,,,,,,,,,
+R2-morning,,morning,,,,,,,,,,,
+R2-evening,,evening,,,,,,,,,,,
+R3-morning,,morning,,,,,,,,,,,
+R3-evening,,evening,,,,,,,,,,,
+R4-morning,,morning,,,,,,,,,,,
+R4-evening,,evening,,,,,,,,,,,
