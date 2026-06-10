@@ -69,7 +69,7 @@ private fun recommendationModeContextLine(mode: PreferenceMode): String =
     when (mode) {
         PreferenceMode.FASTEST -> "Fastest way to get there"
         PreferenceMode.NO_TOLLS -> "Best value route"
-        PreferenceMode.CALM -> "Smoother drive option"
+        PreferenceMode.CALM -> "Lower traffic delay option"
     }
 
 private fun Modifier.homeRecommendationCardSurface(): Modifier =

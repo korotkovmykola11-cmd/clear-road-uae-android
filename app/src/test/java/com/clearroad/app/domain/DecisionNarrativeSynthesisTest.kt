@@ -8,7 +8,7 @@ class DecisionNarrativeSynthesisTest {
     @Test
     fun fastest_noToll_highConfidence_narrative() {
         assertEquals(
-            "Fastest route with stable traffic and no Salik charges.",
+            "Best time-focused pick with stable timing and no Salik listed.",
             DecisionNarrativeSynthesis.narrative(
                 mode = PreferenceMode.FASTEST,
                 recommendedTollAed = 0,

@@ -8,7 +8,7 @@ import kotlin.math.pow
 /**
  * Stage 35.2 — SMOOTH DRIVE scoring in testable isolation.
  * Predictability-first; no toll, fuel, total cost, or AED/min inputs.
- * Not wired to Home recommendation selection yet.
+ * Wired to Home CALM selection via [com.clearroad.app.RouteRecommendationSelection].
  */
 object SmoothDriveScoring {
 
@@ -142,6 +142,23 @@ object SmoothDriveScoring {
         val fastestMinutes = fastestTrafficSeconds / 60.0
         return (TIME_BUDGET_RATIO * fastestMinutes)
             .coerceIn(TIME_BUDGET_MIN_MINUTES, TIME_BUDGET_MAX_MINUTES)
+    }
+
+    /** Read-only metric for explanation copy; does not affect scoring. */
+    fun trafficDelaySeconds(
+        baseDurationSeconds: Int,
+        durationInTrafficSeconds: Int,
+    ): Int =
+        (durationInTrafficSeconds - baseDurationSeconds).coerceAtLeast(0)
+
+    /** Read-only metric for explanation copy; does not affect scoring. */
+    fun trafficDelayRatio(
+        baseDurationSeconds: Int,
+        durationInTrafficSeconds: Int,
+    ): Double {
+        val base = baseDurationSeconds.coerceAtLeast(1)
+        return trafficDelaySeconds(baseDurationSeconds, durationInTrafficSeconds)
+            .toDouble() / base.toDouble()
     }
 
     private fun corridorPenalty(corridorClass: CorridorClass): Double =

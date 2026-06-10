@@ -10,8 +10,8 @@ internal object RecommendationSummaryLayer {
 
     fun forMode(mode: PreferenceMode): String =
         when (mode) {
-            PreferenceMode.FASTEST -> "Gets you there sooner."
-            PreferenceMode.NO_TOLLS -> "Avoids unnecessary Salik costs."
-            PreferenceMode.CALM -> "Less stop-and-go driving."
+            PreferenceMode.FASTEST -> "Best time-focused pick."
+            PreferenceMode.NO_TOLLS -> "Reduces Salik exposure."
+            PreferenceMode.CALM -> "Less delay added by traffic."
         }
 }

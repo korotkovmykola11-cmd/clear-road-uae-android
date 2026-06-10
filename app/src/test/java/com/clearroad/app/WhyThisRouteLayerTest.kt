@@ -35,8 +35,8 @@ class WhyThisRouteLayerTest {
                 recommendedIndex = 0,
                 directionsStatus = "OK",
             )
-        assertEquals("Fastest available route", copy.title)
-        assertTrue(copy.why.contains("MARSHIO chose this route"))
+        assertEquals("Best time-focused pick", copy.title)
+        assertTrue(copy.why.contains("quickest practical option"))
         assertTrue(copy.why.contains("7 minutes"))
     }
 
@@ -55,8 +55,8 @@ class WhyThisRouteLayerTest {
                 recommendedIndex = 0,
                 directionsStatus = "OK",
             )
-        assertEquals("Lower Salik exposure", copy.title)
-        assertTrue(copy.why.contains("Salik risk"))
+        assertEquals("Lower Salik impact", copy.title)
+        assertTrue(copy.why.contains("lower Salik impact"))
         assertTrue(copy.why.contains("Google estimates").not())
     }
 
@@ -93,8 +93,8 @@ class WhyThisRouteLayerTest {
                 recommendedIndex = 0,
                 directionsStatus = "OK",
             )
-        assertEquals("Smoother drive", copy.title)
-        assertTrue(copy.why.contains("calmer route"))
+        assertEquals("Lower traffic delay load", copy.title)
+        assertTrue(copy.why.contains("lower traffic delay load"))
         assertTrue(copy.why.contains("3 extra minutes"))
     }
 }

@@ -9,7 +9,7 @@ class RecommendationSummaryLayerTest {
     @Test
     fun fastestSummary() {
         assertEquals(
-            "Gets you there sooner.",
+            "Best time-focused pick.",
             RecommendationSummaryLayer.forMode(PreferenceMode.FASTEST),
         )
     }
@@ -17,7 +17,7 @@ class RecommendationSummaryLayerTest {
     @Test
     fun saveAedSummary() {
         assertEquals(
-            "Avoids unnecessary Salik costs.",
+            "Reduces Salik exposure.",
             RecommendationSummaryLayer.forMode(PreferenceMode.NO_TOLLS),
         )
     }
@@ -25,7 +25,7 @@ class RecommendationSummaryLayerTest {
     @Test
     fun smoothDriveSummary() {
         assertEquals(
-            "Less stop-and-go driving.",
+            "Less delay added by traffic.",
             RecommendationSummaryLayer.forMode(PreferenceMode.CALM),
         )
     }

@@ -340,9 +340,9 @@ private fun decisionSnapshotLines(
         PreferenceMode.CALM ->
             DecisionSnapshotLines(
                 recommendedHeading = "Recommended route",
-                recommendedSummary = "Smoother drive with a small time tradeoff.",
+                recommendedSummary = "Lower traffic delay load with a small time tradeoff.",
                 othersHeading = "Other routes",
-                othersSummary = "More movement, less comfort focus.",
+                othersSummary = "Adds more traffic delay than the recommended route.",
             )
     }
 
@@ -860,7 +860,7 @@ fun ClearRoadScreen(
                 when (selectedMode) {
                     PreferenceMode.FASTEST -> "Finding the best FASTEST route..."
                     PreferenceMode.NO_TOLLS -> "Finding the best SAVE AED route..."
-                    PreferenceMode.CALM -> "Finding the smoothest route..."
+                    PreferenceMode.CALM -> "Finding routes with lower traffic delay..."
                 }
             val recommendedBannerIdentity =
                 if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
@@ -952,7 +952,7 @@ fun ClearRoadScreen(
                         PreferenceMode.FASTEST -> "Finding the best FASTEST route..."
                         PreferenceMode.NO_TOLLS ->
                             "Finding the best SAVE AED route..."
-                        PreferenceMode.CALM -> "Finding the smoothest route..."
+                        PreferenceMode.CALM -> "Finding routes with lower traffic delay..."
                     },
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.bodySmall,

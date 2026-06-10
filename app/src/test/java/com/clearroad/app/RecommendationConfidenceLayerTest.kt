@@ -35,7 +35,7 @@ class RecommendationConfidenceLayerTest {
         val copy = RecommendationConfidenceLayer.forMode(PreferenceMode.CALM)
         assertEquals("Medium confidence", copy.title)
         assertEquals(
-            "This route favors steadier pacing over maximum speed.",
+            "This route minimizes additional traffic delay, even if it is not the fastest option.",
             copy.body,
         )
         assertFalse(copy.isHighConfidence)

@@ -19,7 +19,7 @@ internal object RecommendationReasonLayer {
         when (mode) {
             PreferenceMode.FASTEST -> fastestReason(recommended, routes, recommendedIndex)
             PreferenceMode.NO_TOLLS -> saveAedReason(recommended)
-            PreferenceMode.CALM -> "Lower traffic stress"
+            PreferenceMode.CALM -> smoothDriveReason(recommended, routes)
         }
 
     private fun fastestReason(
@@ -42,6 +42,20 @@ internal object RecommendationReasonLayer {
     private fun saveAedReason(recommended: RealRouteDebugData): String {
         val gates = salikGateCount(recommended)
         return "$gates Salik gates"
+    }
+
+    private fun smoothDriveReason(
+        recommended: RealRouteDebugData,
+        routes: List<RealRouteDebugData>,
+    ): String {
+        if (RouteTrafficDelayMetrics.isLowestDelayRatioAmong(recommended, routes)) {
+            return "Lowest traffic delay added"
+        }
+        val delayMinutes = RouteTrafficDelayMetrics.delayMinutesRounded(recommended)
+        if (delayMinutes > 0) {
+            return "+$delayMinutes min traffic delay"
+        }
+        return "Stable traffic timing"
     }
 
     private fun salikGateCount(recommended: RealRouteDebugData): Int {

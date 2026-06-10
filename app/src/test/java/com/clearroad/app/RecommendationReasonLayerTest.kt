@@ -72,9 +72,9 @@ class RecommendationReasonLayerTest {
     }
 
     @Test
-    fun smoothDriveReasonIsLowerTrafficStress() {
+    fun smoothDriveReasonUsesLowestTrafficDelayWhenOnlyRoute() {
         assertEquals(
-            "Lower traffic stress",
+            "Lowest traffic delay added",
             RecommendationReasonLayer.reason(
                 mode = PreferenceMode.CALM,
                 recommended = route(durationSeconds = 30 * 60),

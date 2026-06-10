@@ -32,7 +32,8 @@ internal object RecommendationConfidenceLayer {
             PreferenceMode.CALM ->
                 ConfidenceCopy(
                     title = "Medium confidence",
-                    body = "This route favors steadier pacing over maximum speed.",
+                    body =
+                        "This route minimizes additional traffic delay, even if it is not the fastest option.",
                     isHighConfidence = false,
                 )
         }

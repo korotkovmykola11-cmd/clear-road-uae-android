@@ -43,6 +43,8 @@ internal object WhyThisRouteLayer {
                 )
             PreferenceMode.CALM ->
                 smoothDriveCopy(
+                    recommended = recommended,
+                    routes = routes,
                     recommendedSeconds = recommended.durationSeconds,
                     fastestSeconds = fastestSeconds,
                 )
@@ -53,7 +55,7 @@ internal object WhyThisRouteLayer {
         when (mode) {
             PreferenceMode.FASTEST ->
                 RouteWhyCopy(
-                    title = "Fastest route",
+                    title = "Time-focused route",
                     why = "MARSHIO will explain this choice once routes finish loading.",
                 )
             PreferenceMode.NO_TOLLS ->
@@ -63,8 +65,8 @@ internal object WhyThisRouteLayer {
                 )
             PreferenceMode.CALM ->
                 RouteWhyCopy(
-                    title = "Smoother drive",
-                    why = "MARSHIO will explain this pacing choice once routes finish loading.",
+                    title = "Lower traffic delay load",
+                    why = "MARSHIO will explain this traffic-timing choice once routes finish loading.",
                 )
         }
 
@@ -72,9 +74,9 @@ internal object WhyThisRouteLayer {
         recommendedSeconds: Int,
         nextAlternativeSeconds: Int?,
     ): RouteWhyCopy {
-        val title = "Fastest available route"
+        val title = "Best time-focused pick"
         val whyBody = buildString {
-            append("MARSHIO chose this route to get you there sooner.")
+            append("MARSHIO chose the quickest practical option on this list.")
             val savedMinutes =
                 nextAlternativeSeconds?.let {
                     minutesSaved(recommendedSeconds, it)
@@ -85,9 +87,8 @@ internal object WhyThisRouteLayer {
                 savedMinutes == 1 ->
                     append(" It saves about a minute compared with the next option.")
                 else ->
-                    append(" It is the quickest option available for this trip.")
+                    append(" It is the best time-focused pick among these routes.")
             }
-            append(" Traffic on this corridor looks predictable.")
         }
         return RouteWhyCopy(title = title, why = whyBody)
     }
@@ -98,9 +99,9 @@ internal object WhyThisRouteLayer {
         routes: List<RealRouteDebugData>,
         fastestSeconds: Int,
     ): RouteWhyCopy {
-        val title = "Lower Salik exposure"
+        val title = "Lower Salik impact"
         val whyBody = buildString {
-            append("MARSHIO prefers less Salik risk on this trip.")
+            append("MARSHIO picked a route with lower Salik impact on this trip.")
             if (recommended.tollAED > 0) {
                 append(" Google estimates Salik at ${recommended.tollAED} AED on this route.")
             } else {
@@ -109,7 +110,7 @@ internal object WhyThisRouteLayer {
                         index != recommendedIndex && routes[index].tollAED > recommended.tollAED
                     }
                 if (othersHaveHigherToll) {
-                    append(" This route keeps Salik lower than faster alternatives on this list.")
+                    append(" This route reduces Salik exposure versus faster alternatives here.")
                 } else {
                     append(" This route keeps Salik exposure as low as possible among these options.")
                 }
@@ -120,14 +121,30 @@ internal object WhyThisRouteLayer {
     }
 
     private fun smoothDriveCopy(
+        recommended: RealRouteDebugData,
+        routes: List<RealRouteDebugData>,
         recommendedSeconds: Int,
         fastestSeconds: Int,
     ): RouteWhyCopy {
-        val title = "Smoother drive"
+        val title = "Lower traffic delay load"
+        val delayMinutes = RouteTrafficDelayMetrics.delayMinutesRounded(recommended)
+        val delayPercent = RouteTrafficDelayMetrics.delayRatioPercentRounded(recommended)
         val whyBody = buildString {
-            append("MARSHIO chose a calmer route with less stop-start stress.")
+            append(
+                "MARSHIO chose this route for a lower traffic delay load among these options.",
+            )
+            if (RouteTrafficDelayMetrics.isLowestDelayRatioAmong(recommended, routes)) {
+                append(" It adds the least extra time from traffic on this list.")
+            } else if (delayMinutes > 0) {
+                append(" Traffic adds about $delayMinutes min ($delayPercent%) to the base ETA.")
+            } else {
+                append(" Traffic adds little extra time to the base ETA right now.")
+            }
             append(extraMinutesVersusFastest(recommendedSeconds, fastestSeconds))
-            append(" Pacing on this corridor should feel steadier.")
+            if (recommendedSeconds > fastestSeconds) {
+                append(" It may not be the quickest option on the list.")
+            }
+            append(" This choice is based on traffic delay, not Salik, fuel, or total trip cost.")
         }
         return RouteWhyCopy(title = title, why = whyBody)
     }

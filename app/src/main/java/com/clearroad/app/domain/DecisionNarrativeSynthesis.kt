@@ -11,22 +11,22 @@ internal object DecisionNarrativeSynthesis {
         recommendedTollAed: Int,
         highConfidence: Boolean,
     ): String {
-        val trafficQualifier =
-            if (highConfidence) "stable traffic" else "predictable traffic"
+        val timingQualifier =
+            if (highConfidence) "stable timing" else "current traffic timing"
         return when (mode) {
             PreferenceMode.FASTEST -> {
                 val salikPhrase =
-                    if (recommendedTollAed == 0) "no Salik charges" else "low Salik impact"
-                "Fastest route with $trafficQualifier and $salikPhrase."
+                    if (recommendedTollAed == 0) "no Salik listed" else "lower Salik impact"
+                "Best time-focused pick with $timingQualifier and $salikPhrase."
             }
             PreferenceMode.NO_TOLLS ->
                 if (recommendedTollAed == 0) {
-                    "Avoids Salik charges with $trafficQualifier."
+                    "Lower Salik impact with $timingQualifier."
                 } else {
-                    "Best Salik balance with $trafficQualifier."
+                    "Best Salik balance with $timingQualifier."
                 }
             PreferenceMode.CALM ->
-                "Smoother drive with $trafficQualifier."
+                "Lower traffic delay load with $timingQualifier."
         }
     }
 
