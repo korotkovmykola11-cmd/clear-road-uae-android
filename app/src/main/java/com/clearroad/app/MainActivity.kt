@@ -849,29 +849,14 @@ fun ClearRoadScreen(
         if (!showRouteCardOverrides || realRouteDebugDataList.isEmpty()) {
             0
         } else {
-            realRouteDebugDataList.indices.minWith(
-                compareBy(
-                    { idx ->
-                        val item = realRouteDebugDataList[idx]
-                        val distanceKm = item.distanceMeters / 1000.0
-                        val effectiveToll = effectiveTollAedForScoring(item)
-                        val fuelAed = estimateFuelCostAed(distanceKm)
-                        val totalCostAed =
-                            estimateTotalRouteCostAed(effectiveToll, fuelAed).toDouble()
-                        calculateRouteScore(
-                            selectedMode,
-                            item.durationSeconds / 60,
-                            distanceKm,
-                            effectiveToll.toDouble(),
-                            totalCostAed,
-                        )
-                    },
-                    { it },
-                ),
+            RouteRecommendationSelection.pickRecommendedRouteIndex(
+                realRouteDebugDataList,
+                selectedMode,
             )
         }
     LaunchedEffect(realRouteDebugDataList, selectedMode, recommendedRouteIndex) {
         if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
+        RouteRecommendationSelection.logSmoothAudit(realRouteDebugDataList)
         logSalikScoringProbe(
             routes = realRouteDebugDataList,
             mode = selectedMode,

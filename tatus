@@ -1,0 +1,72 @@
+[1mdiff --git a/app/src/main/java/com/clearroad/app/RecommendationSurface.kt b/app/src/main/java/com/clearroad/app/RecommendationSurface.kt[m
+[1mindex 4db1c72..67d24fd 100644[m
+[1m--- a/app/src/main/java/com/clearroad/app/RecommendationSurface.kt[m
+[1m+++ b/app/src/main/java/com/clearroad/app/RecommendationSurface.kt[m
+[36m@@ -182,21 +182,6 @@[m [mprivate fun RecommendationReadyContent([m
+         ),[m
+         color = HomeProductTitleColor,[m
+     )[m
+[31m-    if (model.recommendationBadge.isNotBlank()) {[m
+[31m-        Spacer(modifier = Modifier.height(8.dp))[m
+[31m-        RecommendationBadgeChip([m
+[31m-            text = model.recommendationBadge,[m
+[31m-            accentColor = model.mode.accentColor(),[m
+[31m-        )[m
+[31m-    }[m
+[31m-    if (model.recommendationReason.isNotBlank()) {[m
+[31m-        Spacer(modifier = Modifier.height(6.dp))[m
+[31m-        RecommendationReasonChip(text = model.recommendationReason)[m
+[31m-    }[m
+[31m-    if (model.confidenceDisplay.isNotBlank()) {[m
+[31m-        Spacer(modifier = Modifier.height(4.dp))[m
+[31m-        RecommendationConfidenceChip(text = model.confidenceDisplay)[m
+[31m-    }[m
+     Spacer(modifier = Modifier.height(8.dp))[m
+     Text([m
+         text = model.travelTime,[m
+[36m@@ -209,6 +194,10 @@[m [mprivate fun RecommendationReadyContent([m
+         color = HomeProductTitleColor,[m
+         maxLines = 1,[m
+     )[m
+[32m+[m[32m    if (model.recommendationReason.isNotBlank()) {[m
+[32m+[m[32m        Spacer(modifier = Modifier.height(8.dp))[m
+[32m+[m[32m        RecommendationReasonChip(text = model.recommendationReason)[m
+[32m+[m[32m    }[m
+     if (model.decisionSummary.isNotBlank()) {[m
+         Spacer(modifier = Modifier.height(8.dp))[m
+         Text([m
+[36m@@ -223,7 +212,7 @@[m [mprivate fun RecommendationReadyContent([m
+         )[m
+     }[m
+     if (model.narrative.isNotBlank()) {[m
+[31m-        Spacer(modifier = Modifier.height(12.dp))[m
+[32m+[m[32m        Spacer(modifier = Modifier.height(8.dp))[m
+         Text([m
+             text = model.narrative,[m
+             style = MaterialTheme.typography.bodyLarge.copy([m
+[36m@@ -292,25 +281,6 @@[m [mprivate fun RecommendationReadyContent([m
+     }[m
+ }[m
+ [m
+[31m-@Composable[m
+[31m-private fun RecommendationConfidenceChip(text: String) {[m
+[31m-    Text([m
+[31m-        text = text,[m
+[31m-        modifier = Modifier[m
+[31m-            .background([m
+[31m-                color = ClearRoadColors.SalikNeutral.copy(alpha = 0.06f),[m
+[31m-                shape = RoundedCornerShape(6.dp),[m
+[31m-            )[m
+[31m-            .padding(horizontal = 7.dp, vertical = 1.dp),[m
+[31m-        style = MaterialTheme.typography.labelSmall.copy([m
+[31m-            fontWeight = FontWeight.Normal,[m
+[31m-            fontSize = 11.sp,[m
+[31m-        ),[m
+[31m-        color = HomeConfidenceChipColor,[m
+[31m-        maxLines = 1,[m
+[31m-    )[m
+[31m-}[m
+[31m-[m
+ @Composable[m
+ private fun RecommendationReasonChip(text: String) {[m
+     Text([m

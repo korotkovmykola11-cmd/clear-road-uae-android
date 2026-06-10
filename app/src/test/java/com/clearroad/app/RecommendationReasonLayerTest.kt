@@ -40,6 +40,25 @@ class RecommendationReasonLayerTest {
     }
 
     @Test
+    fun fastestReasonHidesZeroMinuteAdvantage() {
+        val durationSeconds = 28 * 60
+        val routes =
+            listOf(
+                route(durationSeconds = durationSeconds),
+                route(durationSeconds = durationSeconds),
+            )
+        assertEquals(
+            "",
+            RecommendationReasonLayer.reason(
+                mode = PreferenceMode.FASTEST,
+                recommended = routes[0],
+                routes = routes,
+                recommendedIndex = 0,
+            ),
+        )
+    }
+
+    @Test
     fun saveAedReasonShowsZeroSalikGates() {
         assertEquals(
             "0 Salik gates",

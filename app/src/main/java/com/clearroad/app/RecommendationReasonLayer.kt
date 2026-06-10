@@ -35,6 +35,7 @@ internal object RecommendationReasonLayer {
             nextAlternativeSeconds?.let {
                 minutesAdvantage(recommended.durationSeconds, it)
             } ?: 0
+        if (advantageMinutes == 0) return ""
         return "+$advantageMinutes min advantage"
     }
 

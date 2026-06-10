@@ -1,0 +1,1837 @@
+﻿{
+    "geocoded_waypoints":  [
+                               {
+                                   "geocoder_status":  "OK",
+                                   "place_id":  "ChIJZSeo5EFZXz4RgsZTvHnlPqQ",
+                                   "types":  [
+                                                 "premise",
+                                                 "street_address"
+                                             ]
+                               },
+                               {
+                                   "geocoder_status":  "OK",
+                                   "place_id":  "ChIJzRh06IFCXz4RorQlABiOApM",
+                                   "types":  [
+                                                 "street_address",
+                                                 "subpremise"
+                                             ]
+                               }
+                           ],
+    "routes":  [
+                   {
+                       "bounds":  {
+                                      "northeast":  {
+                                                        "lat":  25.3530869,
+                                                        "lng":  55.4224651
+                                                    },
+                                      "southwest":  {
+                                                        "lat":  25.1976146,
+                                                        "lng":  55.2698
+                                                    }
+                                  },
+                       "copyrights":  "Powered by Google, ©2026 Google",
+                       "legs":  [
+                                    {
+                                        "distance":  {
+                                                         "text":  "29.8 km",
+                                                         "value":  29813
+                                                     },
+                                        "duration":  {
+                                                         "text":  "33 mins",
+                                                         "value":  1974
+                                                     },
+                                        "duration_in_traffic":  {
+                                                                    "text":  "34 mins",
+                                                                    "value":  2044
+                                                                },
+                                        "end_address":  "9\"N شارع الحمرية - Burj Khalifa - Downtown Dubai - Dubai - United Arab Emirates",
+                                        "end_location":  {
+                                                             "lat":  25.1976146,
+                                                             "lng":  55.2743122
+                                                         },
+                                        "start_address":  "19 Othman Bin Abi Al Aas St - Samnan - Halwan - Sharjah - United Arab Emirates",
+                                        "start_location":  {
+                                                               "lat":  25.338715,
+                                                               "lng":  55.420114
+                                                           },
+                                        "steps":  [
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.4 km",
+                                                                           "value":  423
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  67
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.341871,
+                                                                               "lng":  55.4224651
+                                                                           },
+                                                          "html_instructions":  "Head \u003cb\u003enortheast\u003c/b\u003e on \u003cb\u003e5 St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eOthman Bin Abi Al Aas St\u003c/b\u003e toward \u003cb\u003eMalik Bin Umaya St\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "_~syCufgqIc@[GEkAw@a@WsBwAeBiAiCgB}AgAYS"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.338715,
+                                                                                 "lng":  55.420114
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  174
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  28
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3427563,
+                                                                               "lng":  55.42103150000001
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e onto \u003cb\u003eOmar Bin Ows St\u003c/b\u003e",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "uqtyCmugqIkAzBeBbD"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.341871,
+                                                                                 "lng":  55.4224651
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  209
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  33
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3412018,
+                                                                               "lng":  55.4198606
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e onto \u003cb\u003eBasheer Bin Saad St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eStreet 1\u003c/b\u003e",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "gwtyCmlgqIbBjALJ|BxAfAv@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3427563,
+                                                                                 "lng":  55.42103150000001
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  198
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  25
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3421958,
+                                                                               "lng":  55.4182235
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e toward \u003cb\u003eSheikh Rashid Bin Saqr Al Qasimi St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS115\u003c/b\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "omtyCcegqIw@zAoCjF"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3412018,
+                                                                                 "lng":  55.4198606
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.4 km",
+                                                                           "value":  420
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  38
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3453277,
+                                                                               "lng":  55.4205555
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e onto \u003cb\u003eSheikh Rashid Bin Saqr Al Qasimi St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS115\u003c/b\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "wstyC{zfqIy@m@iAw@QMcFkDgAo@uBuAk@c@MI"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3421958,
+                                                                                 "lng":  55.4182235
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.1 km",
+                                                                           "value":  100
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  21
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.346107,
+                                                                               "lng":  55.4209926
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e toward \u003cb\u003eSheikh Zayed St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS124\u003c/b\u003e",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "iguyCoigqIGBE@E?CAKISKs@e@o@]"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3453277,
+                                                                                 "lng":  55.4205555
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.1 km",
+                                                                           "value":  1064
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "2 mins",
+                                                                           "value":  90
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3520957,
+                                                                               "lng":  55.4130614
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e onto \u003cb\u003eSheikh Zayed St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS124\u003c/b\u003e",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "eluyCelgqIOMOKKLw@dAuAfBy@bAyAlB_EpF[d@u@`AgApAq@v@i@n@SVa@l@s@lAS^MZy@bB_BhDmAjCu@~A"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.346107,
+                                                                                 "lng":  55.4209926
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  171
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  59
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3528754,
+                                                                               "lng":  55.411596
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to stay on \u003cb\u003eSheikh Zayed St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS124\u003c/b\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "sqvyCszeqIeBzDIVMZ]r@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3520957,
+                                                                                 "lng":  55.4130614
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.3 km",
+                                                                           "value":  312
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  53
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3510177,
+                                                                               "lng":  55.4098421
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e onto the ramp to \u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "ramp-left",
+                                                          "polyline":  {
+                                                                           "points":  "ovvyCoqeqIi@~@\\VVVZT@?b@Vf@TfB~@lBjAHF\\V"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3528754,
+                                                                                 "lng":  55.411596
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "9.3 km",
+                                                                           "value":  9327
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "9 mins",
+                                                                           "value":  519
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2841554,
+                                                                               "lng":  55.3583393
+                                                                           },
+                                                          "html_instructions":  "Take the ramp onto \u003cb\u003eE11\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "{jvyCofeqIRFPHLHJFFDDBPHXNTJNDXHnAr@~ClB\\R`Al@f@\\t@`@hAj@`@RbB~@TLXPhB`A|@f@HD`@T\\PhAl@FDLFPH\\RXPbAh@lAp@f@Z\\R\\RzA~@nAp@j@\\\\P@@\\P\\T`@RnAr@fB`ANHbAj@\\RZPZPVL@?@@PJHDHF@@XNXNn@^bB`ANJj@\\l@\\`@V|@f@\\RbAl@tAv@rAv@fAj@^RRJHF^Pp@\\rAr@tAp@JDvAx@r@^`@T^T^Pl@`@r@b@XNdEfCpBjA\\PXPh@\\`BdAdAn@vBzAHFPN\\V~AfAlAhA`HbGdAz@rBfBjCdCxClCvFdFpBhB\\\\z@x@b@^p@j@lAhAv@v@nAfAnEbEzCpCb@`@h@f@VVd@`@j@h@b@`@XVd@`@h@d@lBdBbC`C~DjDd@b@^`@zAnATRZ^nAhA~EtEjCdCLL`Az@j@f@rEbEfB`BzBnBbB`BdB~An@t@tA~An@v@l@|@T`@dAzAj@dANX`@~@f@xAzBpFx@xBXt@?@N`@?@`DbJjCvHHVt@dB\\r@JXNXh@fAt@pAh@x@TZX`@@@LPf@j@j@p@RVn@n@fA|@PL|@r@j@b@JJ~@r@h@ZdAd@jAf@dBn@tAVtDr@nC^dAJNBz@HdCVvBTt@H`@DrCXvEh@dCV~Gt@p@HrD^hALXD|@HJB\\Dd@FjCb@lCl@tA`@B?dBp@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3510177,
+                                                                                 "lng":  55.4098421
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.7 km",
+                                                                           "value":  707
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  35
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.279332,
+                                                                               "lng":  55.3538218
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eAl Ittihad Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai - Sharjah Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "_iiyCsd{pIhAb@lAp@~@h@t@f@j@d@l@h@`BjB`BhB`AfA~@dAnBvB~@dAPRtAxA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2841554,
+                                                                                 "lng":  55.3583393
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.5 km",
+                                                                           "value":  1486
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  75
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.269909,
+                                                                               "lng":  55.3433448
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to stay on \u003cb\u003eAl Ittihad Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai - Sharjah Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "yjhyCkhzpIFH|@`Ah@n@|@bAv@~@VXbAhAn@t@dBrBx@|@vBfCNNHJDDnAvAz@|@v@~@x@z@|BnCVZr@x@\\^RVb@j@xApBlB~BtC~C^^d@f@|A`BZ\\tBbC"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.279332,
+                                                                                 "lng":  55.3538218
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.3 km",
+                                                                           "value":  289
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  14
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2680719,
+                                                                               "lng":  55.341311
+                                                                           },
+                                                          "html_instructions":  "Continue straight to stay on \u003cb\u003eAl Ittihad Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai - Sharjah Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "straight",
+                                                          "polyline":  {
+                                                                           "points":  "}ofyC{fxpIpC|C|BlC~AhB"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.269909,
+                                                                                 "lng":  55.3433448
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.2 km",
+                                                                           "value":  1232
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  58
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2587128,
+                                                                               "lng":  55.3373652
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eSheikh Rashid Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "mdfyCezwpIrB~BtA~ArA|A\\b@Z^\\b@f@j@d@j@X^XXPTZ`@RTLNRTHLLJLPLNJLJJHHFFNJl@b@XRXLPHFBXJTFf@LVF|@HJ@X@P@P?LAFA`@CXA\\Cv@InAQbH{@lAQ|@KhBU"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2680719,
+                                                                                 "lng":  55.341311
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "7.8 km",
+                                                                           "value":  7777
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "6 mins",
+                                                                           "value":  332
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2310602,
+                                                                               "lng":  55.2953972
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eE11\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "}idyCqawpIf@CjACv@?n@Bb@Db@DVBJ@VBJ@J@TDZDh@H`BRTDtAR|BZ?@`@F|GbAJ@x@DnAJlCJf@?`A?dACz@EdAE`AIhAKd@Gh@IxBi@|@WfA]|Ai@dAa@nBq@vAi@vAi@tBu@rAk@pBw@pC}@PG^Mp@SrAe@bA]|Ag@x@Yj@QrBc@pB[~@IhACvA?dA@jAHTBb@DzATd@JrA^hA\\z@Xz@`@rAz@TPf@d@~EhEvE~DzD~ChAdARVXZX\\RTXb@^\\HHr@n@xAbBRTDDRTDDd@j@tA`BbAnAZd@@@PVBB?@NR@BhCvDl@bAbAlBn@vALXVr@X`ALf@h@vB@HJ`@H^^rBTrBHfAJ|ABjB@`CA^Cr@GxAGp@Gr@S|A[zBi@`Cc@`B[hAc@jAGPWr@{BpFcBdEm@rA_AzB}BtFoAxCc@dAo@xA]v@EJgAhCyCnH{@nBQ`@a@bAQ`@MXCJc@pAUx@Sz@Mv@Mz@Gn@OjAKpD@fF?lGB|F?Z?v@JrBRdC@HLlAd@vDXfBZtBPlAFb@^nBHd@TpAh@dD`AnG"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2587128,
+                                                                                 "lng":  55.3373652
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "3.3 km",
+                                                                           "value":  3315
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "2 mins",
+                                                                           "value":  142
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2100851,
+                                                                               "lng":  55.2742061
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eSheikh Zayed Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "c}~xCg{npIt@dE^fCRlAHd@BPbBxKHf@h@xCLv@F`@X|AJl@Jd@P~@BL@BLXHRJTR`@BFTb@Zh@T\\b@h@\\`@VXLLVT@@PPNLTRVRXPRLPHRJB@~A`ARNz@f@fCzA`Al@^V\\TNJr@f@`DnB`Aj@vD|Bt@^tCbBTNz@j@\\RxFlDzA|@zBtAtBxArA|@`@V`CrA~ChBnElCvBtAXN|A~@`Aj@x@h@JJ\\VZV\\XpDpBz@f@f@X\\P\\Rb@HxA|@@@\\P"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2310602,
+                                                                                 "lng":  55.2953972
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  240
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  13
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2083971,
+                                                                               "lng":  55.2727252
+                                                                           },
+                                                          "html_instructions":  "Take exit \u003cb\u003e50A\u003c/b\u003e for \u003cb\u003eD71 W\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eAl Safa St\u003c/b\u003e toward \u003cb\u003eJumeira\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "maneuver":  "ramp-right",
+                                                          "polyline":  {
+                                                                           "points":  "azzxCyvjpIh@r@RPXP~@r@h@b@DBXXJHNH@@VRBB\\VDDPL"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2100851,
+                                                                                 "lng":  55.2742061
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.6 km",
+                                                                           "value":  627
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  38
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2035335,
+                                                                               "lng":  55.2699015
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eleft\u003c/b\u003e onto the \u003cb\u003eD71 E\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eFinancial Center St\u003c/b\u003e ramp to \u003cb\u003eDXB Airport\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai Mall\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBurj Khalifa\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE66\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE44\u003c/b\u003e",
+                                                          "maneuver":  "ramp-left",
+                                                          "polyline":  {
+                                                                           "points":  "oozxCqmjpIXDPD\\P`Ab@pBvAXR@@@?LJLH@?x@j@^R`@XXRZTZRTPJFZR@@XP`@VZR@?|@j@TNDBh@\\VNHBTDF@RBH?J?F?@?HCRE@ARG"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2083971,
+                                                                                 "lng":  55.2727252
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  183
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  14
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2033406,
+                                                                               "lng":  55.2715004
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eleft\u003c/b\u003e onto the ramp to \u003cb\u003eFinancial Ctr St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD71\u003c/b\u003e",
+                                                          "maneuver":  "ramp-left",
+                                                          "polyline":  {
+                                                                           "points":  "aqyxC{{ipIDEJMDGBCJO@ABCDEHKHODWBM?A@K@IAO?SAUCOGWACMa@Oa@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2035335,
+                                                                                 "lng":  55.2699015
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.6 km",
+                                                                           "value":  594
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  52
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2015721,
+                                                                               "lng":  55.2767746
+                                                                           },
+                                                          "html_instructions":  "Merge onto \u003cb\u003eFinancial Ctr St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD71\u003c/b\u003e via the ramp to \u003cb\u003eThe Dubai Mall\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eZa\u0027abeel\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBurj Khalifa\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "{oyxC{ejpICKGUK]GWGSCQAKAQAO?E@[@I?A@MBWJc@Lc@@ADMFS@EJ[FORa@L_@Ri@@]xCuGvB_F"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2033406,
+                                                                                 "lng":  55.2715004
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.5 km",
+                                                                           "value":  508
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "2 mins",
+                                                                           "value":  92
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1992416,
+                                                                               "lng":  55.2734596
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e onto \u003cb\u003eSheikh Mohammed bin Rashid Blvd\u003c/b\u003e (signs for \u003cb\u003eD921\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBurj Khalifa\u003c/b\u003e)",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "ydyxCyfkpITSRMFCDCRGFAJCHAH?@?B?J@l@P`Ap@JJJLHNHRJRRZBTJZTr@h@`DVdBDZPjANdA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2015721,
+                                                                                 "lng":  55.2767746
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "71 m",
+                                                                           "value":  71
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  29
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1992006,
+                                                                               "lng":  55.27412349999999
+                                                                           },
+                                                          "html_instructions":  "Make a \u003cb\u003eU-turn\u003c/b\u003e",
+                                                          "maneuver":  "uturn-left",
+                                                          "polyline":  {
+                                                                           "points":  "gvxxCcrjpIXs@QoA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1992416,
+                                                                                 "lng":  55.2734596
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.1 km",
+                                                                           "value":  101
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  5
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1986358,
+                                                                               "lng":  55.27439700000001
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "_vxxCgvjpIh@TL?NAJ?FADCHEFEBG@A@C?E@C?EAEAAAEGM"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1992006,
+                                                                                 "lng":  55.27412349999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "76 m",
+                                                                           "value":  76
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  4
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1982302,
+                                                                               "lng":  55.27500389999999
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "orxxC_xjpIJO`@w@Vc@JK"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1986358,
+                                                                                 "lng":  55.27439700000001
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "52 m",
+                                                                           "value":  52
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  69
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.198242,
+                                                                               "lng":  55.27449259999999
+                                                                           },
+                                                          "html_instructions":  "Sharp \u003cb\u003eright\u003c/b\u003e",
+                                                          "maneuver":  "turn-sharp-right",
+                                                          "polyline":  {
+                                                                           "points":  "}oxxCw{jpIAJAL?`@@h@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1982302,
+                                                                                 "lng":  55.27500389999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  157
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  69
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1976146,
+                                                                               "lng":  55.2743122
+                                                                           },
+                                                          "html_instructions":  "Enter the roundabout\u003cdiv style=\"font-size:0.9em\"\u003eDestination will be on the right\u003c/div\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "_pxxCqxjpIEHCHCJAH?J@JBJBH@DBBBBBBBBBBBBD@HBJBH?JAHCHCHGFGDIBE@EBK@K?K?G"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.198242,
+                                                                                 "lng":  55.27449259999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      }
+                                                  ],
+                                        "traffic_speed_entry":  [
+
+                                                                ],
+                                        "via_waypoint":  [
+
+                                                         ]
+                                    }
+                                ],
+                       "overview_polyline":  {
+                                                 "points":  "_~syCufgqIyCqBaMqIYSkAzBeBbDbBjAjCdBfAv@w@zAoCjFy@m@{AeAcFkDgAo@aDyBMIGBK@wA}@_Ak@OKKLmClDsCpD{EvG}BrC{AfBu@dAgAlBgA~BiIpQWr@]r@i@~@t@n@\\TjAl@tEjCf@^d@Pf@ZpAj@XHnF`D|D`CdFlCjE`ChFrClMnHlOnIlF|CdMlH`KhFxDtB`DlBnJtFjFdDpDjC~AfAlAhAfJ~HrBfBjCdCpKrJnF`F`UtSlCdCvEdEbC`C~DjDdAdApBbBjBhBzLdLbN|LhE`EdCtC|AtBzA|Bz@~AhAxCnEbL|H~T~@|Bh@lAx@`B~AjC~@pArA|AbAfAbEbDjA~@nB`ApDvAjGjAtEj@jALtI|@za@nElCZjCb@lCl@xA`@nDtAlCzA`BlAl@h@`BjBbDpDnD|DnD|D|EtFpFlGjE`FhEzEnEfFpAxAv@bAxApBlB~BtD~DbChCpC`DbNtObF`G`FbGlBzBnA`Ar@`@XLn@R~@ThAJj@BhAGv@EfC[xOoBrBGfBB~ANz@H|Dh@hFv@~HjAdAFnAJlCJhB?`CIfCOnBSbDs@dCu@bDkAtK{DdEcBbDeAhFeBvCaA~Cu@pB[~@I`DCpCJx@HzATxBj@dCv@z@`@rAz@|@v@vLhKzD~ChAdAl@r@l@r@Xb@^\\|@x@lBxB^`@zBlC~AtBV^PVvDzFrBdEd@lAf@hBj@`CT`A^rBTrBTdDBjB@`CErAOjC[pC[zBi@`C_AjDk@|AsCdHqCxGqHpQ{CfHiGdOgAxCi@tB[rBWzBKpD@fFBjO?rAJrBRdCNvA~@~Gl@bEf@rC^vBjBtLtAlIdC~OhAzGbApF\\~@x@bBp@fA`AjA~@~@nAfArAt@rDzBfGvDbAr@bFzCvD|Bt@^jDrBnLjHpFnDtBtA`H|DfIbFrFdDbBtArHdE\\Rb@HzA~@\\Ph@r@l@b@hCtBnBxAj@J~At@nClBnExCtBtAbEhC`@R\\Fp@B`@KRGPSV]\\e@Hg@@y@OaA]cAKa@Su@Ke@Es@Bg@De@XgAPi@Rk@`@aARi@@]pGuNh@a@LGp@OZ@l@P`Ap@VXRb@^n@Np@Tr@h@`D\\`C`@pCXs@QoAh@TL?ZALEVUBSM[l@gAb@o@CX@jAIRET@VFTLPPLTFTARGPONa@@_@"
+                                             },
+                       "summary":  "E11",
+                       "warnings":  [
+
+                                    ],
+                       "waypoint_order":  [
+
+                                          ]
+                   },
+                   {
+                       "bounds":  {
+                                      "northeast":  {
+                                                        "lat":  25.3435075,
+                                                        "lng":  55.420114
+                                                    },
+                                      "southwest":  {
+                                                        "lat":  25.1976104,
+                                                        "lng":  55.26979739999999
+                                                    }
+                                  },
+                       "copyrights":  "Powered by Google, ©2026 Google",
+                       "legs":  [
+                                    {
+                                        "distance":  {
+                                                         "text":  "27.7 km",
+                                                         "value":  27744
+                                                     },
+                                        "duration":  {
+                                                         "text":  "33 mins",
+                                                         "value":  1956
+                                                     },
+                                        "duration_in_traffic":  {
+                                                                    "text":  "36 mins",
+                                                                    "value":  2155
+                                                                },
+                                        "end_address":  "9\"N شارع الحمرية - Burj Khalifa - Downtown Dubai - Dubai - United Arab Emirates",
+                                        "end_location":  {
+                                                             "lat":  25.1976146,
+                                                             "lng":  55.2743122
+                                                         },
+                                        "start_address":  "19 Othman Bin Abi Al Aas St - Samnan - Halwan - Sharjah - United Arab Emirates",
+                                        "start_location":  {
+                                                               "lat":  25.338715,
+                                                               "lng":  55.420114
+                                                           },
+                                        "steps":  [
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.4 km",
+                                                                           "value":  352
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  50
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3360601,
+                                                                               "lng":  55.41820019999999
+                                                                           },
+                                                          "html_instructions":  "Head \u003cb\u003esouthwest\u003c/b\u003e on \u003cb\u003e5 St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eOthman Bin Abi Al Aas St\u003c/b\u003e toward \u003cb\u003e12 St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eJaber Alasadi St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eSamnan\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "_~syCufgqIt@d@rBtAvBrAz@j@vCjB\\T"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.338715,
+                                                                                 "lng":  55.420114
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.5 km",
+                                                                           "value":  1451
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "4 mins",
+                                                                           "value":  227
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3430907,
+                                                                               "lng":  55.4060386
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e onto \u003cb\u003eUniversity City Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS120\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eContinue to follow S120\u003c/div\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "kmsyCwzfqIeArBc@~@aAnBk@lAc@|@]p@[l@{@xAOZo@jAMVq@|Ae@hAmAhCi@hAqBdEO\\cD|GMXMTq@tAe@`AMXy@`BqAnCkAdC_@t@KT_@r@Wb@IX"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3360601,
+                                                                                 "lng":  55.41820019999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "94 m",
+                                                                           "value":  94
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  31
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3434501,
+                                                                               "lng":  55.4052276
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eleft\u003c/b\u003e",
+                                                          "maneuver":  "turn-slight-left",
+                                                          "polyline":  {
+                                                                           "points":  "iytyCwndqIBD@B?BADGVMZCF[n@U`@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3430907,
+                                                                                 "lng":  55.4060386
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.5 km",
+                                                                           "value":  1455
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "3 mins",
+                                                                           "value":  176
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.332405,
+                                                                               "lng":  55.3978893
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "q{tyCuidqICLCJ?FABANrAx@@@\\R|Az@HFVLXN|Ax@DBXNzBnAfB~@XPn@\\TNHDNJJFRLJFHDXPh@ZnBdAhEfChDjBxAx@LHnCzAp@^fGhDd@TbDhBVLd@TTJB?D?JA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3434501,
+                                                                                 "lng":  55.4052276
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "6.9 km",
+                                                                           "value":  6933
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "6 mins",
+                                                                           "value":  384
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2841554,
+                                                                               "lng":  55.3583393
+                                                                           },
+                                                          "html_instructions":  "Merge onto \u003cb\u003eE11\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "maneuver":  "merge",
+                                                          "polyline":  {
+                                                                           "points":  "ovryCy{bqIdEfCpBjA\\PXPh@\\`BdAdAn@vBzAHFPN\\V~AfAlAhA`HbGdAz@rBfBjCdCxClCvFdFpBhB\\\\z@x@b@^p@j@lAhAv@v@nAfAnEbEzCpCb@`@h@f@VVd@`@j@h@b@`@XVd@`@h@d@lBdBbC`C~DjDd@b@^`@zAnATRZ^nAhA~EtEjCdCLL`Az@j@f@rEbEfB`BzBnBbB`BdB~An@t@tA~An@v@l@|@T`@dAzAj@dANX`@~@f@xAzBpFx@xBXt@?@N`@?@`DbJjCvHHVt@dB\\r@JXNXh@fAt@pAh@x@TZX`@@@LPf@j@j@p@RVn@n@fA|@PL|@r@j@b@JJ~@r@h@ZdAd@jAf@dBn@tAVtDr@nC^dAJNBz@HdCVvBTt@H`@DrCXvEh@dCV~Gt@p@HrD^hALXD|@HJB\\Dd@FjCb@lCl@tA`@B?dBp@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.332405,
+                                                                                 "lng":  55.3978893
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.7 km",
+                                                                           "value":  707
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  35
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.279332,
+                                                                               "lng":  55.3538218
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eAl Ittihad Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai - Sharjah Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "_iiyCsd{pIhAb@lAp@~@h@t@f@j@d@l@h@`BjB`BhB`AfA~@dAnBvB~@dAPRtAxA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2841554,
+                                                                                 "lng":  55.3583393
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.5 km",
+                                                                           "value":  1486
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  75
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.269909,
+                                                                               "lng":  55.3433448
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to stay on \u003cb\u003eAl Ittihad Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai - Sharjah Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "yjhyCkhzpIFH|@`Ah@n@|@bAv@~@VXbAhAn@t@dBrBx@|@vBfCNNHJDDnAvAz@|@v@~@x@z@|BnCVZr@x@\\^RVb@j@xApBlB~BtC~C^^d@f@|A`BZ\\tBbC"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.279332,
+                                                                                 "lng":  55.3538218
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.3 km",
+                                                                           "value":  289
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  14
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2680719,
+                                                                               "lng":  55.341311
+                                                                           },
+                                                          "html_instructions":  "Continue straight to stay on \u003cb\u003eAl Ittihad Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai - Sharjah Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "straight",
+                                                          "polyline":  {
+                                                                           "points":  "}ofyC{fxpIpC|C|BlC~AhB"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.269909,
+                                                                                 "lng":  55.3433448
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.2 km",
+                                                                           "value":  1232
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  58
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2587128,
+                                                                               "lng":  55.3373652
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eSheikh Rashid Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "mdfyCezwpIrB~BtA~ArA|A\\b@Z^\\b@f@j@d@j@X^XXPTZ`@RTLNRTHLLJLPLNJLJJHHFFNJl@b@XRXLPHFBXJTFf@LVF|@HJ@X@P@P?LAFA`@CXA\\Cv@InAQbH{@lAQ|@KhBU"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2680719,
+                                                                                 "lng":  55.341311
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "7.8 km",
+                                                                           "value":  7777
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "6 mins",
+                                                                           "value":  332
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2310602,
+                                                                               "lng":  55.2953972
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eE11\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "}idyCqawpIf@CjACv@?n@Bb@Db@DVBJ@VBJ@J@TDZDh@H`BRTDtAR|BZ?@`@F|GbAJ@x@DnAJlCJf@?`A?dACz@EdAE`AIhAKd@Gh@IxBi@|@WfA]|Ai@dAa@nBq@vAi@vAi@tBu@rAk@pBw@pC}@PG^Mp@SrAe@bA]|Ag@x@Yj@QrBc@pB[~@IhACvA?dA@jAHTBb@DzATd@JrA^hA\\z@Xz@`@rAz@TPf@d@~EhEvE~DzD~ChAdARVXZX\\RTXb@^\\HHr@n@xAbBRTDDRTDDd@j@tA`BbAnAZd@@@PVBB?@NR@BhCvDl@bAbAlBn@vALXVr@X`ALf@h@vB@HJ`@H^^rBTrBHfAJ|ABjB@`CA^Cr@GxAGp@Gr@S|A[zBi@`Cc@`B[hAc@jAGPWr@{BpFcBdEm@rA_AzB}BtFoAxCc@dAo@xA]v@EJgAhCyCnH{@nBQ`@a@bAQ`@MXCJc@pAUx@Sz@Mv@Mz@Gn@OjAKpD@fF?lGB|F?Z?v@JrBRdC@HLlAd@vDXfBZtBPlAFb@^nBHd@TpAh@dD`AnG"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2587128,
+                                                                                 "lng":  55.3373652
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "3.3 km",
+                                                                           "value":  3315
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "2 mins",
+                                                                           "value":  142
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2100851,
+                                                                               "lng":  55.2742061
+                                                                           },
+                                                          "html_instructions":  "Keep \u003cb\u003eleft\u003c/b\u003e to continue on \u003cb\u003eSheikh Zayed Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE11\u003c/b\u003e",
+                                                          "maneuver":  "keep-left",
+                                                          "polyline":  {
+                                                                           "points":  "c}~xCg{npIt@dE^fCRlAHd@BPbBxKHf@h@xCLv@F`@X|AJl@Jd@P~@BL@BLXHRJTR`@BFTb@Zh@T\\b@h@\\`@VXLLVT@@PPNLTRVRXPRLPHRJB@~A`ARNz@f@fCzA`Al@^V\\TNJr@f@`DnB`Aj@vD|Bt@^tCbBTNz@j@\\RxFlDzA|@zBtAtBxArA|@`@V`CrA~ChBnElCvBtAXN|A~@`Aj@x@h@JJ\\VZV\\XpDpBz@f@f@X\\P\\Rb@HxA|@@@\\P"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2310602,
+                                                                                 "lng":  55.2953972
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  240
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  13
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2083971,
+                                                                               "lng":  55.2727252
+                                                                           },
+                                                          "html_instructions":  "Take exit \u003cb\u003e50A\u003c/b\u003e for \u003cb\u003eD71 W\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eAl Safa St\u003c/b\u003e toward \u003cb\u003eJumeira\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "maneuver":  "ramp-right",
+                                                          "polyline":  {
+                                                                           "points":  "azzxCyvjpIh@r@RPXP~@r@h@b@DBXXJHNH@@VRBB\\VDDPL"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2100851,
+                                                                                 "lng":  55.2742061
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.6 km",
+                                                                           "value":  627
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  38
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2035335,
+                                                                               "lng":  55.2699015
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eleft\u003c/b\u003e onto the \u003cb\u003eD71 E\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eFinancial Center St\u003c/b\u003e ramp to \u003cb\u003eDXB Airport\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai Mall\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBurj Khalifa\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE66\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE44\u003c/b\u003e",
+                                                          "maneuver":  "ramp-left",
+                                                          "polyline":  {
+                                                                           "points":  "oozxCqmjpIXDPD\\P`Ab@pBvAXR@@@?LJLH@?x@j@^R`@XXRZTZRTPJFZR@@XP`@VZR@?|@j@TNDBh@\\VNHBTDF@RBH?J?F?@?HCRE@ARG"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2083971,
+                                                                                 "lng":  55.2727252
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  183
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  14
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2033406,
+                                                                               "lng":  55.2715004
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eleft\u003c/b\u003e onto the ramp to \u003cb\u003eFinancial Ctr St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD71\u003c/b\u003e",
+                                                          "maneuver":  "ramp-left",
+                                                          "polyline":  {
+                                                                           "points":  "aqyxC{{ipIDEJMDGBCJO@ABCDEHKHODWBM?A@K@IAO?SAUCOGWACMa@Oa@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2035335,
+                                                                                 "lng":  55.2699015
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.6 km",
+                                                                           "value":  594
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  52
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2015721,
+                                                                               "lng":  55.2767746
+                                                                           },
+                                                          "html_instructions":  "Merge onto \u003cb\u003eFinancial Ctr St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD71\u003c/b\u003e via the ramp to \u003cb\u003eThe Dubai Mall\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eZa\u0027abeel\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBurj Khalifa\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "{oyxC{ejpICKGUK]GWGSCQAKAQAO?E@[@I?A@MBWJc@Lc@@ADMFS@EJ[FORa@L_@Ri@@]xCuGvB_F"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2033406,
+                                                                                 "lng":  55.2715004
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.6 km",
+                                                                           "value":  648
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "3 mins",
+                                                                           "value":  155
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1987829,
+                                                                               "lng":  55.2721598
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e onto \u003cb\u003eSheikh Mohammed bin Rashid Blvd\u003c/b\u003e (signs for \u003cb\u003eD921\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBurj Khalifa\u003c/b\u003e)",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "ydyxCyfkpITSRMFCDCRGFAJCHAH?@?B?J@l@P`Ap@JJJLHNHRJRRZBTJZTr@h@`DVdBDZPjANdAXhANn@Pv@Nl@Nb@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2015721,
+                                                                                 "lng":  55.2767746
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "89 m",
+                                                                           "value":  89
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  47
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1981966,
+                                                                               "lng":  55.2725635
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "ksxxC_jjpIHPZQj@k@PQNQ"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1987829,
+                                                                                 "lng":  55.2721598
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  186
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  73
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1981126,
+                                                                               "lng":  55.2738877
+                                                                           },
+                                                          "html_instructions":  "At the roundabout, take the \u003cb\u003e2nd\u003c/b\u003e exit",
+                                                          "maneuver":  "roundabout-right",
+                                                          "polyline":  {
+                                                                           "points":  "woxxColjpID?@?B?@?BA@?BABA@A@A@A@A@C@A@C?A@C?A?C@CAKAC?AACAAAAACAAAAA?CAAAC?AAA?C?A?C?E?KKIKGOCS?]@M?KBKBKFMHKJILI"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1981966,
+                                                                                 "lng":  55.2725635
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "86 m",
+                                                                           "value":  86
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  40
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1976146,
+                                                                               "lng":  55.2743122
+                                                                           },
+                                                          "html_instructions":  "Enter the roundabout\u003cdiv style=\"font-size:0.9em\"\u003eDestination will be on the right\u003c/div\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "eoxxCytjpIHBJBH?JAHCHCHGFGDIBE@EBK@K?K?G"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1981126,
+                                                                                 "lng":  55.2738877
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      }
+                                                  ],
+                                        "traffic_speed_entry":  [
+
+                                                                ],
+                                        "via_waypoint":  [
+
+                                                         ]
+                                    }
+                                ],
+                       "overview_polyline":  {
+                                                 "points":  "_~syCufgqI|IzFtD`CiBrDoDlHwCnFsDhIoIjQsBfEeFpKk@jAw@vAIXBD@FI\\Qb@q@pAGXAJANrAx@^TfBbAtCzAvGpDtCbB|JzF`LjGbOhI|@b@XJPAvHrEv@b@jCbB|DjCZV|B~AnJlIxDbDdHrGbMfLtAjAdC`C~M~LrCjClC`CpFfFdFnE^`@zAnAp@r@hMrLhLhKzBnBbB`BtCtCdCvCbA~AdAzAj@dAp@xAbDjIrAnDpDhKtCnIrAxCZr@~AxCzAxBtBfCvBlBnA`Av@n@~@r@h@ZpClAdBn@tAVtDr@nC^tANnJ`Abb@nE`CXpDj@lCl@tA`@hBp@hAb@lAp@tBpAxAnAdIbJvGjHpJxKfHhIzCfDpBzB|BnC|BlC|B|ClB~BtC~CdAfAxB~BdNxOzH`JhFlGtBdCl@h@fAv@j@V~Ad@tAPd@Bb@@TCpCS~NkBpCYbCCvBNfAJrL`BjInAhCPtDJfCC`CKjCUnAQvDaAdDgAdJgDhEaBpBw@pC}@p@UdCy@fGqBdF_AhCM|C@`BLb@D`C`@|C|@z@Xz@`@hBlAfGnFvE~DzD~C|A|Ar@x@l@x@h@f@r@n@xAbBXZRTdEbFr@bAzCpEpBpD|@pBp@tBv@~Cv@~D^zDNhE?`DKlCOdBo@xEmAbF_AtC_@dA_FvL{H~QwBbFoHjQeAjCy@jCa@rBUjBOjAKpD@tNBxGJjDTnCr@dGt@|EXpBh@tC~@vFvBtM`AlGlB`Mv@pEx@rETlAN\\l@rAp@lAx@fAzA~Ax@t@vA|@VLrBpAbEbC`BdAl@`@tEvCxFhDjEbChJ|FvErChEvCbDjBnJvFpHpEdAt@x@n@\\XpDpBbB`Az@d@b@HxA|@^Rh@r@RPxAdAn@f@v@n@~@t@PLXDn@V`Ab@pBvAZT^TtClBvBxArD|B`Al@^Hp@Df@IZOv@aANg@BM@g@Ai@Kg@c@sAc@_BI_ABm@@MN{@\\gALa@Zq@`@iA@]xCuGvB_FTSZQl@QXAx@RlA|@T\\Tf@RZBT`@nA`AfGVfBNdAXhA`@fB^pAHPZQ|@}@NQD?D?DAJEFIDK?UMUUEI?UWKc@@k@BWJYTULIHBTBTERKLQJc@?S"
+                                             },
+                       "summary":  "S120 and E11",
+                       "warnings":  [
+
+                                    ],
+                       "waypoint_order":  [
+
+                                          ]
+                   },
+                   {
+                       "bounds":  {
+                                      "northeast":  {
+                                                        "lat":  25.338715,
+                                                        "lng":  55.44453129999999
+                                                    },
+                                      "southwest":  {
+                                                        "lat":  25.1926758,
+                                                        "lng":  55.2734596
+                                                    }
+                                  },
+                       "copyrights":  "Powered by Google, ©2026 Google",
+                       "legs":  [
+                                    {
+                                        "distance":  {
+                                                         "text":  "33.1 km",
+                                                         "value":  33059
+                                                     },
+                                        "duration":  {
+                                                         "text":  "34 mins",
+                                                         "value":  2047
+                                                     },
+                                        "duration_in_traffic":  {
+                                                                    "text":  "35 mins",
+                                                                    "value":  2104
+                                                                },
+                                        "end_address":  "9\"N شارع الحمرية - Burj Khalifa - Downtown Dubai - Dubai - United Arab Emirates",
+                                        "end_location":  {
+                                                             "lat":  25.1976146,
+                                                             "lng":  55.2743122
+                                                         },
+                                        "start_address":  "19 Othman Bin Abi Al Aas St - Samnan - Halwan - Sharjah - United Arab Emirates",
+                                        "start_location":  {
+                                                               "lat":  25.338715,
+                                                               "lng":  55.420114
+                                                           },
+                                        "steps":  [
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "35 m",
+                                                                           "value":  35
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  4
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3384527,
+                                                                               "lng":  55.4199151
+                                                                           },
+                                                          "html_instructions":  "Head \u003cb\u003esouthwest\u003c/b\u003e on \u003cb\u003e5 St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eOthman Bin Abi Al Aas St\u003c/b\u003e toward \u003cb\u003e12 St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eJaber Alasadi St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eSamnan\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "_~syCufgqIt@d@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.338715,
+                                                                                 "lng":  55.420114
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.3 km",
+                                                                           "value":  292
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  32
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3370148,
+                                                                               "lng":  55.4223452
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e onto \u003cb\u003e12 St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eJaber Alasadi St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eSamnan\u003c/b\u003e",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "i|syCoegqIR_@z@iB|BmEpAmC"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3384527,
+                                                                                 "lng":  55.4199151
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.3 km",
+                                                                           "value":  318
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  44
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3347533,
+                                                                               "lng":  55.4205279
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e onto \u003cb\u003e19 St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eSamnan St\u003c/b\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "issyCutgqIhFjDzAz@XPDBjAr@DD@DBB@F?B@B?F@P"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3370148,
+                                                                                 "lng":  55.4223452
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "9 m",
+                                                                           "value":  9
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  2
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3347942,
+                                                                               "lng":  55.42045299999999
+                                                                           },
+                                                          "html_instructions":  "Merge onto \u003cb\u003eUniversity City Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS120\u003c/b\u003e",
+                                                          "maneuver":  "merge",
+                                                          "polyline":  {
+                                                                           "points":  "eesyCiigqIGN"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3347533,
+                                                                                 "lng":  55.4205279
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.3 km",
+                                                                           "value":  320
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  50
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.333233,
+                                                                               "lng":  55.4227889
+                                                                           },
+                                                          "html_instructions":  "Make a \u003cb\u003eU-turn\u003c/b\u003e",
+                                                          "maneuver":  "uturn-left",
+                                                          "polyline":  {
+                                                                           "points":  "mesyCyhgqI@HBDBBDBD@F@FALSTg@@AP]Z_ANa@LYJUN[j@kARa@\\u@P[Rc@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3347942,
+                                                                                 "lng":  55.42045299999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.4 km",
+                                                                           "value":  362
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  43
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3303783,
+                                                                               "lng":  55.4217088
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e onto \u003cb\u003eSecond Industrial St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS117\u003c/b\u003e (signs for \u003cb\u003e\u003cspan dir=\"rtl\"\u003eالشارع الصناعي الثاني\u003c/span\u003e‎\u003c/b\u003e)",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "u{ryCmwgqINKJGHGNGJELE@?JCVAD?T?P@J?B@lAv@vA~@hBbAtBlA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.333233,
+                                                                                 "lng":  55.4227889
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.1 km",
+                                                                           "value":  139
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  10
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3294193,
+                                                                               "lng":  55.42083220000001
+                                                                           },
+                                                          "html_instructions":  "Take the ramp to \u003cb\u003eSheikh Khalifa Bin Zayed Al Nahyan Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS116\u003c/b\u003e",
+                                                          "maneuver":  "ramp-right",
+                                                          "polyline":  {
+                                                                           "points":  "{iryCupgqIX^PRZVdA|@ZTTN"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3303783,
+                                                                                 "lng":  55.4217088
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.3 km",
+                                                                           "value":  272
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  20
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3273965,
+                                                                               "lng":  55.4193102
+                                                                           },
+                                                          "html_instructions":  "Take the ramp to \u003cb\u003eSheikh Khalifa Bin Zayed Al Nahyan Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS116\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "{cryCekgqI^TtA~@|@n@RPd@\\z@h@h@^`@V\\V"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3294193,
+                                                                                 "lng":  55.42083220000001
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "3.4 km",
+                                                                           "value":  3450
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "3 mins",
+                                                                           "value":  197
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.310812,
+                                                                               "lng":  55.4430845
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eright\u003c/b\u003e to merge onto \u003cb\u003eSheikh Khalifa Bin Zayed Al Nahyan Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eS116\u003c/b\u003e",
+                                                          "maneuver":  "ramp-right",
+                                                          "polyline":  {
+                                                                           "points":  "gwqyCuagqIT\\LTDLBHBL@L@H?F?JAF?FCJCLGJEHGFIFIFKDI@KBM@SAKCGAGCEAECGGIIGMIUAEAGAIAI?G?G?E@C@KBSH[J[D_@Zk@f@cATo@d@cBz@sDNk@Le@j@wBz@eC|A_EhAeC^w@d@cApAuC|A{C|AcDzAeDlAgC`CyER_@lHmNh@aA`GiLz@{AzBoEjA}Bz@wAhB{Bl@m@bBqA^Wj@_@`CkArFyBpBy@hAg@nAi@jAo@rA_AROVSDCr@o@`AeA|@iA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3273965,
+                                                                                 "lng":  55.4193102
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.8 km",
+                                                                           "value":  823
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  60
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.304314,
+                                                                               "lng":  55.44243669999999
+                                                                           },
+                                                          "html_instructions":  "Take the \u003cb\u003eE311\u003c/b\u003e ramp to \u003cb\u003eDubai\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eAbu Dhabi\u003c/b\u003e",
+                                                          "maneuver":  "ramp-right",
+                                                          "polyline":  {
+                                                                           "points":  "qonyCgvkqILEDCBCPQX_@`@c@ZYRMTOPIPGXENE`AIbBQd@G^I^K\\Kt@SLENCRCN?H?J?N@TFLB\\Hj@\\zBxAfBpAVRJJn@\\rA~@vA`A"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.310812,
+                                                                                 "lng":  55.4430845
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "27 m",
+                                                                           "value":  27
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  2
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.3041,
+                                                                               "lng":  55.442315
+                                                                           },
+                                                          "html_instructions":  "Take the ramp to \u003cb\u003eSheikh Mohammed Bin Zayed Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE311\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "}fmyCgrkqIPLPFD@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.304314,
+                                                                                 "lng":  55.44243669999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "10.6 km",
+                                                                           "value":  10639
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "8 mins",
+                                                                           "value":  496
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2190188,
+                                                                               "lng":  55.4049091
+                                                                           },
+                                                          "html_instructions":  "Take the ramp onto \u003cb\u003eSheikh Mohammed Bin Zayed Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eE311\u003c/b\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "semyCoqkqIb@Nh@J^TVPl@`@TJxPdLnAv@d@ZZR`@V\\Tv@d@`BdArCpBZRRLn@b@d@`@HHZTPLnAhAhAdAJJLJ@@BBfChCTTVXlAnAt@r@ZZTVHHDJ~@z@h@f@hAbA\\ZXVn@j@t@n@tCfCNHTPf@b@^\\|@z@lBhB|BvBzAxAv@r@hExDrCbCLJfDjClA~@bAr@v@j@dCvAbErBfB|@`FlC~Av@|BjAr@\\lB`ApDrBTLHBnDzBzAbAnBnAnCnBzBhB~FzE~BjBHLLLj@j@ZZVVtAtAhAfAr@p@rAlAzBpBRP|H|GtBpBtBlBz@t@`@^XNbAbAvBlBTRvAdAfBjA`Ap@~@h@v@^|Az@nCrA~Ar@rBx@pBr@B@pA`@lBh@`@LjCj@|KzB|A\\VFh@JD@@?XFD@@@\\FlB^XFdB^bF`AxBb@F@XFF@dARz@PhARhARj@HdC\\nD\\~G^vJp@H?nKd@r@Dn@DrMp@XF~EZnFb@tCZlGf@~@Dj@DzADvBBrADfCBnDAz@?bBGdEM|CQzBO`COlAIpBM|BQvAIb@CdDUlIi@z@Gv@EjBMLAvBM@AlDS`@A`G]\\?XAH?XAfAA`BBl@@D?~BL"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.3041,
+                                                                                 "lng":  55.442315
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "4.5 km",
+                                                                           "value":  4495
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "3 mins",
+                                                                           "value":  206
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2223694,
+                                                                               "lng":  55.3671208
+                                                                           },
+                                                          "html_instructions":  "Take exit \u003cb\u003e55\u003c/b\u003e to merge onto \u003cb\u003eRebat St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD83\u003c/b\u003e toward \u003cb\u003eAl Garhoud\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eCity Center\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDeira\u003c/b\u003e",
+                                                          "maneuver":  "ramp-right",
+                                                          "polyline":  {
+                                                                           "points":  "{q|xCugdqId@ZNDfALdC^h@Lr@N`@L\\JfA`@r@Xd@Pl@^p@^XPRPB@^\\XVZ^HNT^FNHPh@fAP`@b@`Af@dABBXl@`@t@`@n@hA|Ab@t@Tb@LZLd@Lp@DXB\\Db@?^?^?H?f@ApA?j@?RAH?`@?h@@ND\\IzBEdAElAEzAEbBGxBCfBCp@AfBArACpAWvJ?\\IhDAf@AL?TEhBM|ECfBKbGCvAIhCIfCGdAEj@?BIn@QhAKh@Ml@GRENWv@M`@]x@Q`@Q\\S\\S\\Y^MP]`@w@x@_@`@a@b@cAlAsA~Ae@l@]XGHmBxCOT[f@GPIPS^}@|AmA|Bq@dA{@rAU`@k@bAILKRSb@S`@Sd@Q`@QVO\\Ob@Q`@GPGPQb@Ob@Ob@oAfDa@hA?@ABMZAFMZAD_@~@oAhDGNc@lAIPeBnE"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2190188,
+                                                                                 "lng":  55.4049091
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "2.2 km",
+                                                                           "value":  2153
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  88
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2280139,
+                                                                               "lng":  55.3476861
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eleft\u003c/b\u003e (signs for \u003cb\u003eBusiness Bay Crossing\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD71\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eCity Center\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBur Dubai\u003c/b\u003e)",
+                                                          "maneuver":  "turn-slight-left",
+                                                          "polyline":  {
+                                                                           "points":  "yf}xCo{|pIEZEXGTADK\\ENGTQf@K^ELK^ABAFCJAJAJsF~O[x@ABmA`DkArCs@fBSd@yBlF_DpH]x@k@zAWj@AB_@dAWn@[z@Sh@Wp@u@pBYv@M\\IVKZK^Qx@UjAMdAGr@Eb@Eh@EdAA`A@~@@f@@ZBl@BTB^Fj@Hn@Lx@F\\Jd@J\\Ld@FRDNDNXt@NZR`@HPDRDT"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2223694,
+                                                                                 "lng":  55.3671208
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "5.3 km",
+                                                                           "value":  5279
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "3 mins",
+                                                                           "value":  205
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2006622,
+                                                                               "lng":  55.3061163
+                                                                           },
+                                                          "html_instructions":  "Continue onto \u003cb\u003eAl Khail Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBusiness Bay Bridge\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD68\u003c/b\u003e\u003cdiv style=\"font-size:0.9em\"\u003eContinue to follow Al Khail Rd/\u003cwbr/\u003eD68\u003c/div\u003e\u003cdiv style=\"font-size:0.9em\"\u003eToll road\u003c/div\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "aj~xCabypId@nAx@`BXl@^z@Vf@BFb@~@~@xB|@nBTh@Td@NXVh@P\\Xr@Zp@Zp@Vd@R^P\\NVPX`@n@T^RV?@PTJR|@rApAlBx@hAl@x@j@v@|@lAv@fAt@~@`AnAv@dAfA~ALRBDNXDFDFj@hAv@hBb@lAb@tAFTVdAXlADR@FBHDRPx@N|@d@hCR|@?B^nBf@`C^lBFXt@vDTnAj@rC\\bBNp@BLb@fBPn@X~@fAtCf@dAj@bAVb@V\\b@l@|@jAj@r@`A~@|@x@lA`AvAjApB`BdBzAhCxBjBbBj@j@rAnAxElEpBpBlClC`B~Af@f@v@z@lArAd@f@VTl@n@z@bAp@x@XX`@d@TXZZNTXZhApA`CrC\\`@n@v@n@t@rA`Bh@r@t@`AJJv@|@l@v@X^`@j@BD`@n@LT@BNZNZDHHPVp@HP^nA@DPh@BFT`A?@RfAT~@NbA^hD"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2280139,
+                                                                                 "lng":  55.3476861
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.5 km",
+                                                                           "value":  1508
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  60
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1932498,
+                                                                               "lng":  55.2940993
+                                                                           },
+                                                          "html_instructions":  "Continue straight to stay on \u003cb\u003eAl Khail Rd\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD68\u003c/b\u003e",
+                                                          "maneuver":  "straight",
+                                                          "polyline":  {
+                                                                           "points":  "c_yxCg~ppILhAhArH`BtHj@zBl@nBZdAp@fBTt@f@pAPd@Zp@Td@`@x@^j@~@vAHLX\\vCvDxAfBVZh@j@z@z@v@r@RPPPRPNLJJRNz@p@b@ZzAfApBvA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2006622,
+                                                                                 "lng":  55.3061163
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  228
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  20
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1932564,
+                                                                               "lng":  55.2923495
+                                                                           },
+                                                          "html_instructions":  "Slight \u003cb\u003eright\u003c/b\u003e onto the \u003cb\u003eFinancial Center St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD71\u003c/b\u003e ramp to \u003cb\u003eBurj Khalifa\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eDubai Mall\u003c/b\u003e",
+                                                          "maneuver":  "ramp-right",
+                                                          "polyline":  {
+                                                                           "points":  "ypwxCcsnpIFL@BLN@@FBTRDBDB@BHHFH@@DHBFDL?@FT?J?@@BAP?LABALIT?@EHGLEFGJQLA?MJMHA?EBEDCBGL"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1932498,
+                                                                                 "lng":  55.2940993
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "1.7 km",
+                                                                           "value":  1711
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "3 mins",
+                                                                           "value":  208
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.2012088,
+                                                                               "lng":  55.2778502
+                                                                           },
+                                                          "html_instructions":  "Merge onto \u003cb\u003eFinancial Ctr St\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eD71\u003c/b\u003e",
+                                                          "maneuver":  "merge",
+                                                          "polyline":  {
+                                                                           "points":  "{pwxCehnpIe@^[^o@r@]d@SZYd@q@|AQd@?@GNGRENGROn@Yr@]z@g@jAoApCiDzHaCzF[r@s@dBeA|BIRUf@i@pAsA~CUj@_@z@w@bBQ^kAfCQd@k@lAIRq@bBgAlCa@|@eA`C"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1932564,
+                                                                                 "lng":  55.2923495
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.5 km",
+                                                                           "value":  542
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "2 mins",
+                                                                           "value":  124
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1992416,
+                                                                               "lng":  55.2734596
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eleft\u003c/b\u003e onto \u003cb\u003eSheikh Mohammed bin Rashid Blvd\u003c/b\u003e (signs for \u003cb\u003eD921\u003c/b\u003e/\u003cwbr/\u003e\u003cb\u003eBurj Khalifa\u003c/b\u003e)",
+                                                          "maneuver":  "turn-left",
+                                                          "polyline":  {
+                                                                           "points":  "qbyxCqmkpIi@lA`@TrBlA`Ap@JJJLHNHRJRRZBTJZTr@h@`DVdBDZPjANdA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.2012088,
+                                                                                 "lng":  55.2778502
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "71 m",
+                                                                           "value":  71
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  29
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1992006,
+                                                                               "lng":  55.27412349999999
+                                                                           },
+                                                          "html_instructions":  "Make a \u003cb\u003eU-turn\u003c/b\u003e",
+                                                          "maneuver":  "uturn-left",
+                                                          "polyline":  {
+                                                                           "points":  "gvxxCcrjpIXs@QoA"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1992416,
+                                                                                 "lng":  55.2734596
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.1 km",
+                                                                           "value":  101
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  5
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1986358,
+                                                                               "lng":  55.27439700000001
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "_vxxCgvjpIh@TL?NAJ?FADCHEFEBG@A@C?E@C?EAEAAAEGM"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1992006,
+                                                                                 "lng":  55.27412349999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "76 m",
+                                                                           "value":  76
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  4
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1982302,
+                                                                               "lng":  55.27500389999999
+                                                                           },
+                                                          "html_instructions":  "Turn \u003cb\u003eright\u003c/b\u003e",
+                                                          "maneuver":  "turn-right",
+                                                          "polyline":  {
+                                                                           "points":  "orxxC_xjpIJO`@w@Vc@JK"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1986358,
+                                                                                 "lng":  55.27439700000001
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "52 m",
+                                                                           "value":  52
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  69
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.198242,
+                                                                               "lng":  55.27449259999999
+                                                                           },
+                                                          "html_instructions":  "Sharp \u003cb\u003eright\u003c/b\u003e",
+                                                          "maneuver":  "turn-sharp-right",
+                                                          "polyline":  {
+                                                                           "points":  "}oxxCw{jpIAJAL?`@@h@"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.1982302,
+                                                                                 "lng":  55.27500389999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      },
+                                                      {
+                                                          "distance":  {
+                                                                           "text":  "0.2 km",
+                                                                           "value":  157
+                                                                       },
+                                                          "duration":  {
+                                                                           "text":  "1 min",
+                                                                           "value":  69
+                                                                       },
+                                                          "end_location":  {
+                                                                               "lat":  25.1976146,
+                                                                               "lng":  55.2743122
+                                                                           },
+                                                          "html_instructions":  "Enter the roundabout\u003cdiv style=\"font-size:0.9em\"\u003eDestination will be on the right\u003c/div\u003e",
+                                                          "polyline":  {
+                                                                           "points":  "_pxxCqxjpIEHCHCJAH?J@JBJBH@DBBBBBBBBBBBBD@HBJBH?JAHCHCHGFGDIBE@EBK@K?K?G"
+                                                                       },
+                                                          "start_location":  {
+                                                                                 "lat":  25.198242,
+                                                                                 "lng":  55.27449259999999
+                                                                             },
+                                                          "travel_mode":  "DRIVING"
+                                                      }
+                                                  ],
+                                        "traffic_speed_entry":  [
+
+                                                                ],
+                                        "via_waypoint":  [
+
+                                                         ]
+                                    }
+                                ],
+                       "overview_polyline":  {
+                                                 "points":  "_~syCufgqIt@d@R_@xDwHpAmChFjDtBlApAv@FJFR@XGN@HFHJDN?b@{@~@aClDoHt@c@f@OdA?N@dDvB~EpCj@r@rCzBtJvG\\VT\\Rb@Hd@?d@CRKXa@`@o@Lo@K]WUq@Cc@Fi@Tw@D_@Zk@|@sB`BwG\\qAj@wBz@eC|A_EhAeCdA{BhJ{RnEaJ`ImObNwWfCuEvCiDbCiBj@_@`CkAdJsDxCqAjAo@rA_Aj@c@x@s@~BoCRITUz@cAn@g@f@Yj@MzEi@rCu@`AMT?d@Hj@LfDvB~BdBz@h@jD`Cb@Th@Ph@J^TdAr@nQpLrD~BtAz@tFvDdCfBfCvBdB~AnJtJNThBbBpDbDjEvDd@ZrFfFzM~L`DnCtFjEzB~AdCvAbErBhIjE|EbC`D~AfE`CxD~BjErCjGxE~JfI~AbBjFfF`PnNhItHXNbAbAlC`C~DpC`CzAtCzAnFfCdFlBtAb@nCv@hPfDdDr@b@JpRvDbDn@dInAnD\\~G^`Kp@f]bBXF~EZdK~@lIl@fCJjEHvH@~CGdEM|CQ|F_@~DW~Ku@bZkBzIa@b@AhD@r@@~BLd@ZvARdC^|Cv@zBz@rAp@bBdAx@t@d@n@pAhC`BlDz@bBjBlCx@xAZ`ARjAH`A?pBCzC?jAFl@[jJUvJCzD[hMM|FWdMOzISpGWdD]rBU`A]fAk@zAkAzBg@p@uAzAyErFcAfAuBbD}@`BqE`IgCfEgA~Bc@x@_@`As@hBqCxHqCtH{C~HUpAkA|DIj@oGxQoAdDmGnOaGrNqEzLo@pBg@dCUxBKlAGfCBfBDhAXpCl@zC`@xAfAdCJh@~ApDtAxCvDrInAfChB|DfAnBxFtIpEhGfF|GhBrCnBbEfAbD^zAd@rBhDhQpEfUt@vC`BtErAhCn@`A`BxBlBrBtIhHnFtEvCnClH|G~F~FhCfCdCnC|@|@hBrBbCrCnC~C~FbH~DbF`D`Et@nAn@rAbAxCj@tBh@fCn@lFvA|JlCpLhAtDfA|CjBnE`AdBhAdBbHxIpDlD`A|@nEdDpBvAFLNRd@\\XZP`@Fd@Af@Qn@MTYX]TQLGLe@^kArAq@`AkAbCa@jAw@fC_ItQwGrO}ClH_CjFsCnGaFpLi@lA`@TtD~BVXRb@^n@Np@Tr@h@`D\\`C`@pCXs@QoAh@TL?ZA^QFSAQISl@gAb@o@CX@jAIRCl@L^NN^LTARGZ_@Fi@?G"
+                                             },
+                       "summary":  "Sheikh Mohammed Bin Zayed Rd/E311",
+                       "warnings":  [
+
+                                    ],
+                       "waypoint_order":  [
+
+                                          ]
+                   }
+               ],
+    "status":  "OK"
+}

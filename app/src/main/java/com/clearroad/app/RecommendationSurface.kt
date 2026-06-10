@@ -182,21 +182,6 @@ private fun RecommendationReadyContent(
         ),
         color = HomeProductTitleColor,
     )
-    if (model.recommendationBadge.isNotBlank()) {
-        Spacer(modifier = Modifier.height(8.dp))
-        RecommendationBadgeChip(
-            text = model.recommendationBadge,
-            accentColor = model.mode.accentColor(),
-        )
-    }
-    if (model.recommendationReason.isNotBlank()) {
-        Spacer(modifier = Modifier.height(6.dp))
-        RecommendationReasonChip(text = model.recommendationReason)
-    }
-    if (model.confidenceDisplay.isNotBlank()) {
-        Spacer(modifier = Modifier.height(4.dp))
-        RecommendationConfidenceChip(text = model.confidenceDisplay)
-    }
     Spacer(modifier = Modifier.height(8.dp))
     Text(
         text = model.travelTime,
@@ -209,6 +194,10 @@ private fun RecommendationReadyContent(
         color = HomeProductTitleColor,
         maxLines = 1,
     )
+    if (model.recommendationReason.isNotBlank()) {
+        Spacer(modifier = Modifier.height(8.dp))
+        RecommendationReasonChip(text = model.recommendationReason)
+    }
     if (model.decisionSummary.isNotBlank()) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -223,7 +212,7 @@ private fun RecommendationReadyContent(
         )
     }
     if (model.narrative.isNotBlank()) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = model.narrative,
             style = MaterialTheme.typography.bodyLarge.copy(
@@ -290,25 +279,6 @@ private fun RecommendationReadyContent(
             textAlign = TextAlign.Center,
         )
     }
-}
-
-@Composable
-private fun RecommendationConfidenceChip(text: String) {
-    Text(
-        text = text,
-        modifier = Modifier
-            .background(
-                color = ClearRoadColors.SalikNeutral.copy(alpha = 0.06f),
-                shape = RoundedCornerShape(6.dp),
-            )
-            .padding(horizontal = 7.dp, vertical = 1.dp),
-        style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 11.sp,
-        ),
-        color = HomeConfidenceChipColor,
-        maxLines = 1,
-    )
 }
 
 @Composable

@@ -1,0 +1,218 @@
+﻿[
+    {
+        "scenario":  "DIFC -\u003e Marina",
+        "routes":  [
+                       {
+                           "index":  0,
+                           "summary":  "Sheikh Zayed Rd/E11",
+                           "baseText":  "24 mins",
+                           "baseSec":  1458,
+                           "trafficText":  "28 mins",
+                           "trafficSec":  1663,
+                           "selectedMin":  28,
+                           "distKm":  24.3,
+                           "toll":  8,
+                           "scan":  "Sheikh Zayed Rd/E11 Head northeast on towards DIFC Parking Keep left to continue toward Al Mustaqbal St / D86 Turn left at the 1st cross street onto Al Mustaqbal St / D86 At the roundabout, take the 2nd exit Take the ramp to Abu Dhabi Merge onto Sheikh Zayed Rd / E11 Toll road Continue straight to stay on Sheikh Zayed Rd / E11 Toll road Sharp left to stay on Sheikh Zayed Rd / E11 Take the exit Take the ramp to Al Naseem St / Al Marsa St Keep left , follow signs for Marina Dubai Continue straight Continue straight Turn right onto Al Gharbi St (signs for The Beach ) Turn right onto King Salman Bin Abdulaziz Al Saud St / D94 (signs for Intercontinental Hotel ) Slight right Turn right",
+                           "scoreFastest":  31.42,
+                           "scoreSave":  114,
+                           "scoreCalm":  37.4
+                       },
+                       {
+                           "index":  1,
+                           "summary":  "Sheikh Zayed Rd/E11 and King Salman Bin Abdulaziz Al Saud St/D94",
+                           "baseText":  "25 mins",
+                           "baseSec":  1509,
+                           "trafficText":  "28 mins",
+                           "trafficSec":  1664,
+                           "selectedMin":  28,
+                           "distKm":  26.8,
+                           "toll":  8,
+                           "scan":  "Sheikh Zayed Rd/E11 and King Salman Bin Abdulaziz Al Saud St/D94 Head northeast on towards DIFC Parking Keep left to continue toward Al Mustaqbal St / D86 Turn left at the 1st cross street onto Al Mustaqbal St / D86 At the roundabout, take the 2nd exit Take the ramp to Abu Dhabi Merge onto Sheikh Zayed Rd / E11 Toll road Continue straight to stay on Sheikh Zayed Rd / E11 Toll road Sharp left to stay on Sheikh Zayed Rd / E11 Take exit 29 for Garn Al Sabkha St / D59 W Continue onto King Salman Bin Abdulaziz Al Saud St / D94 Slight right Turn right",
+                           "scoreFastest":  31.54,
+                           "scoreSave":  114,
+                           "scoreCalm":  37.77
+                       },
+                       {
+                           "index":  2,
+                           "summary":  "Sheikh Zayed Rd/E11, Al Naseem St/D61 and King Salman Bin Abdulaziz Al Saud St/D94",
+                           "baseText":  "29 mins",
+                           "baseSec":  1710,
+                           "trafficText":  "30 mins",
+                           "trafficSec":  1771,
+                           "selectedMin":  30,
+                           "distKm":  24.7,
+                           "toll":  8,
+                           "scan":  "Sheikh Zayed Rd/E11, Al Naseem St/D61 and King Salman Bin Abdulaziz Al Saud St/D94 Head northeast on towards DIFC Parking Keep left to continue toward Al Mustaqbal St / D86 Turn left at the 1st cross street onto Al Mustaqbal St / D86 At the roundabout, take the 2nd exit Take the ramp to Abu Dhabi Merge onto Sheikh Zayed Rd / E11 Toll road Continue straight to stay on Sheikh Zayed Rd / E11 Toll road Sharp left to stay on Sheikh Zayed Rd / E11 Take the exit toward Al Naseem St / D61 Slight right onto the Al Naseem St ramp to King Salman Bin Abdulaziz Al Saud St / D94 W Take the Al Naseem St ramp to To King Salman Bin / Abdulaziz Al Saud St / D94 W Take the ramp to Al Naseem St / D61 Merge onto Al Naseem St / D61 via the ramp to Al Sufouh St / D94 / Skydive Dubai Al Naseem St / D61 turns slightly left and becomes King Salman Bin Abdulaziz Al Saud St / D94 Make a U-turn at Al Gharbi St Slight right Turn right",
+                           "scoreFastest":  33.43,
+                           "scoreSave":  114.69,
+                           "scoreCalm":  38.64
+                       }
+                   ],
+        "wf":  0,
+        "ws":  0,
+        "wc":  0,
+        "wn":  0
+    },
+    {
+        "scenario":  "Ajman -\u003e DIFC",
+        "routes":  [
+                       {
+                           "index":  0,
+                           "summary":  "E11",
+                           "baseText":  "41 mins",
+                           "baseSec":  2474,
+                           "trafficText":  "48 mins",
+                           "trafficSec":  2908,
+                           "selectedMin":  48,
+                           "distKm":  37.6,
+                           "toll":  12,
+                           "scan":  "E11 Head southeast Turn right toward شارع حاتم الطائي ‎ Turn left onto شارع حاتم الطائي ‎ At the roundabout, take the 1st exit Turn right Slight left toward Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Merge onto Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Continue straight to stay on Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Take the Al Ittihad Road South ramp to Sharjah Merge onto Al Ittihad St / E11 Continue to follow E11 Slight right Merge onto E11 At Cultural Square , take the 3rd exit and stay on E11 heading to City Center / Al Sharq District / S113 / Al Mamzar Take the ramp to E11 Continue onto E11 Toll road Keep left to continue on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Toll road Keep left to stay on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Continue straight to stay on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Keep left to continue on Sheikh Rashid Rd / E11 Keep left to stay on Sheikh Rashid Rd / E11 Toll road Take exit 56B for D86 S Merge onto Al Mustaqbal St / D86 At the roundabout, take the 2nd exit and stay on Al Mustaqbal St / D86 Turn right onto towards DIFC Parking Turn right to stay on towards DIFC Parking",
+                           "scoreFastest":  53.12,
+                           "scoreSave":  172.98,
+                           "scoreCalm":  59.77
+                       },
+                       {
+                           "index":  1,
+                           "summary":  "Sheikh Mohammed Bin Zayed Rd/E311",
+                           "baseText":  "44 mins",
+                           "baseSec":  2612,
+                           "trafficText":  "47 mins",
+                           "trafficSec":  2845,
+                           "selectedMin":  47,
+                           "distKm":  46.3,
+                           "toll":  4,
+                           "scan":  "Sheikh Mohammed Bin Zayed Rd/E311 Head southeast Turn right toward شارع حاتم الطائي ‎ Turn left onto شارع حاتم الطائي ‎ At the roundabout, take the 1st exit Turn right Slight left toward Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Merge onto Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Continue straight to stay on Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Take the Al Ittihad Road South ramp to Sharjah Merge onto Al Ittihad St / E11 Slight right (signs for Industrial Areas / Airport / Dubai / Dhaid / E311 / Al Arouba Road / S134 ) Continue straight Take the exit toward Industrial Areas / Dubai / Airport / Al Dhaid / E311 Merge onto Sheikh Salem Bin Sultan Al Qasimi St / Route 123 Continue straight to stay on Sheikh Salem Bin Sultan Al Qasimi St / Route 123 Continue to follow Sheikh Salem Bin Sultan Al Qasimi St Take the ramp onto Sheikh Mohammed Bin Zayed Rd / E311 Take exit 55 to merge onto Rebat St / D83 toward Al Garhoud / City Center / Deira Slight left (signs for Business Bay Crossing / D71 / City Center / Bur Dubai ) Continue onto Al Khail Rd / Business Bay Bridge / D68 Continue to follow Al Khail Rd/ D68 Toll road Continue straight to stay on Al Khail Rd / D68 Slight right onto the Financial Center St / D71 ramp to Burj Khalifa / Dubai Mall Merge onto Financial Ctr St / D71 Turn right (signs for Za\u0027abeel ) At the roundabout, take the 2nd exit Slight right toward Al Mustaqbal St Merge onto Al Mustaqbal St Turn left onto towards DIFC Parking Turn right to stay on towards DIFC Parking",
+                           "scoreFastest":  51.63,
+                           "scoreSave":  100.58,
+                           "scoreCalm":  53.24
+                       },
+                       {
+                           "index":  2,
+                           "summary":  "Sheikh Mohammed Bin Zayed Rd/E311 and Ras Al Khor Rd/E44",
+                           "baseText":  "45 mins",
+                           "baseSec":  2717,
+                           "trafficText":  "49 mins",
+                           "trafficSec":  2963,
+                           "selectedMin":  49,
+                           "distKm":  48.2,
+                           "toll":  4,
+                           "scan":  "Sheikh Mohammed Bin Zayed Rd/E311 and Ras Al Khor Rd/E44 Head southeast Turn right toward شارع حاتم الطائي ‎ Turn left onto شارع حاتم الطائي ‎ At the roundabout, take the 1st exit Turn right Slight left toward Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Merge onto Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Continue straight to stay on Sheikh Maktoum Bin Rashid St / Sheikh Zayed St Take the Al Ittihad Road South ramp to Sharjah Merge onto Al Ittihad St / E11 Slight right (signs for Industrial Areas / Airport / Dubai / Dhaid / E311 / Al Arouba Road / S134 ) Continue straight Take the exit toward Industrial Areas / Dubai / Airport / Al Dhaid / E311 Merge onto Sheikh Salem Bin Sultan Al Qasimi St / Route 123 Continue straight to stay on Sheikh Salem Bin Sultan Al Qasimi St / Route 123 Continue to follow Sheikh Salem Bin Sultan Al Qasimi St Take the ramp onto Sheikh Mohammed Bin Zayed Rd / E311 Take exit 52 for E44 toward Dubai Keep left Merge onto Al Awir Road / Ras Al Khor Rd / E44 Keep left to continue on Ras Al Khor Rd / E44 Take the exit toward Financial Ctr St / D71 Take the E44 S ramp to Al Khail Rd / Abu Dhabi Take the D71 W / Financial Center St ramp to Al Furssan St / DIFC / Dubai Mall Continue onto Financial Ctr St / D71 Keep right to stay on Financial Ctr St / D71 Turn right (signs for Za\u0027abeel ) At the roundabout, take the 2nd exit Slight right toward Al Mustaqbal St Merge onto Al Mustaqbal St Turn left onto towards DIFC Parking Turn right to stay on towards DIFC Parking",
+                           "scoreFastest":  53.72,
+                           "scoreSave":  101.27,
+                           "scoreCalm":  54.72
+                       }
+                   ],
+        "wf":  1,
+        "ws":  1,
+        "wc":  1,
+        "wn":  0
+    },
+    {
+        "scenario":  "JVC -\u003e Abu Dhabi",
+        "routes":  [
+                       {
+                           "index":  0,
+                           "summary":  "E11",
+                           "baseText":  "1 hour 10 mins",
+                           "baseSec":  4228,
+                           "trafficText":  "1 hour 16 mins",
+                           "trafficSec":  4534,
+                           "selectedMin":  76,
+                           "distKm":  102.7,
+                           "toll":  0,
+                           "scan":  "E11 Head south on Street 30 ‎ toward Bijada Blvd N Turn right onto Bijada Blvd N Keep left to stay on Bijada Blvd N At the roundabout, take the 1st exit onto Mu\u0027allaqat Blvd Continue straight Merge onto Hessa St / D61 Take the E311 S / Sh Mohammed Bin Zayed Rd ramp to DWC Airport / Abu Dhabi Merge onto Sheikh Mohammed Bin Zayed Rd / E311 Take the exit toward Expo Rd / E77 Take the ramp onto Expo Rd / E77 Take the E11 S / Sheikh Zayed Rd ramp to PJA Port / Abu Dhabi Take the ramp onto Sheikh Zayed Rd / E11 Continue to follow E11 Keep left to continue on Al Shahama - Abu Dhabi Rd / Sheikh Zayed Bin Sultan St / E10 Take the exit toward Shahama - Dubai Road / Sheikh Khalifa Bin Zayed St / Sheikh Khalifa Bin Zayed Al Nahyan Hwy / E12 Take the ramp onto Shahama - Dubai Road / Sheikh Khalifa Bin Zayed St / Sheikh Khalifa Bin Zayed Al Nahyan Hwy / E12 Take the exit Keep right Turn right Turn left Merge onto Al ʹAdda-a St Make a U-turn at Ad Durar St Keep right to stay on Al ʹAdda-a St Turn left Turn right Turn right Destination will be on the right",
+                           "scoreFastest":  84.8,
+                           "scoreSave":  122.73,
+                           "scoreCalm":  89.9
+                       },
+                       {
+                           "index":  1,
+                           "summary":  "E11 and Al Shahama - Abu Dhabi Rd/Sheikh Zayed Bin Sultan St/E10",
+                           "baseText":  "1 hour 13 mins",
+                           "baseSec":  4353,
+                           "trafficText":  "1 hour 17 mins",
+                           "trafficSec":  4594,
+                           "selectedMin":  77,
+                           "distKm":  106.9,
+                           "toll":  4,
+                           "scan":  "E11 and Al Shahama - Abu Dhabi Rd/Sheikh Zayed Bin Sultan St/E10 Head north on Street 30 ‎ Turn right Turn right Turn right onto Lazuward N E Continue straight Keep right to continue on Hallab Blvd ‎ Continue onto Lazuward S W Continue straight to stay on Lazuward S W Slight left to merge onto Al Khail Rd / E44 Take the exit toward Hessa St / D61 Take the D61 W ramp to Jumeira Merge onto Hessa St / D61 Take the E11 S / Sheikh Zayed Rd ramp to Abu Dhabi Merge onto Sheikh Zayed Rd / E11 Continue straight onto E11 Toll road Keep left to continue on Al Shahama - Abu Dhabi Rd / Sheikh Zayed Bin Sultan St / E10 Take the exit toward Shahama - Dubai Road / Sheikh Khalifa Bin Zayed St / Sheikh Khalifa Bin Zayed Al Nahyan Hwy / E12 Take the ramp onto Shahama - Dubai Road / Sheikh Khalifa Bin Zayed St / Sheikh Khalifa Bin Zayed Al Nahyan Hwy / E12 Take the exit Keep right Turn right Turn left Merge onto Al ʹAdda-a St Make a U-turn at Ad Durar St Keep right to stay on Al ʹAdda-a St Turn left Turn right Turn right Destination will be on the right",
+                           "scoreFastest":  86.77,
+                           "scoreSave":  167.1,
+                           "scoreCalm":  97.15
+                       },
+                       {
+                           "index":  2,
+                           "summary":  "Expo Rd/E77 and E11",
+                           "baseText":  "1 hour 20 mins",
+                           "baseSec":  4812,
+                           "trafficText":  "1 hour 23 mins",
+                           "trafficSec":  4981,
+                           "selectedMin":  83,
+                           "distKm":  116.8,
+                           "toll":  0,
+                           "scan":  "Expo Rd/E77 and E11 Head south on Street 30 ‎ toward Bijada Blvd N Turn right onto Bijada Blvd N Keep left to stay on Bijada Blvd N At the roundabout, take the 1st exit onto Mu\u0027allaqat Blvd Continue straight Merge onto Hessa St / D61 Take the E311 N / Sh Mohammed Bin Zayed Rd ramp to Al Sharjah Merge onto Sheikh Mohammed Bin Zayed Rd / E311 Take exit 30 to merge onto Umm Suqeim St / D63 toward Arabian Ranches / Bawadi / Al Qudra Keep left Keep left to continue toward Al Qudra Rd / D63 Continue onto Al Qudra Rd / D63 Merge onto Al Qudra Rd / D63 Take the E611 S / Emirates Rd ramp to Abu Dhabi Take the ramp to Emirates Rd / E611 Take the ramp onto Emirates Rd / E611 Take the exit toward Expo Rd / E77 Slight right to merge onto Expo Rd / E77 Continue straight Continue onto Expo Rd / E77 Take the E11 S / Sheikh Zayed Rd ramp to PJA Port / Abu Dhabi Take the ramp onto Sheikh Zayed Rd / E11 Continue to follow E11 Keep left to continue on Al Shahama - Abu Dhabi Rd / Sheikh Zayed Bin Sultan St / E10 Take the exit toward Shahama - Dubai Road / Sheikh Khalifa Bin Zayed St / Sheikh Khalifa Bin Zayed Al Nahyan Hwy / E12 Take the ramp onto Shahama - Dubai Road / Sheikh Khalifa Bin Zayed St / Sheikh Khalifa Bin Zayed Al Nahyan Hwy / E12 Take the exit Keep right Turn right Turn left Merge onto Al ʹAdda-a St Make a U-turn at Ad Durar St Keep right to stay on Al ʹAdda-a St Turn left Turn right Turn right Destination will be on the right",
+                           "scoreFastest":  92.96,
+                           "scoreSave":  137.18,
+                           "scoreCalm":  99.82
+                       }
+                   ],
+        "wf":  0,
+        "ws":  0,
+        "wc":  0,
+        "wn":  0
+    },
+    {
+        "scenario":  "Sharjah -\u003e Downtown",
+        "routes":  [
+                       {
+                           "index":  0,
+                           "summary":  "E11",
+                           "baseText":  "33 mins",
+                           "baseSec":  1974,
+                           "trafficText":  "34 mins",
+                           "trafficSec":  2044,
+                           "selectedMin":  34,
+                           "distKm":  29.8,
+                           "toll":  16,
+                           "scan":  "E11 Head northeast on 5 St / Othman Bin Abi Al Aas St toward Malik Bin Umaya St Turn left onto Omar Bin Ows St Turn left onto Basheer Bin Saad St / Street 1 Turn right toward Sheikh Rashid Bin Saqr Al Qasimi St / S115 Turn right onto Sheikh Rashid Bin Saqr Al Qasimi St / S115 Turn left toward Sheikh Zayed St / S124 Turn left onto Sheikh Zayed St / S124 Keep left to stay on Sheikh Zayed St / S124 Turn left onto the ramp to E11 Take the ramp onto E11 Toll road Keep left to continue on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Toll road Keep left to stay on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Continue straight to stay on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Keep left to continue on Sheikh Rashid Rd / E11 Keep left to continue on E11 Toll road Keep left to continue on Sheikh Zayed Rd / E11 Take exit 50A for D71 W / Al Safa St toward Jumeira Toll road Slight left onto the D71 E / Financial Center St ramp to DXB Airport / Dubai Mall / Burj Khalifa / E66 / E44 Slight left onto the ramp to Financial Ctr St / D71 Merge onto Financial Ctr St / D71 via the ramp to The Dubai Mall / Za\u0027abeel / Burj Khalifa Turn right onto Sheikh Mohammed bin Rashid Blvd (signs for D921 / Burj Khalifa ) Make a U-turn Turn right Turn right Sharp right Enter the roundabout Destination will be on the right",
+                           "scoreFastest":  39.08,
+                           "scoreSave":  200.17,
+                           "scoreCalm":  52.67
+                       },
+                       {
+                           "index":  1,
+                           "summary":  "S120 and E11",
+                           "baseText":  "33 mins",
+                           "baseSec":  1956,
+                           "trafficText":  "36 mins",
+                           "trafficSec":  2155,
+                           "selectedMin":  36,
+                           "distKm":  27.7,
+                           "toll":  16,
+                           "scan":  "S120 and E11 Head southwest on 5 St / Othman Bin Abi Al Aas St toward 12 St / Jaber Alasadi St / Samnan Turn right onto University City Rd / S120 Continue to follow S120 Slight left Turn left Merge onto E11 Toll road Keep left to continue on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Toll road Keep left to stay on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Continue straight to stay on Al Ittihad Rd / Dubai - Sharjah Rd / E11 Keep left to continue on Sheikh Rashid Rd / E11 Keep left to continue on E11 Toll road Keep left to continue on Sheikh Zayed Rd / E11 Take exit 50A for D71 W / Al Safa St toward Jumeira Toll road Slight left onto the D71 E / Financial Center St ramp to DXB Airport / Dubai Mall / Burj Khalifa / E66 / E44 Slight left onto the ramp to Financial Ctr St / D71 Merge onto Financial Ctr St / D71 via the ramp to The Dubai Mall / Za\u0027abeel / Burj Khalifa Turn right onto Sheikh Mohammed bin Rashid Blvd (signs for D921 / Burj Khalifa ) Turn left At the roundabout, take the 2nd exit Enter the roundabout Destination will be on the right",
+                           "scoreFastest":  40.81,
+                           "scoreSave":  196.84,
+                           "scoreCalm":  52.34
+                       },
+                       {
+                           "index":  2,
+                           "summary":  "Sheikh Mohammed Bin Zayed Rd/E311",
+                           "baseText":  "34 mins",
+                           "baseSec":  2047,
+                           "trafficText":  "35 mins",
+                           "trafficSec":  2104,
+                           "selectedMin":  35,
+                           "distKm":  33.1,
+                           "toll":  4,
+                           "scan":  "Sheikh Mohammed Bin Zayed Rd/E311 Head southwest on 5 St / Othman Bin Abi Al Aas St toward 12 St / Jaber Alasadi St / Samnan Turn left onto 12 St / Jaber Alasadi St / Samnan Turn right onto 19 St / Samnan St Merge onto University City Rd / S120 Make a U-turn Turn right onto Second Industrial St / S117 (signs for الشارع الصناعي الثاني ‎ ) Take the ramp to Sheikh Khalifa Bin Zayed Al Nahyan Rd / S116 Take the ramp to Sheikh Khalifa Bin Zayed Al Nahyan Rd / S116 Slight right to merge onto Sheikh Khalifa Bin Zayed Al Nahyan Rd / S116 Take the E311 ramp to Dubai / Abu Dhabi Take the ramp to Sheikh Mohammed Bin Zayed Rd / E311 Take the ramp onto Sheikh Mohammed Bin Zayed Rd / E311 Take exit 55 to merge onto Rebat St / D83 toward Al Garhoud / City Center / Deira Slight left (signs for Business Bay Crossing / D71 / City Center / Bur Dubai ) Continue onto Al Khail Rd / Business Bay Bridge / D68 Continue to follow Al Khail Rd/ D68 Toll road Continue straight to stay on Al Khail Rd / D68 Slight right onto the Financial Center St / D71 ramp to Burj Khalifa / Dubai Mall Merge onto Financial Ctr St / D71 Turn left onto Sheikh Mohammed bin Rashid Blvd (signs for D921 / Burj Khalifa ) Make a U-turn Turn right Turn right Sharp right Enter the roundabout Destination will be on the right",
+                           "scoreFastest":  38.52,
+                           "scoreSave":  84.39,
+                           "scoreCalm":  40.47
+                       }
+                   ],
+        "wf":  2,
+        "ws":  2,
+        "wc":  2,
+        "wn":  0
+    }
+]
