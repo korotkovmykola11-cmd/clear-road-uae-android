@@ -8,12 +8,6 @@ data class WhyTagUiModel(
     val label: String,
 )
 
-/** Reserved for optional YUNO guide slot — not rendered in Stage 22. */
-data class GuideSlotUiModel(
-    val visible: Boolean = false,
-    val message: String? = null,
-)
-
 /** Stage 31.5 recommendation surface — decision-first home model. */
 data class RecommendationSurfaceUiModel(
     val ready: Boolean,
@@ -47,7 +41,6 @@ data class ChoiceWhyTipUiModel(
     val why: String,
     val tip: String,
     val compact: Boolean,
-    val guideSlot: GuideSlotUiModel = GuideSlotUiModel(),
 )
 
 data class RouteCardUiModel(
@@ -87,5 +80,4 @@ data class RouteDetailsUiModel(
     val fromLatLng: LatLng? = null,
     val toLatLng: LatLng? = null,
     val routePathPoints: List<LatLng> = emptyList(),
-    val guideSlot: GuideSlotUiModel = GuideSlotUiModel(),
 )
