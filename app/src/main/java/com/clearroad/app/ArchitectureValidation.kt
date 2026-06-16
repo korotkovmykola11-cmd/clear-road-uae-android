@@ -3,10 +3,15 @@ package com.clearroad.app
 /**
  * Temporary flags for Stage 31.5 recommendation-first Home architecture.
  *
- * When [RECOMMENDATION_ONLY_HOME] is true:
+ * When [RECOMMENDATION_ONLY_HOME] is true (prod):
  * - Origin and destination inputs are always visible (no search capsule).
- * - Route cards on Home are hidden (code retained for rollback).
+ * - Route cards on Home are hidden.
  * - [RecommendationSurface] replaces the legacy banner; View Details opens from it only.
+ * - Presentation copy uses [com.clearroad.app.domain.ModeExplanationPolicy] tree.
+ *
+ * When false (rollback): legacy Home uses [com.clearroad.app.legacy] package
+ * (route cards, [com.clearroad.app.legacy.MarshallRecommendationBanner],
+ * [com.clearroad.app.legacy.RouteReasoning]).
  *
  * Flip to false to restore the legacy Home layout for comparison.
  */

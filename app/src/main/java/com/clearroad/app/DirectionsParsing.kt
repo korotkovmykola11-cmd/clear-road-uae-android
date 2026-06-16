@@ -16,6 +16,7 @@ internal data class RealRouteDebugData(
     val durationSeconds: Int,
     val tollAED: Int,
     val hasToll: Boolean,
+    val routeSummary: String = "",
     val corridorScanText: String = "",
     val routePathPoints: List<LatLng> = emptyList(),
     val baseDurationText: String = durationText,
@@ -224,6 +225,23 @@ private fun skipJsonStringContent(json: String, openQuoteIndex: Int): Int {
     return json.length
 }
 
+/** All Google [maneuver] values from turn-by-turn steps in one route object. */
+internal fun extractManeuverValuesFromRouteJson(routeJson: String): List<String> {
+    val key = "\"maneuver\""
+    val maneuvers = mutableListOf<String>()
+    var from = 0
+    while (from < routeJson.length) {
+        val idx = routeJson.indexOf(key, from)
+        if (idx == -1) break
+        val value =
+            extractJsonQuotedStringFollowingKey(routeJson, idx + key.length)
+                ?: break
+        maneuvers.add(value)
+        from = idx + key.length
+    }
+    return maneuvers
+}
+
 private fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): String? {
     val colon = json.indexOf(':', searchFrom)
     if (colon == -1) return null
@@ -301,7 +319,7 @@ private val stripHtmlTagRegex = Regex("<[^>]+>")
 private fun stripHtmlTags(raw: String): String =
     stripHtmlTagRegex.replace(raw, " ")
 
-private fun extractRouteSummaryPlain(routeJson: String): String? {
+internal fun extractRouteSummaryPlain(routeJson: String): String? {
     val key = "\"summary\""
     val idx = routeJson.indexOf(key)
     if (idx == -1) return null
@@ -351,7 +369,7 @@ private fun tryExtractFareAed(routeJson: String): Int? {
     return num.roundToInt().coerceAtLeast(0)
 }
 
-private fun extractOverviewPolylinePoints(routeJson: String): String? {
+internal fun extractOverviewPolylinePoints(routeJson: String): String? {
     val overviewKey = "\"overview_polyline\""
     // Route-level overview_polyline follows legs; first indexOf can match html inside steps.
     val overviewIdx = routeJson.lastIndexOf(overviewKey)
@@ -428,6 +446,52 @@ private fun findMatchingClosingBrace(json: String, openBraceIndex: Int): Int? {
     return null
 }
 
+internal fun extractAllRouteObjectJson(json: String): List<String> {
+    val routesIdx = json.indexOf("\"routes\"")
+    if (routesIdx == -1) return emptyList()
+    val routesBracket = json.indexOf('[', routesIdx)
+    if (routesBracket == -1) return emptyList()
+
+    val results = mutableListOf<String>()
+    var i = routesBracket + 1
+    while (i < json.length) {
+        while (i < json.length && (json[i].isWhitespace() || json[i] == ',')) i++
+        if (i >= json.length) break
+        if (json[i] == ']') break
+        if (json[i] != '{') {
+            i++
+            continue
+        }
+        val routeStart = i
+        val routeEnd = findMatchingClosingBrace(json, routeStart) ?: break
+        results.add(json.substring(routeStart, routeEnd + 1))
+        i = routeEnd + 1
+    }
+    return results
+}
+
+/** Routes API v2 field; absent in classic Directions JSON — returns empty when missing. */
+internal fun extractRouteLabelsFromRouteJson(routeJson: String): List<String> {
+    val key = "\"routeLabels\""
+    val idx = routeJson.indexOf(key)
+    if (idx == -1) return emptyList()
+    val bracket = routeJson.indexOf('[', idx + key.length)
+    if (bracket == -1) return emptyList()
+    val close = routeJson.indexOf(']', bracket)
+    if (close == -1) return emptyList()
+    val arrayBody = routeJson.substring(bracket + 1, close)
+    if (arrayBody.isBlank()) return emptyList()
+    return arrayBody.split(',')
+        .mapNotNull { token ->
+            val trimmed = token.trim()
+            if (trimmed.length >= 2 && trimmed.first() == '"' && trimmed.last() == '"') {
+                trimmed.substring(1, trimmed.length - 1)
+            } else {
+                null
+            }
+        }
+}
+
 internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
     fun firstLegDebugFromRouteObject(routeJson: String): RealRouteDebugData? {
         val legsIdx = routeJson.indexOf("\"legs\"")
@@ -451,6 +515,7 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
             intValueFromDistanceOrDurationKey(routeJson, distanceIdx) ?: return null
 
         val tollPair = deriveTollAedFromRouteJson(routeJson)
+        val routeSummary = extractRouteSummaryPlain(routeJson).orEmpty()
         val corridorScanText = buildCorridorScanText(routeJson)
         val routePathPoints =
             decodeRoutePathPoints(extractOverviewPolylinePoints(routeJson))
@@ -462,6 +527,7 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
             durationSeconds = duration.selectedDurationSeconds,
             tollAED = tollPair.first,
             hasToll = tollPair.second,
+            routeSummary = routeSummary,
             corridorScanText = corridorScanText,
             routePathPoints = routePathPoints,
             baseDurationText = duration.baseDurationText,
@@ -471,26 +537,5 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
         )
     }
 
-    val routesIdx = json.indexOf("\"routes\"")
-    if (routesIdx == -1) return emptyList()
-    val routesBracket = json.indexOf('[', routesIdx)
-    if (routesBracket == -1) return emptyList()
-
-    val results = mutableListOf<RealRouteDebugData>()
-    var i = routesBracket + 1
-    while (i < json.length) {
-        while (i < json.length && (json[i].isWhitespace() || json[i] == ',')) i++
-        if (i >= json.length) break
-        if (json[i] == ']') break
-        if (json[i] != '{') {
-            i++
-            continue
-        }
-        val routeStart = i
-        val routeEnd = findMatchingClosingBrace(json, routeStart) ?: break
-        val routeJson = json.substring(routeStart, routeEnd + 1)
-        firstLegDebugFromRouteObject(routeJson)?.let { results.add(it) }
-        i = routeEnd + 1
-    }
-    return results
+    return extractAllRouteObjectJson(json).mapNotNull(::firstLegDebugFromRouteObject)
 }

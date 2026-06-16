@@ -12,6 +12,6 @@ internal object RecommendationBadgeLayer {
         when (mode) {
             PreferenceMode.FASTEST -> "⚡ Recommended"
             PreferenceMode.NO_TOLLS -> "💰 Best Value"
-            PreferenceMode.CALM -> "🌊 Lower delay"
+            PreferenceMode.CALM -> "🌊 Smoother trip"
         }
 }

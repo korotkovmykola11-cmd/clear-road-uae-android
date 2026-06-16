@@ -1,14 +1,14 @@
-package com.clearroad.app.domain
+package com.clearroad.app.legacy
 
+import com.clearroad.app.domain.PreferenceMode
 import kotlin.math.abs
 import kotlin.math.ceil
 
 /**
- * Stage 30.4 — conservative V1 detection when route alternatives are effectively equivalent.
- * Stage 30.5 — context-aware Similar Outcome messaging (detection rules unchanged).
- * Guidance only; does not change route selection or scoring.
+ * Rollback-only similar-outcome guidance — used when route cards are visible
+ * ([ArchitectureValidation.RECOMMENDATION_ONLY_HOME] is false).
  */
-object SimilarOutcomeDetection {
+internal object SimilarOutcomeDetection {
 
     const val MAX_TIME_DIFF_MINUTES = 2
     const val MAX_TIME_DIFF_SECONDS = MAX_TIME_DIFF_MINUTES * 60
@@ -74,9 +74,6 @@ object SimilarOutcomeDetection {
     ): Boolean =
         abs(alternative.durationSeconds - recommended.durationSeconds) <= MAX_TIME_DIFF_SECONDS
 
-    /**
-     * Returns true when toll difference is NOT meaningful enough to block Similar Outcome.
-     */
     private fun isTollDifferenceMeaningful(
         recommended: SimilarOutcomeRouteInput,
         alternative: SimilarOutcomeRouteInput,
@@ -86,10 +83,8 @@ object SimilarOutcomeDetection {
         val recommendedGates = estimateSalikGates(recommended.tollAed)
         val alternativeGates = estimateSalikGates(alternative.tollAed)
 
-        // Example D: alternative adds 2+ Salik gates with similar time — not equivalent.
         if (alternativeGates - recommendedGates >= 2) return false
 
-        // Alternative saves Salik with only <= 2 minutes extra (Example B).
         if (
             alternative.tollAed < recommended.tollAed &&
             alternative.durationSeconds <= recommended.durationSeconds + MAX_TIME_DIFF_SECONDS
@@ -97,7 +92,6 @@ object SimilarOutcomeDetection {
             return true
         }
 
-        // Same toll already handled; other toll gaps are not equivalent in V1.
         return false
     }
 

@@ -477,22 +477,30 @@ private fun Modifier.homeModeContentSurface(
     mode: PreferenceMode,
     selected: Boolean,
 ): Modifier {
+    val accent = mode.accentColor()
     val borderColor =
         if (selected) {
-            mode.accentColor().copy(alpha = 0.28f)
+            accent.copy(alpha = 0.55f)
         } else {
             HomeProductBorder
         }
+    val borderWidth = if (selected) 2.dp else 1.dp
     return shadow(
-        elevation = 1.dp,
+        elevation = if (selected) 2.dp else 1.dp,
         shape = HomeModeInactivePlinthShape,
-        ambientColor = Color.Black.copy(alpha = 0.03f),
-        spotColor = Color.Black.copy(alpha = 0.05f),
+        ambientColor = Color.Black.copy(alpha = if (selected) 0.05f else 0.03f),
+        spotColor = Color.Black.copy(alpha = if (selected) 0.07f else 0.05f),
     )
         .clip(HomeModeInactivePlinthShape)
-        .background(HomeCardSurface)
+        .background(
+            if (selected) {
+                accent.copy(alpha = 0.10f)
+            } else {
+                HomeCardSurface
+            },
+        )
         .border(
-            width = 1.dp,
+            width = borderWidth,
             color = borderColor,
             shape = HomeModeInactivePlinthShape,
         )
@@ -562,6 +570,7 @@ private fun HomeModePersonalityPill(
     modifier: Modifier = Modifier,
 ) {
     val title = homeModeCardTitle(mode)
+    val accent = mode.accentColor()
     val titleColor =
         if (selected) {
             HomeProductPrimaryText
@@ -571,9 +580,9 @@ private fun HomeModePersonalityPill(
     val titleStyle =
         MaterialTheme.typography.labelLarge.copy(
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-            fontSize = 12.sp,
+            fontSize = if (selected) 13.sp else 12.sp,
             letterSpacing = 0.5.sp,
-            lineHeight = 15.sp,
+            lineHeight = if (selected) 16.sp else 15.sp,
         )
     val iconRenderSize = homeModeCardIconRenderSize(mode, selected)
     val iconSlotModifier = Modifier.size(iconRenderSize)
@@ -593,6 +602,16 @@ private fun HomeModePersonalityPill(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
+            if (selected) {
+                Box(
+                    modifier = Modifier
+                        .width(3.dp)
+                        .height(HomeModeCardHeight - 8.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(accent),
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
             Box(
                 modifier = iconSlotModifier,
                 contentAlignment = Alignment.Center,

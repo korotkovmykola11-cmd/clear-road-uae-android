@@ -1,10 +1,11 @@
 package com.clearroad.app
 
+import com.clearroad.app.domain.ConfidenceExplanationPolicy
 import com.clearroad.app.domain.PreferenceMode
 
 /**
- * Stage 32.3 — fixed confidence copy for recommended Route Details only.
- * Wording layer; does not calculate confidence from route metrics.
+ * Stage 32.3 — confidence copy for recommended Route Details.
+ * Delegates to [ConfidenceExplanationPolicy].
  */
 internal object RecommendationConfidenceLayer {
 
@@ -14,30 +15,21 @@ internal object RecommendationConfidenceLayer {
         val isHighConfidence: Boolean,
     )
 
-    fun forMode(mode: PreferenceMode): ConfidenceCopy =
-        when (mode) {
-            PreferenceMode.FASTEST ->
-                ConfidenceCopy(
-                    title = "High confidence",
-                    body = "This route is clearly faster than the available alternatives.",
-                    isHighConfidence = true,
-                )
-            PreferenceMode.NO_TOLLS ->
-                ConfidenceCopy(
-                    title = "Medium confidence",
-                    body =
-                        "This route reduces Salik exposure, but may require a few extra minutes.",
-                    isHighConfidence = false,
-                )
-            PreferenceMode.CALM ->
-                ConfidenceCopy(
-                    title = "Medium confidence",
-                    body =
-                        "This route minimizes additional traffic delay, even if it is not the fastest option.",
-                    isHighConfidence = false,
-                )
-        }
-
-    /** Stage 32.8 — one-line confidence chip for the Home recommendation card. */
-    fun chipLabel(mode: PreferenceMode): String = forMode(mode).title
+    fun forMode(
+        mode: PreferenceMode,
+        routes: List<RealRouteDebugData>,
+        recommendedIndex: Int,
+    ): ConfidenceCopy {
+        val copy =
+            ConfidenceExplanationPolicy.forMode(
+                mode = mode,
+                routes = routes,
+                recommendedIndex = recommendedIndex,
+            )
+        return ConfidenceCopy(
+            title = copy.title,
+            body = copy.body,
+            isHighConfidence = copy.isHighConfidence,
+        )
+    }
 }

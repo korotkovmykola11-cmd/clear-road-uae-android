@@ -25,7 +25,7 @@ class RecommendationBadgeLayerTest {
     @Test
     fun smoothDriveBadge() {
         assertEquals(
-            "🌊 Lower delay",
+            "🌊 Smoother trip",
             RecommendationBadgeLayer.forMode(PreferenceMode.CALM),
         )
     }

@@ -1,5 +1,6 @@
-package com.clearroad.app.domain
+package com.clearroad.app.legacy
 
+import com.clearroad.app.domain.PreferenceMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

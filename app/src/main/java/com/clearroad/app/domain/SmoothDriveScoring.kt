@@ -9,6 +9,9 @@ import kotlin.math.pow
  * Stage 35.2 — SMOOTH DRIVE scoring in testable isolation.
  * Predictability-first; no toll, fuel, total cost, or AED/min inputs.
  * Wired to Home CALM selection via [com.clearroad.app.RouteRecommendationSelection].
+ *
+ * Stage 35.8 — when traffic delay signal is inactive on all routes, corridor weight is
+ * guarded so SMOOTH does not pick purely on motorway bonus.
  */
 object SmoothDriveScoring {
 
@@ -20,6 +23,12 @@ object SmoothDriveScoring {
     const val TIME_OVERRUN_EXPONENT = 2.0
     const val TIME_OVERRUN_MULTIPLIER = 2.0
     const val DISTANCE_TIE_BREAK_WEIGHT = 0.02
+
+    const val INACTIVE_GUARD_TIME_WEIGHT = 1.0
+    const val INACTIVE_GUARD_DISTANCE_WEIGHT = 0.05
+    const val INACTIVE_GUARD_MOTORWAY_PENALTY = -0.25
+    const val INACTIVE_GUARD_MIXED_PENALTY = 0.0
+    const val INACTIVE_GUARD_URBAN_PENALTY = 0.25
 
     enum class CorridorClass {
         MOTORWAY,
@@ -43,6 +52,7 @@ object SmoothDriveScoring {
         val corridorComponent: Double,
         val distanceComponent: Double,
         val total: Double,
+        val delaySignalInactiveGuardApplied: Boolean = false,
     )
 
     fun pickWinnerIndex(routes: List<RouteInput>): Int {
@@ -60,8 +70,19 @@ object SmoothDriveScoring {
         return bestIndex
     }
 
+    fun isDelaySignalInactive(routes: List<RouteInput>): Boolean {
+        if (routes.isEmpty()) return false
+        return routes.all { route ->
+            trafficDelaySeconds(
+                route.baseDurationSeconds,
+                route.durationInTrafficSeconds,
+            ) == 0
+        }
+    }
+
     fun scoreAll(routes: List<RouteInput>): List<ScoreBreakdown> {
         require(routes.isNotEmpty()) { "routes must not be empty" }
+        val delaySignalInactive = isDelaySignalInactive(routes)
         val fastestTrafficSeconds =
             routes.minOf { it.durationInTrafficSeconds }
         val minDistanceMeters =
@@ -73,6 +94,7 @@ object SmoothDriveScoring {
                 fastestTrafficSeconds = fastestTrafficSeconds,
                 minDistanceMeters = minDistanceMeters,
                 timeBudgetMinutes = timeBudgetMinutes,
+                delaySignalInactive = delaySignalInactive,
             )
         }
     }
@@ -82,12 +104,23 @@ object SmoothDriveScoring {
         fastestTrafficSeconds: Int,
         minDistanceMeters: Int,
         timeBudgetMinutes: Double = timeBudgetMinutes(fastestTrafficSeconds),
+        delaySignalInactive: Boolean = false,
     ): ScoreBreakdown {
         val baseSeconds = route.baseDurationSeconds.coerceAtLeast(1)
         val trafficSeconds = route.durationInTrafficSeconds
-        val delaySeconds = max(0, trafficSeconds - baseSeconds)
+        val delaySeconds = trafficDelaySeconds(baseSeconds, trafficSeconds)
         val delayMin = delaySeconds / 60.0
         val delayRatio = delaySeconds.toDouble() / baseSeconds.toDouble()
+
+        if (delaySignalInactive) {
+            return scoreRouteInactiveGuard(
+                route = route,
+                fastestTrafficSeconds = fastestTrafficSeconds,
+                minDistanceMeters = minDistanceMeters,
+                delayMin = delayMin,
+                delayRatio = delayRatio,
+            )
+        }
 
         val deltaMinutes =
             (trafficSeconds - fastestTrafficSeconds).coerceAtLeast(0) / 60.0
@@ -120,6 +153,39 @@ object SmoothDriveScoring {
             corridorComponent = corridorComponent,
             distanceComponent = distanceComponent,
             total = total,
+            delaySignalInactiveGuardApplied = false,
+        )
+    }
+
+    private fun scoreRouteInactiveGuard(
+        route: RouteInput,
+        fastestTrafficSeconds: Int,
+        minDistanceMeters: Int,
+        delayMin: Double,
+        delayRatio: Double,
+    ): ScoreBreakdown {
+        val trafficSeconds = route.durationInTrafficSeconds
+        val deltaMinutes =
+            (trafficSeconds - fastestTrafficSeconds).coerceAtLeast(0) / 60.0
+        val timeComponent = deltaMinutes * INACTIVE_GUARD_TIME_WEIGHT
+        val distanceKm = route.distanceMeters / 1000.0
+        val minDistanceKm = minDistanceMeters / 1000.0
+        val distanceComponent =
+            max(0.0, distanceKm - minDistanceKm) * INACTIVE_GUARD_DISTANCE_WEIGHT
+        val corridorComponent =
+            guardedCorridorPenalty(classifyCorridor(route.corridorText))
+        val total = timeComponent + distanceComponent + corridorComponent
+
+        return ScoreBreakdown(
+            delayRatio = delayRatio,
+            delayMin = delayMin,
+            delayRatioComponent = 0.0,
+            delayMinComponent = 0.0,
+            timePenaltyComponent = timeComponent,
+            corridorComponent = corridorComponent,
+            distanceComponent = distanceComponent,
+            total = total,
+            delaySignalInactiveGuardApplied = true,
         )
     }
 
@@ -148,8 +214,10 @@ object SmoothDriveScoring {
     fun trafficDelaySeconds(
         baseDurationSeconds: Int,
         durationInTrafficSeconds: Int,
-    ): Int =
-        (durationInTrafficSeconds - baseDurationSeconds).coerceAtLeast(0)
+    ): Int {
+        val baseSeconds = baseDurationSeconds.coerceAtLeast(1)
+        return (durationInTrafficSeconds - baseSeconds).coerceAtLeast(0)
+    }
 
     /** Read-only metric for explanation copy; does not affect scoring. */
     fun trafficDelayRatio(
@@ -166,6 +234,13 @@ object SmoothDriveScoring {
             CorridorClass.MOTORWAY -> -4.0
             CorridorClass.MIXED -> 0.0
             CorridorClass.URBAN_WEAVE -> 5.0
+        }
+
+    private fun guardedCorridorPenalty(corridorClass: CorridorClass): Double =
+        when (corridorClass) {
+            CorridorClass.MOTORWAY -> INACTIVE_GUARD_MOTORWAY_PENALTY
+            CorridorClass.MIXED -> INACTIVE_GUARD_MIXED_PENALTY
+            CorridorClass.URBAN_WEAVE -> INACTIVE_GUARD_URBAN_PENALTY
         }
 
     private val MOTORWAY_CORRIDOR_KEYWORDS =

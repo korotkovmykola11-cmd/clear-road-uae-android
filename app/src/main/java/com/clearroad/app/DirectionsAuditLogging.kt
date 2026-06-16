@@ -1,9 +1,12 @@
 package com.clearroad.app
 
 import android.util.Log
+import com.clearroad.app.domain.RouteIdentityResolver
 import com.clearroad.app.domain.SalikDetection
+import com.clearroad.app.domain.SmoothDriveScoring
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.SphericalUtil
+import java.security.MessageDigest
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -61,6 +64,52 @@ internal fun directionsAuditPolylinePathMeters(points: List<LatLng>): Int {
         total += SphericalUtil.computeDistanceBetween(points[index - 1], points[index])
     }
     return total.roundToInt()
+}
+
+/** Short stable id for comparing whether Google returned distinct geometries. */
+internal fun directionsAuditPolylineShortHash(
+    encodedPolyline: String?,
+    decodedPoints: List<LatLng>,
+): String {
+    val source =
+        when {
+            !encodedPolyline.isNullOrBlank() -> "enc:$encodedPolyline"
+            decodedPoints.isNotEmpty() ->
+                "pts:" +
+                    decodedPoints.joinToString("|") { point ->
+                        "%.5f,%.5f".format(Locale.US, point.latitude, point.longitude)
+                    }
+            else -> "empty"
+        }
+    val digest = MessageDigest.getInstance("SHA-256").digest(source.toByteArray(Charsets.UTF_8))
+    return digest.take(4).joinToString("") { byte -> "%02x".format(Locale.US, byte) }
+}
+
+internal fun uniquePolylineHashCount(routes: List<RealRouteDebugData>): Int =
+    routes
+        .map { route ->
+            directionsAuditPolylineShortHash(
+                encodedPolyline = null,
+                decodedPoints = route.routePathPoints,
+            )
+        }
+        .toSet()
+        .size
+
+internal fun uniquePolylineHashCountFromRaw(
+    routes: List<RealRouteDebugData>,
+    routeJsonObjects: List<String>,
+): Int {
+    val hashes =
+        routes.indices.map { index ->
+            val encoded =
+                routeJsonObjects.getOrNull(index)?.let(::extractOverviewPolylinePoints)
+            directionsAuditPolylineShortHash(
+                encodedPolyline = encoded,
+                decodedPoints = routes[index].routePathPoints,
+            )
+        }
+    return hashes.toSet().size
 }
 
 internal fun routeAuditMetrics(
@@ -153,13 +202,78 @@ private fun logRoutePairComparison(comparison: RoutePairComparison) {
     )
 }
 
+private fun formatRouteLabels(labels: List<String>): String =
+    if (labels.isEmpty()) {
+        "n/a"
+    } else {
+        labels.joinToString(",")
+    }
+
 internal fun logDirectionsAuditRoutes(
     status: String?,
     routes: List<RealRouteDebugData>,
+    rawJson: String? = null,
 ) {
-    if (status != "OK") return
+    if (status != "OK") {
+        Log.d(
+            DIRECTIONS_AUDIT_TAG,
+            "ROUTES_RECEIVED count=0 status=${status ?: "null"} " +
+                "api=DirectionsJSON alternatives=true",
+        )
+        return
+    }
+
+    val routeJsonObjects = rawJson?.let(::extractAllRouteObjectJson).orEmpty()
+    val identities = RouteIdentityResolver.resolveAll(routes)
+
+    Log.d(
+        DIRECTIONS_AUDIT_TAG,
+        "ROUTES_RECEIVED count=${routes.size} api=DirectionsJSON alternatives=true " +
+            "(classic Directions API — routeLabels absent unless migrated to Routes API v2)",
+    )
+
+    val polylineHashes = mutableListOf<String>()
     routes.forEachIndexed { index, route ->
-        logRouteMetrics(route, routeAuditMetrics(route, index))
+        val routeJson = routeJsonObjects.getOrNull(index).orEmpty()
+        val encodedPolyline =
+            routeJson.takeIf { it.isNotBlank() }?.let(::extractOverviewPolylinePoints)
+        val polylineHash =
+            directionsAuditPolylineShortHash(
+                encodedPolyline = encodedPolyline,
+                decodedPoints = route.routePathPoints,
+            )
+        polylineHashes.add(polylineHash)
+
+        val metrics = routeAuditMetrics(route, index)
+        val identity = identities[index]
+        val corridorClass =
+            SmoothDriveScoring.classifyCorridor(route.corridorScanText)
+        val routeLabels =
+            if (routeJson.isNotBlank()) {
+                extractRouteLabelsFromRouteJson(routeJson)
+            } else {
+                emptyList()
+            }
+
+        Log.d(
+            DIRECTIONS_AUDIT_TAG,
+            "ROUTE[$index] routeIndex=$index " +
+                "duration=${route.durationSeconds}s " +
+                "staticDuration=${route.baseDurationSeconds}s " +
+                "trafficDelaySeconds=${metrics.trafficDelaySeconds} " +
+                "distanceMeters=${route.distanceMeters} " +
+                "tollCount=${metrics.tollCount} " +
+                "routeLabels=${formatRouteLabels(routeLabels)} " +
+                "routeName=${identity.fullName} " +
+                "stableKey=${identity.stableKey} " +
+                "summary=${route.routeSummary.ifBlank { "n/a" }} " +
+                "polylineHash=$polylineHash " +
+                "corridorClassification=$corridorClass " +
+                "polylinePoints=${route.routePathPoints.size} " +
+                "polylinePathMeters=${metrics.polylinePathMeters}",
+        )
+
+        logRouteMetrics(route, metrics)
         val trafficText =
             route.durationInTrafficText?.let { text ->
                 val seconds = route.durationInTrafficSeconds
@@ -177,6 +291,55 @@ internal fun logDirectionsAuditRoutes(
                 "${route.distanceText} | Salik=${directionsAuditSalikCount(route)}",
         )
     }
+
+    val uniqueByPolyline =
+        if (routeJsonObjects.size == routes.size) {
+            uniquePolylineHashCountFromRaw(routes, routeJsonObjects)
+        } else {
+            uniquePolylineHashCount(routes)
+        }
+    Log.d(
+        DIRECTIONS_AUDIT_TAG,
+        "UNIQUE_ROUTE_COUNT byPolyline=$uniqueByPolyline total=${routes.size}",
+    )
+
+    if (routes.size >= 2) {
+        val nearDuplicatePairs =
+            buildList {
+                for (left in routes.indices) {
+                    for (right in left + 1 until routes.size) {
+                        val comparison =
+                            compareRoutePair(
+                                left = routes[left],
+                                leftZeroBasedIndex = left,
+                                right = routes[right],
+                                rightZeroBasedIndex = right,
+                            )
+                        if (comparison.nearDuplicate) {
+                            add("${left}↔${right}")
+                        }
+                    }
+                }
+            }
+        Log.d(
+            DIRECTIONS_AUDIT_TAG,
+            "NEAR_DUPLICATE_PAIRS count=${nearDuplicatePairs.size} " +
+                "pairs=${nearDuplicatePairs.joinToString(", ").ifBlank { "none" }}",
+        )
+    }
+
+    identities
+        .groupBy { it.stableKey }
+        .filter { (_, group) -> group.size > 1 }
+        .forEach { (stableKey, group) ->
+            val distinctNames = group.map { it.fullName }.distinct()
+            Log.d(
+                DIRECTIONS_AUDIT_TAG,
+                "IDENTITY_COLLAPSE stableKey=$stableKey count=${group.size} " +
+                    "distinctNames=${distinctNames.size} names=$distinctNames",
+            )
+        }
+
     if (routes.size >= 3) {
         logRoutePairComparison(
             compareRoutePair(

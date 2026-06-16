@@ -1,4 +1,4 @@
-package com.clearroad.app
+package com.clearroad.app.legacy
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,7 +39,7 @@ private val MarshallBannerShape = RoundedCornerShape(16.dp)
 private val MarshallBannerHaloSize = 82.dp
 private val MarshallBannerMascotSize = 68.dp
 
-/** MARSHIO Home v2.2 — executive recommendation banner (visual only). */
+/** Rollback-only Home banner — used when [com.clearroad.app.ArchitectureValidation.RECOMMENDATION_ONLY_HOME] is false. */
 @Composable
 internal fun MarshallRecommendationBanner(
     model: MarshallRecommendationBannerUiModel,

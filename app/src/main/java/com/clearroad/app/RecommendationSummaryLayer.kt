@@ -1,17 +1,17 @@
 package com.clearroad.app
 
+import com.clearroad.app.domain.ModeExplanationPolicy
 import com.clearroad.app.domain.PreferenceMode
 
 /**
  * Stage 32.4 — one-line human summary for the Home recommendation card.
- * Copy only; does not affect route selection or scoring.
+ * Delegates to [ModeExplanationPolicy].
  */
 internal object RecommendationSummaryLayer {
 
-    fun forMode(mode: PreferenceMode): String =
-        when (mode) {
-            PreferenceMode.FASTEST -> "Best time-focused pick."
-            PreferenceMode.NO_TOLLS -> "Reduces Salik exposure."
-            PreferenceMode.CALM -> "Less delay added by traffic."
-        }
+    fun forMode(
+        mode: PreferenceMode,
+        routes: List<RealRouteDebugData>,
+        recommendedIndex: Int,
+    ): String = ModeExplanationPolicy.summary(mode, routes, recommendedIndex)
 }

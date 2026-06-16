@@ -1,6 +1,11 @@
-package com.clearroad.app.domain
+package com.clearroad.app.legacy
 
-object RouteDecisionEngine {
+import com.clearroad.app.domain.DecisionResult
+import com.clearroad.app.domain.PreferenceMode
+import com.clearroad.app.domain.RouteOption
+
+/** Rollback-only sample-route decision engine. Prod uses [RouteRecommendationSelection]. */
+internal object RouteDecisionEngine {
 
     val sampleRoutes: List<RouteOption> = listOf(
         RouteOption(
@@ -38,18 +43,18 @@ object RouteDecisionEngine {
     fun choose(routes: List<RouteOption>, mode: PreferenceMode): DecisionResult {
         require(routes.isNotEmpty()) { "routes must not be empty" }
 
-        val best = when (mode) {
-            PreferenceMode.FASTEST ->
-                routes.minWith(compareBy({ it.durationMin }, { it.id }))
-            PreferenceMode.NO_TOLLS -> {
-                val minToll = routes.minOfOrNull { it.tollAed } ?: 0.0
-
-                routes
-                    .filter { it.tollAed == minToll }
-                    .minBy { it.durationMin }
+        val best =
+            when (mode) {
+                PreferenceMode.FASTEST ->
+                    routes.minWith(compareBy({ it.durationMin }, { it.id }))
+                PreferenceMode.NO_TOLLS -> {
+                    val minToll = routes.minOfOrNull { it.tollAed } ?: 0.0
+                    routes
+                        .filter { it.tollAed == minToll }
+                        .minBy { it.durationMin }
+                }
+                PreferenceMode.CALM -> chooseCalmBalanced(routes)
             }
-            PreferenceMode.CALM -> chooseCalmBalanced(routes)
-        }
 
         val choice = buildChoice(best, mode)
         val why = buildWhy(best, mode)
@@ -65,7 +70,6 @@ object RouteDecisionEngine {
         )
     }
 
-    /** Drop shortest/longest by duration when 3+ routes; 2 routes pick rank-sum nearest balance. */
     private fun chooseCalmBalanced(routes: List<RouteOption>): RouteOption {
         require(routes.isNotEmpty())
         val sortedByDur = routes.sortedWith(compareBy({ it.durationMin }, { it.id }))

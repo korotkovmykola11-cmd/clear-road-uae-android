@@ -1,23 +1,18 @@
-package com.clearroad.app.domain
+package com.clearroad.app.legacy
 
+import com.clearroad.app.domain.PreferenceMode
+import com.clearroad.app.domain.RouteOption
 import kotlin.math.roundToInt
 
 /**
- * Lightweight reasoning copy for Clear Road decisions.
- *
- * Only [ReasoningLayer.CORE] is active. Other layers are reserved so future
- * predictive, hyperlocal, emotional, and comparative copy can plug in without
- * architecture changes.
+ * Rollback-only reasoning copy — used when [com.clearroad.app.ArchitectureValidation.RECOMMENDATION_ONLY_HOME]
+ * is false. Prod path uses [com.clearroad.app.domain.ModeExplanationPolicy] tree instead.
  */
 enum class ReasoningLayer {
     CORE,
-    /** Reserved: predictive ETA / time-window reasoning */
     PREDICTIVE_TIME,
-    /** Reserved: Marina, SZR, Hessa-style local cues */
     HYPERLOCAL,
-    /** Reserved: comfort / stress tone */
     EMOTIONAL,
-    /** Reserved: vs-other-routes explanations */
     COMPARATIVE,
 }
 
@@ -38,41 +33,7 @@ data class DecisionCopy(
     val tip: String,
 )
 
-object RouteReasoning {
-
-    /**
-     * Trip at a glance copy — one voice per mode (time / Salik / comfort).
-     * Wording only; uses toll fact from the opened route.
-     */
-    fun tripAtAGlanceLines(
-        mode: PreferenceMode,
-        tollAed: Int,
-    ): Pair<String, String?> =
-        when (mode) {
-            PreferenceMode.FASTEST ->
-                if (tollAed == 0) {
-                    Pair("Time is the main factor.", "No Salik listed for this route.")
-                } else {
-                    Pair("Time is the main factor.", "Salik $tollAed AED on this route.")
-                }
-            PreferenceMode.NO_TOLLS ->
-                if (tollAed > 0) {
-                    Pair(
-                        "Lower Salik impact on this route.",
-                        "Google estimates Salik $tollAed AED here.",
-                    )
-                } else {
-                    Pair(
-                        "Lower Salik impact on this route.",
-                        "May take a few extra minutes versus the fastest option.",
-                    )
-                }
-            PreferenceMode.CALM ->
-                Pair(
-                    "Lower traffic delay focus on this route.",
-                    "Not chosen for Salik, fuel, or total trip cost.",
-                )
-        }
+internal object RouteReasoning {
 
     fun alignedExplanation(
         personality: String,
@@ -102,8 +63,8 @@ object RouteReasoning {
                     if (mode == PreferenceMode.CALM) {
                         DecisionCopy(
                             choice = "Smoother city approach",
-                            why = "Lower traffic delay load on this leg.",
-                            tip = "Fine when a small time tradeoff buys stable timing.",
+                            why = "Less traffic slowdown on this leg.",
+                            tip = "Fine when a small time tradeoff buys a steadier ETA.",
                         )
                     } else {
                         DecisionCopy(
@@ -116,8 +77,8 @@ object RouteReasoning {
                     if (mode == PreferenceMode.CALM) {
                         DecisionCopy(
                             choice = "Steadier corridor leg",
-                            why = "Less traffic delay added on this motorway leg.",
-                            tip = "When stable timing beats rushing.",
+                            why = "Less traffic slowdown on this motorway leg.",
+                            tip = "When a steadier ETA beats rushing.",
                         )
                     } else {
                         DecisionCopy(
@@ -137,13 +98,13 @@ object RouteReasoning {
                         choice = "Smoother UAE leg",
                         why =
                             if (mode == PreferenceMode.CALM) {
-                                "Less traffic delay added through busy areas."
+                                "Less traffic slowdown through busy areas."
                             } else {
                                 "Gentler highway flow through busy areas."
                             },
                         tip =
                             if (mode == PreferenceMode.CALM) {
-                                "When stable timing beats rushing."
+                                "When a steadier ETA beats rushing."
                             } else {
                                 "When calm beats rushing."
                             },
@@ -152,8 +113,8 @@ object RouteReasoning {
                     if (mode == PreferenceMode.CALM) {
                         DecisionCopy(
                             choice = "More Salik ahead",
-                            why = "Lower traffic delay load on this leg.",
-                            tip = "When stable timing beats rushing.",
+                            why = "Less traffic slowdown on this leg.",
+                            tip = "When a steadier ETA beats rushing.",
                         )
                     } else if (mode == PreferenceMode.NO_TOLLS) {
                         DecisionCopy(
@@ -196,8 +157,8 @@ object RouteReasoning {
                     if (mode == PreferenceMode.CALM) {
                         DecisionCopy(
                             choice = "Lower Salik route",
-                            why = "Lower traffic delay load on this leg.",
-                            tip = "When a small time tradeoff buys stable timing.",
+                            why = "Less traffic slowdown on this leg.",
+                            tip = "When a small time tradeoff buys a steadier ETA.",
                         )
                     } else {
                         DecisionCopy(
@@ -245,33 +206,14 @@ object RouteReasoning {
                         context.routeIndex == 1 ->
                             "Balances Salik cost and time sensibly."
                         else ->
-                            "Heavier Salik exposure than the lighter options."
+                            "Heavier Salik cost than the lighter options."
                     }
                 PreferenceMode.CALM ->
-                    "Lower traffic delay load among these routes."
+                    "Less affected by traffic slowdowns among these routes."
             }
         return layerLine(ReasoningLayer.CORE, context) ?: core
     }
 
-    fun recommendedNuance(context: RouteReasoningContext): String {
-        if (context.directionsStatus != "OK") {
-            return when (context.mode) {
-                PreferenceMode.FASTEST -> "Timing unclear until routes load."
-                PreferenceMode.NO_TOLLS -> "Salik cost unclear until routes load."
-                PreferenceMode.CALM -> "Traffic timing unclear until routes load."
-            }
-        }
-        return when (context.mode) {
-            PreferenceMode.FASTEST -> "Best time-focused pick among available routes."
-            PreferenceMode.NO_TOLLS -> "Lower Salik impact with sensible travel time."
-            PreferenceMode.CALM -> "Lower traffic delay load among available routes."
-        }
-    }
-
-    /**
-     * Human-readable recommendation line for Route Details and Recommended badge.
-     * Uses existing route metrics only — no scoring or selection logic.
-     */
     fun humanRecommendationExplanation(
         mode: PreferenceMode,
         recommendedDurationSeconds: Int,
@@ -280,6 +222,8 @@ object RouteReasoning {
         fastestDurationSeconds: Int,
         highConfidence: Boolean,
         compact: Boolean = false,
+        allRoutesTollFree: Boolean = false,
+        smoothMatchesFastest: Boolean = false,
     ): String =
         when (mode) {
             PreferenceMode.FASTEST -> {
@@ -289,55 +233,54 @@ object RouteReasoning {
                             .roundToInt()
                     when {
                         savedMinutes >= 2 ->
-                            "Best time-focused pick — about $savedMinutes minutes ahead of the next option."
+                            "Quickest option — about $savedMinutes minutes ahead of the next option."
                         savedMinutes == 1 ->
-                            "Best time-focused pick — about a minute ahead of the next option."
-                        else -> "Best time-focused pick for this trip."
+                            "Quickest option — about a minute ahead of the next option."
+                        else -> "Quickest option for this trip."
                     }
                 } else {
-                    "Best time-focused pick for this trip."
+                    "Quickest option for this trip."
                 }
             }
             PreferenceMode.NO_TOLLS ->
                 when {
+                    allRoutesTollFree ->
+                        "All options avoid Salik on this trip."
                     recommendedTollAed > 0 ->
-                        "Lower Salik impact — Google estimates ${recommendedTollAed} AED on this route."
+                        "About ${recommendedTollAed} AED in Salik."
                     highConfidence ->
-                        "Lower Salik impact than other options on this trip."
+                        "Lower Salik cost than other options on this trip."
                     else ->
-                        "Best value route with lower Salik exposure."
+                        "Best value route with lower Salik cost."
                 }
             PreferenceMode.CALM -> {
-                val extraSeconds =
-                    if (fastestDurationSeconds > 0) {
-                        recommendedDurationSeconds - fastestDurationSeconds
+                if (smoothMatchesFastest) {
+                    if (compact) {
+                        "Smooth option matches fastest today."
                     } else {
-                        0
+                        "Smooth option matches the fastest route today. Traffic conditions are similar."
                     }
-                when {
-                    extraSeconds >= 300 ->
-                        if (compact) {
-                            "Lower traffic delay load — a few extra minutes versus the fastest option."
+                } else {
+                    val extraSeconds =
+                        if (fastestDurationSeconds > 0) {
+                            recommendedDurationSeconds - fastestDurationSeconds
                         } else {
-                            "Lower traffic delay load — a few extra minutes for a more stable timing profile."
+                            0
                         }
-                    extraSeconds >= 60 ->
-                        "Lower traffic delay load — slightly longer, with less traffic delay added."
-                    else ->
-                        "Lower traffic delay load — similar arrival time with less delay from traffic."
+                    when {
+                        extraSeconds >= 300 ->
+                            if (compact) {
+                                "SMOOTH DRIVE pick — a few extra minutes versus the fastest option."
+                            } else {
+                                "SMOOTH DRIVE pick — a few extra minutes for a steadier ETA."
+                            }
+                        extraSeconds >= 60 ->
+                            "SMOOTH DRIVE pick — slightly longer, with less traffic slowdown."
+                        else ->
+                            "SMOOTH DRIVE pick — similar arrival time with less traffic slowdown."
+                    }
                 }
             }
-        }
-
-    /**
-     * Short tradeoff line for Route Details — what the driver gives up with this mode.
-     * Wording only; no scoring or selection logic.
-     */
-    fun routeTradeoffExplanation(mode: PreferenceMode): String =
-        when (mode) {
-            PreferenceMode.FASTEST -> "Other routes on this trip take longer."
-            PreferenceMode.NO_TOLLS -> "Faster routes may carry more Salik exposure."
-            PreferenceMode.CALM -> "Faster routes may carry more traffic delay on this trip."
         }
 
     fun engineWhy(route: RouteOption, mode: PreferenceMode): String {
@@ -347,7 +290,7 @@ object RouteReasoning {
                 PreferenceMode.FASTEST -> buildWhyFastest(route, time)
                 PreferenceMode.NO_TOLLS -> buildWhyNoTolls(route, time)
                 PreferenceMode.CALM ->
-                    "Lower traffic delay load through busy areas."
+                    "Less traffic slowdown through busy areas."
             }
         return layerLine(
             ReasoningLayer.CORE,
@@ -355,7 +298,6 @@ object RouteReasoning {
         ) ?: core
     }
 
-    /** Future layers append here; returns [base] unchanged while only CORE is active. */
     private fun mergeLayers(
         base: DecisionCopy,
         context: RouteReasoningContext,
@@ -368,7 +310,6 @@ object RouteReasoning {
         return base.copy(why = why)
     }
 
-    /** Hook for future reasoning layers — inactive until enabled in [RouteReasoningContext]. */
     @Suppress("UNUSED_PARAMETER")
     private fun layerLine(
         layer: ReasoningLayer,

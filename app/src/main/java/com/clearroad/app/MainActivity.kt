@@ -53,11 +53,12 @@ import androidx.compose.ui.unit.sp
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
 import com.clearroad.app.domain.PreferenceMode
-import com.clearroad.app.domain.RouteDecisionEngine
-import com.clearroad.app.domain.RouteOption
-import com.clearroad.app.domain.RouteReasoning
-import com.clearroad.app.domain.RouteReasoningContext
-import com.clearroad.app.domain.SimilarOutcomeDetection
+import com.clearroad.app.domain.RouteIdentityPresentationPolicy
+import com.clearroad.app.domain.RouteIdentityResolver
+import com.clearroad.app.legacy.LegacyHomePresentation
+import com.clearroad.app.legacy.MarshallRecommendationBanner
+import com.clearroad.app.legacy.RouteDecisionEngine
+import com.clearroad.app.legacy.buildMarshallRecommendationBannerUiModel
 import com.clearroad.app.ui.theme.ClearRoad2Theme
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
@@ -100,108 +101,6 @@ private fun preferenceModeLabel(mode: PreferenceMode): String =
         PreferenceMode.NO_TOLLS -> "No tolls"
         PreferenceMode.CALM -> "Calm"
     }
-
-/** Preference tab mode for lightweight UX copy (Fastest / No tolls / Calm). */
-private typealias RouteMode = PreferenceMode
-
-/** Static nuance label beside Recommended — wording from route metrics, not scoring. */
-private fun confidenceHintBelowRecommendation(
-    mode: RouteMode,
-    directionsStatus: String?,
-    recommendedRouteIndex: Int,
-    routes: List<RealRouteDebugData>,
-): String =
-    recommendationExplanationText(
-        mode = mode,
-        directionsStatus = directionsStatus,
-        routes = routes,
-        recommendedRouteIndex = recommendedRouteIndex,
-        compact = true,
-    )
-
-private fun recommendationAlignedExplanation(
-    personality: String,
-    mode: PreferenceMode,
-): Triple<String, String, String>? =
-    RouteReasoning.alignedExplanation(personality, mode)?.let {
-        Triple(it.choice, it.why, it.tip)
-    }
-
-private fun manualRouteChoice(
-    mode: PreferenceMode,
-    routeIndex: Int,
-    tollAED: Int? = null,
-): String {
-    val level = tollAED?.let(::getTollLevel)
-    return when (mode) {
-        PreferenceMode.FASTEST -> when (routeIndex) {
-            0 -> "Best pace among these"
-            1 -> "Almost as fast — slightly longer"
-            else -> "Longer drive"
-        }
-        PreferenceMode.NO_TOLLS -> when {
-            level == "none" -> "Lightest Salik pick here"
-            level == "low" -> "Light toll route"
-            else -> when (routeIndex) {
-                0 -> "Easiest on tolls"
-                1 -> "Moderate toll route"
-                else -> "Higher toll route"
-            }
-        }
-        PreferenceMode.CALM -> "Steadier run among these"
-    }
-}
-
-private fun manualRouteWhy(
-    mode: PreferenceMode,
-    routeIndex: Int,
-    tollAED: Int? = null,
-): String =
-    RouteReasoning.manualWhy(
-        RouteReasoningContext(
-            mode = mode,
-            routeIndex = routeIndex,
-            tollAed = tollAED,
-        ),
-    )
-
-private fun manualRouteTip(
-    mode: PreferenceMode,
-    routeIndex: Int,
-    tollAED: Int? = null,
-): String {
-    val level = tollAED?.let(::getTollLevel)
-    return when (mode) {
-        PreferenceMode.FASTEST -> when {
-            level == "high" ->
-                "Good when arriving sooner matters more than toll cost."
-            else -> when (routeIndex) {
-                0 ->
-                    "Use when minutes matter most."
-                1 ->
-                    "Solid option if traffic slows the fastest route."
-                else ->
-                    "Use when you want more comfort than raw speed."
-            }
-        }
-        PreferenceMode.NO_TOLLS -> when {
-            level == "none" ->
-                "Good when you want predictable Salik cost."
-            level == "low" ->
-                "Light tolls — keep Salik topped up anyway."
-            else -> when (routeIndex) {
-                0 ->
-                    "Easiest on Salik among these."
-                1 ->
-                    "Keep Salik balance for occasional gates."
-                else ->
-                    "Check Salik balance — tolls add up on this one."
-            }
-        }
-        PreferenceMode.CALM ->
-            "Handy when traffic already feels like enough."
-    }
-}
 
 private fun fetchLatLng(
     client: PlacesClient?,
@@ -294,133 +193,6 @@ private fun buildRealRouteDebugData(
     )
 }
 
-private fun routeConfidenceLabel(
-    directionsStatus: String?,
-    item: RealRouteDebugData,
-): String {
-    if (item.durationSeconds <= 0 || item.distanceMeters <= 0) return "Light read"
-    if (directionsStatus != "OK") return "Light read"
-    val tollKnownFromFare = item.hasToll || item.tollAED > 0
-    return if (tollKnownFromFare) "Steady" else "Typical"
-}
-
-private fun costSummaryLines(
-    mode: PreferenceMode,
-    tollAed: Int,
-): Pair<String, String?> =
-    RouteReasoning.tripAtAGlanceLines(mode, tollAed)
-
-private data class DecisionSnapshotLines(
-    val recommendedHeading: String,
-    val recommendedSummary: String,
-    val othersHeading: String,
-    val othersSummary: String,
-)
-
-private fun decisionSnapshotLines(
-    mode: PreferenceMode,
-    recommendedRouteIndex: Int,
-): DecisionSnapshotLines =
-    when (mode) {
-        PreferenceMode.FASTEST ->
-            DecisionSnapshotLines(
-                recommendedHeading =
-                    "Route ${recommendedRouteIndex + 1} (recommended)",
-                recommendedSummary = "Fastest arrival with low extra cost.",
-                othersHeading = "Other routes",
-                othersSummary = "Slightly slower without a clear gain.",
-            )
-        PreferenceMode.NO_TOLLS ->
-            DecisionSnapshotLines(
-                recommendedHeading = "Recommended route",
-                recommendedSummary = "Lowest Salik impact on this trip.",
-                othersHeading = "Other routes",
-                othersSummary = "Higher toll spending than recommended.",
-            )
-        PreferenceMode.CALM ->
-            DecisionSnapshotLines(
-                recommendedHeading = "Recommended route",
-                recommendedSummary = "Lower traffic delay load with a small time tradeoff.",
-                othersHeading = "Other routes",
-                othersSummary = "Adds more traffic delay than the recommended route.",
-            )
-    }
-
-private fun isHighConfidenceRecommendation(
-    mode: PreferenceMode,
-    routes: List<RealRouteDebugData>,
-    recommendedRouteIndex: Int,
-): Boolean {
-    if (routes.isEmpty()) return false
-    val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
-    return when (mode) {
-        PreferenceMode.FASTEST -> {
-            val recommendedDuration = routes[recIdx].durationSeconds
-            val nextFastestDuration =
-                routes.indices
-                    .filter { it != recIdx }
-                    .minOfOrNull { routes[it].durationSeconds }
-            nextFastestDuration != null &&
-                recommendedDuration + 120 <= nextFastestDuration
-        }
-        PreferenceMode.NO_TOLLS -> {
-            val recommendedToll = routes[recIdx].tollAED
-            routes.indices
-                .filter { it != recIdx }
-                .all { routes[it].tollAED > recommendedToll }
-        }
-        PreferenceMode.CALM -> false
-    }
-}
-
-private fun recommendationExplanationText(
-    mode: PreferenceMode,
-    directionsStatus: String?,
-    routes: List<RealRouteDebugData>,
-    recommendedRouteIndex: Int,
-    compact: Boolean,
-): String {
-    if (directionsStatus != "OK" || routes.isEmpty()) {
-        return when (mode) {
-            PreferenceMode.FASTEST -> "Timing unclear until routes load."
-            PreferenceMode.NO_TOLLS -> "Salik cost unclear until routes load."
-            PreferenceMode.CALM -> "Pace unclear until routes load."
-        }
-    }
-    val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
-    val recommended = routes[recIdx]
-    val highConfidence =
-        isHighConfidenceRecommendation(mode, routes, recIdx)
-    val nextAlternativeDurationSeconds =
-        routes.indices
-            .filter { it != recIdx }
-            .minOfOrNull { routes[it].durationSeconds }
-    val fastestDurationSeconds = routes.minOf { it.durationSeconds }
-    return RouteReasoning.humanRecommendationExplanation(
-        mode = mode,
-        recommendedDurationSeconds = recommended.durationSeconds,
-        recommendedTollAed = recommended.tollAED,
-        nextAlternativeDurationSeconds = nextAlternativeDurationSeconds,
-        fastestDurationSeconds = fastestDurationSeconds,
-        highConfidence = highConfidence,
-        compact = compact,
-    )
-}
-
-private fun confidenceLines(
-    mode: PreferenceMode,
-    directionsStatus: String?,
-    routes: List<RealRouteDebugData>,
-    recommendedRouteIndex: Int,
-): String =
-    recommendationExplanationText(
-        mode = mode,
-        directionsStatus = directionsStatus,
-        routes = routes,
-        recommendedRouteIndex = recommendedRouteIndex,
-        compact = false,
-    )
-
 private const val DIRECTIONS_FETCH_TAG = "DirectionsFetch"
 
 private data class DirectionsFetchResult(
@@ -450,7 +222,12 @@ private suspend fun fetchDirectionsForRoute(
     )
     val routes = raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
     val status = raw?.let { extractDirectionsStatus(it) }
-    logDirectionsAuditRoutes(status, routes)
+    logDirectionsAuditRoutes(status, routes, rawJson = raw)
+    if (status == "OK" && routes.isNotEmpty()) {
+        logHonestyAuditRoutes(routes)
+        logRouteComplexityAudit(routes, rawJson = raw)
+        logSaveAedAuditRoutes(routes)
+    }
     Log.d(
         DIRECTIONS_FETCH_TAG,
         "Directions fetch complete status=$status routes=${routes.size}",
@@ -532,41 +309,15 @@ fun ClearRoadScreen(
         selectedFromLatLng != null && selectedToLatLng != null
     val routeList = realRouteDebugDataList
     val data = realRouteDebugData
-    val routesForDecision = when {
-        routeList.isNotEmpty() -> routeList.mapIndexed { index, item ->
-            RouteOption(
-                id = "real_route_$index",
-                name = "Real route ${index + 1}",
-                durationMin = item.durationSeconds / 60,
-                distanceKm = item.distanceMeters / 1000.0,
-                tollAed = item.tollAED.toDouble(),
-                salikGates = if (item.hasToll) 1 else 0,
-                passesAbuDhabi = false,
-                parkingMayBePaid = false,
+    val legacyDecision =
+        if (!ArchitectureValidation.RECOMMENDATION_ONLY_HOME && isRouteReady) {
+            RouteDecisionEngine.choose(
+                LegacyHomePresentation.routesForDecision(routeList, data),
+                selectedMode,
             )
+        } else {
+            null
         }
-        data != null -> listOf(
-            RouteOption(
-                id = "real_route",
-                name = "Real route",
-                durationMin = data.durationSeconds / 60,
-                distanceKm = data.distanceMeters / 1000.0,
-                tollAed = data.tollAED.toDouble(),
-                salikGates = if (data.hasToll) 1 else 0,
-                passesAbuDhabi = false,
-                parkingMayBePaid = false,
-            ),
-        )
-        else -> RouteDecisionEngine.sampleRoutes
-    }
-    val decision = if (isRouteReady) {
-        RouteDecisionEngine.choose(
-            routesForDecision,
-            selectedMode,
-        )
-    } else {
-        null
-    }
     val showRouteCardOverrides = realRouteDebugDataList.isNotEmpty()
     val recommendedRouteIndex =
         if (!showRouteCardOverrides || realRouteDebugDataList.isEmpty()) {
@@ -591,49 +342,6 @@ fun ClearRoadScreen(
             selectedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
         } else {
             0
-        }
-    val recommendationTollAed =
-        if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
-            realRouteDebugDataList[
-                recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex),
-            ].tollAED
-        } else {
-            null
-        }
-    val recommendedRoutePersonalityLine =
-        if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
-            val ri =
-                recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex)
-            tollPhraseForCard(
-                realRouteDebugDataList[ri],
-                ri,
-                selectedMode,
-                recommendedRouteIndex,
-                realRouteDebugDataList,
-            )
-        } else {
-            null
-        }
-    val recommendationAlignedCopy =
-        recommendedRoutePersonalityLine?.let {
-            recommendationAlignedExplanation(it, selectedMode)
-        }
-    val similarOutcomeGuidance =
-        if (showRouteCardOverrides && realRouteDebugDataList.size >= 2) {
-            SimilarOutcomeDetection.detect(
-                routes =
-                    realRouteDebugDataList.map { item ->
-                        SimilarOutcomeDetection.SimilarOutcomeRouteInput(
-                            durationSeconds = item.durationSeconds,
-                            tollAed = item.tollAED,
-                        )
-                    },
-                recommendedIndex =
-                    recommendedRouteIndex.coerceIn(0, realRouteDebugDataList.lastIndex),
-                mode = selectedMode,
-            )
-        } else {
-            null
         }
     LaunchedEffect(selectedMode, realRouteDebugDataList.size, recommendedRouteIndex) {
         if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
@@ -668,6 +376,12 @@ fun ClearRoadScreen(
     }
     Box(modifier = modifier.fillMaxSize()) {
         HomeDubaiBackground(modifier = Modifier.matchParentSize())
+        val routeIdentities =
+            if (realRouteDebugDataList.isEmpty()) {
+                emptyList()
+            } else {
+                RouteIdentityResolver.resolveAll(realRouteDebugDataList)
+            }
         val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
@@ -683,23 +397,6 @@ fun ClearRoadScreen(
                 HomeYunoBubbleSection()
                 Spacer(modifier = Modifier.height(6.dp))
             }
-            val selectedDecisionWhy =
-                when {
-                    showRouteCardOverrides ->
-                        similarOutcomeGuidance?.why
-                            ?: recommendationAlignedCopy?.second
-                            ?: manualRouteWhy(
-                                selectedMode,
-                                recommendedRouteIndex.coerceIn(
-                                    0,
-                                    realRouteDebugDataList.lastIndex,
-                                ),
-                                recommendationTollAed,
-                            )
-                    else ->
-                        decision?.why
-                            ?: "Add starting point and destination to get a recommendation."
-                }
             val showRouteInputStep =
                 ArchitectureValidation.RECOMMENDATION_ONLY_HOME ||
                     showRouteInputs ||
@@ -860,34 +557,19 @@ fun ClearRoadScreen(
                 when (selectedMode) {
                     PreferenceMode.FASTEST -> "Finding the best FASTEST route..."
                     PreferenceMode.NO_TOLLS -> "Finding the best SAVE AED route..."
-                    PreferenceMode.CALM -> "Finding routes with lower traffic delay..."
+                    PreferenceMode.CALM -> "Finding the best SMOOTH DRIVE route..."
                 }
-            val recommendedBannerIdentity =
-                if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
+            val recommendedRouteIdentityPrimary =
+                if (showRouteCardOverrides && routeIdentities.isNotEmpty()) {
                     val recIdx =
-                        recommendedRouteIndex.coerceIn(
-                            0,
-                            realRouteDebugDataList.lastIndex,
-                        )
-                    tollPhraseForCard(
-                        realRouteDebugDataList[recIdx],
-                        recIdx,
-                        selectedMode,
-                        recommendedRouteIndex,
-                        realRouteDebugDataList,
-                    )
+                        recommendedRouteIndex.coerceIn(0, routeIdentities.lastIndex)
+                    RouteIdentityPresentationPolicy.displayForHome(
+                        routes = realRouteDebugDataList,
+                        identities = routeIdentities,
+                        recommendedIndex = recIdx,
+                    ).homeLine
                 } else {
                     ""
-                }
-            val recommendationHighConfidence =
-                if (showRouteCardOverrides && realRouteDebugDataList.isNotEmpty()) {
-                    isHighConfidenceRecommendation(
-                        selectedMode,
-                        realRouteDebugDataList,
-                        recommendedRouteIndex,
-                    )
-                } else {
-                    false
                 }
             val openRecommendedViewDetails: (() -> Unit)? =
                 if (
@@ -924,9 +606,9 @@ fun ClearRoadScreen(
                         loadingMessage = recommendationLoadingMessage,
                         routes = realRouteDebugDataList,
                         recommendedRouteIndex = recommendedRouteIndex,
-                        routeIdentity = recommendedBannerIdentity,
+                        routeIdentity = recommendedRouteIdentityPrimary,
+                        routeIdentities = routeIdentities,
                         mode = selectedMode,
-                        highConfidence = recommendationHighConfidence,
                     ),
                     onViewDetails = openRecommendedViewDetails,
                     onRefreshRoute = onRefreshRoute,
@@ -937,8 +619,15 @@ fun ClearRoadScreen(
                         ready = isRouteReady || showRouteCardOverrides,
                         routes = realRouteDebugDataList,
                         recommendedRouteIndex = recommendedRouteIndex,
-                        routeIdentity = recommendedBannerIdentity,
-                        whyText = selectedDecisionWhy,
+                        routeIdentity = recommendedRouteIdentityPrimary,
+                        whyText =
+                            LegacyHomePresentation.selectedDecisionWhy(
+                                showRouteCardOverrides = showRouteCardOverrides,
+                                routes = realRouteDebugDataList,
+                                recommendedRouteIndex = recommendedRouteIndex,
+                                mode = selectedMode,
+                                decisionWhy = legacyDecision?.why,
+                            ),
                     ),
                     onViewDetails = null,
                 )
@@ -952,7 +641,7 @@ fun ClearRoadScreen(
                         PreferenceMode.FASTEST -> "Finding the best FASTEST route..."
                         PreferenceMode.NO_TOLLS ->
                             "Finding the best SAVE AED route..."
-                        PreferenceMode.CALM -> "Finding routes with lower traffic delay..."
+                        PreferenceMode.CALM -> "Finding the best SMOOTH DRIVE route..."
                     },
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.bodySmall,
@@ -977,7 +666,7 @@ fun ClearRoadScreen(
                         )
                     val recommendedNuance =
                         if (index == recommendedRouteIndex) {
-                            confidenceHintBelowRecommendation(
+                            LegacyHomePresentation.confidenceHintBelowRecommendation(
                                 selectedMode,
                                 directionsStatus,
                                 recommendedRouteIndex,
@@ -996,7 +685,7 @@ fun ClearRoadScreen(
                             routeCardSelectionIndex = routeCardSelectionIndex,
                             userExplicitRouteSelection = userExplicitRouteSelection,
                             salikLine = salikMetaText(item.tollAED, personality),
-                            confidence = routeConfidenceLabel(directionsStatus, item),
+                            confidence = RouteDetailsAssembly.confidenceLabel(directionsStatus, item),
                             recommendedNuance = recommendedNuance,
                         )
                     val isUserSelected = cardModel.isUserSelected
@@ -1098,96 +787,23 @@ fun ClearRoadScreen(
                     containerColor = ClearRoadColors.RouteCardSurface,
                     shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
                 ) {
-                    val detailPersonality = tollPhraseForCard(
-                        detailItem,
-                        detailIdx,
-                        selectedMode,
-                        recommendedRouteIndex,
-                        realRouteDebugDataList,
-                    )
-                    val detailAligned =
-                        recommendationAlignedExplanation(detailPersonality, selectedMode)
-                    val recIdxForConfidence =
-                        recommendedRouteIndex.coerceIn(
-                            0,
-                            realRouteDebugDataList.lastIndex,
-                        )
-                    val isRecommendedRouteDetails = detailIdx == recIdxForConfidence
-                    val recommendedWhyCopy =
-                        if (isRecommendedRouteDetails) {
-                            WhyThisRouteLayer.recommendedRouteCopy(
-                                mode = selectedMode,
-                                recommended = detailItem,
-                                routes = realRouteDebugDataList,
-                                recommendedIndex = recIdxForConfidence,
-                                directionsStatus = directionsStatus,
-                            )
-                        } else {
-                            null
-                        }
-                    val routeReasonTitle =
-                        recommendedWhyCopy?.title
-                            ?: detailAligned?.first
-                            ?: detailPersonality
-                    val routeReasonWhy =
-                        recommendedWhyCopy?.why
-                            ?: detailAligned?.second.orEmpty()
-                    val (costSummaryPrimary, costSummarySecondary) =
-                        costSummaryLines(
-                            selectedMode,
-                            detailItem.tollAED,
-                        )
-                    val decisionSnapshot =
-                        decisionSnapshotLines(
-                            selectedMode,
-                            recommendedRouteIndex.coerceIn(
-                                0,
-                                realRouteDebugDataList.lastIndex,
-                            ),
-                        )
-                    val recommendationConfidenceCopy =
-                        if (isRecommendedRouteDetails) {
-                            RecommendationConfidenceLayer.forMode(selectedMode)
-                        } else {
-                            null
-                        }
-                    val recommendationConfidenceTitle =
-                        recommendationConfidenceCopy?.title.orEmpty()
-                    val recommendationConfidenceText =
-                        recommendationConfidenceCopy?.body.orEmpty()
-                    val isHighConfidence =
-                        recommendationConfidenceCopy?.isHighConfidence ?: false
-                    val recommendationTradeoffText: String? = null
                     RouteDetailsScreen(
-                        model = buildRouteDetailsUiModel(
-                            routeIndex = detailIdx,
-                            routeNumber = detailIdx + 1,
-                            routeReasonTitle = routeReasonTitle,
-                            routeReasonWhy = routeReasonWhy,
-                            item = detailItem,
-                            selectedMode = selectedMode,
-                            routes = realRouteDebugDataList,
-                            confidenceLabel = routeConfidenceLabel(
-                                directionsStatus,
-                                detailItem,
+                        model =
+                            RouteDetailsAssembly.buildUiModel(
+                                RouteDetailsAssembly.Input(
+                                    detailRouteIndex = detailIdx,
+                                    detailRoute = detailItem,
+                                    routes = realRouteDebugDataList,
+                                    identities = routeIdentities,
+                                    mode = selectedMode,
+                                    recommendedRouteIndex = recommendedRouteIndex,
+                                    directionsStatus = directionsStatus,
+                                    fromLatLng = selectedFromLatLng,
+                                    toLatLng = selectedToLatLng,
+                                    useLegacyHomeFallback =
+                                        !ArchitectureValidation.RECOMMENDATION_ONLY_HOME,
+                                ),
                             ),
-                            costSummaryPrimary = costSummaryPrimary,
-                            costSummarySecondary = costSummarySecondary,
-                            decisionSnapshotRecommendedHeading =
-                                decisionSnapshot.recommendedHeading,
-                            decisionSnapshotRecommendedSummary =
-                                decisionSnapshot.recommendedSummary,
-                            decisionSnapshotOthersHeading =
-                                decisionSnapshot.othersHeading,
-                            decisionSnapshotOthersSummary =
-                                decisionSnapshot.othersSummary,
-                            recommendationConfidenceTitle = recommendationConfidenceTitle,
-                            recommendationConfidenceText = recommendationConfidenceText,
-                            recommendationTradeoffText = recommendationTradeoffText,
-                            isHighConfidence = isHighConfidence,
-                            fromLatLng = selectedFromLatLng,
-                            toLatLng = selectedToLatLng,
-                        ),
                     )
                 }
             }

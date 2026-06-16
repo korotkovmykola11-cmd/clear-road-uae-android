@@ -1,8 +1,10 @@
 package com.clearroad.app
 
-import com.clearroad.app.domain.DecisionNarrativeSynthesis
+import com.clearroad.app.domain.ComparativeEvidence
+import com.clearroad.app.domain.EquivalentTripHonesty
+import com.clearroad.app.domain.ModeExplanationPolicy
 import com.clearroad.app.domain.PreferenceMode
-import com.clearroad.app.ui.model.MarshallRecommendationBannerUiModel
+import com.clearroad.app.domain.RouteIdentity
 import com.clearroad.app.ui.model.RecommendationSurfaceUiModel
 import com.clearroad.app.ui.model.WhyTagUiModel
 
@@ -16,8 +18,8 @@ internal fun buildRecommendationSurfaceUiModel(
     routes: List<RealRouteDebugData>,
     recommendedRouteIndex: Int,
     routeIdentity: String,
+    routeIdentities: List<RouteIdentity>,
     mode: PreferenceMode,
-    highConfidence: Boolean,
 ): RecommendationSurfaceUiModel {
     if (loading) {
         return RecommendationSurfaceUiModel(
@@ -32,51 +34,51 @@ internal fun buildRecommendationSurfaceUiModel(
     }
     val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
     val recommended = routes[recIdx]
+    val honesty =
+        EquivalentTripHonesty.evaluate(
+            routes = routes,
+            identities = routeIdentities,
+            recommendedIndex = recIdx,
+        )
+    val comparativeEvidence =
+        ComparativeEvidence.build(
+            routes = routes,
+            recommendedIndex = recIdx,
+            mode = mode,
+            isEquivalentTrip = honesty.isEquivalentTrip,
+        )
+    val homeCopy =
+        if (honesty.isEquivalentTrip) {
+            null
+        } else {
+            ModeExplanationPolicy.homeCardCopy(
+                mode = mode,
+                recommended = recommended,
+                routes = routes,
+                recommendedIndex = recIdx,
+            )
+        }
     return RecommendationSurfaceUiModel(
         ready = true,
         routeName = routeIdentity,
-        travelTime = recommended.durationText,
+        travelTime = RecommendationTravelTimeFormatter.format(recommended.durationSeconds),
         mode = mode,
         decisionLabel = DecisionLabelLayer.label(),
         recommendationBadge = RecommendationBadgeLayer.forMode(mode),
-        recommendationReason = RecommendationReasonLayer.reason(
-            mode = mode,
-            recommended = recommended,
-            routes = routes,
-            recommendedIndex = recIdx,
-        ),
-        confidenceDisplay = RecommendationConfidenceLayer.chipLabel(mode),
-        decisionSummary = RecommendationSummaryLayer.forMode(mode),
-        narrative = DecisionNarrativeSynthesis.narrative(
-            mode = mode,
-            recommendedTollAed = recommended.tollAED,
-            highConfidence = highConfidence,
-        ),
-    )
-}
-
-internal fun buildMarshallRecommendationBannerUiModel(
-    ready: Boolean,
-    routes: List<RealRouteDebugData>,
-    recommendedRouteIndex: Int,
-    routeIdentity: String,
-    whyText: String,
-): MarshallRecommendationBannerUiModel {
-    if (!ready || routes.isEmpty()) {
-        return MarshallRecommendationBannerUiModel(
-            ready = false,
-            metricsLine = "",
-            routeIdentity = "",
-            whyLine = "",
-        )
-    }
-    val recIdx = recommendedRouteIndex.coerceIn(0, routes.lastIndex)
-    val recommended = routes[recIdx]
-    return MarshallRecommendationBannerUiModel(
-        ready = true,
-        metricsLine = "${recommended.durationText} • ${marshallSalikMetric(recommended.tollAED)}",
-        routeIdentity = routeIdentity,
-        whyLine = whyText,
+        recommendationReason =
+            if (honesty.isEquivalentTrip) {
+                honesty.chipText
+            } else {
+                homeCopy!!.reasonChip
+            },
+        comparativeEvidenceLines = comparativeEvidence.lines,
+        decisionSummary = homeCopy?.summary.orEmpty(),
+        narrative =
+            if (honesty.isEquivalentTrip) {
+                honesty.narrativeText
+            } else {
+                homeCopy!!.narrative
+            },
     )
 }
 

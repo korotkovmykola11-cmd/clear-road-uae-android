@@ -31,10 +31,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.model.RecommendationSurfaceUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
@@ -47,7 +47,6 @@ private val HomeProductCardShape = RoundedCornerShape(14.dp)
 private val HomeProductCardBg = Color.White
 private val HomeProductCardBorder = ClearRoadColors.SalikNeutral.copy(alpha = 0.20f)
 private val HomeProductLabelColor = ClearRoadColors.RoadGreyMuted
-private val HomeDecisionEyebrowColor = ClearRoadColors.RoadGreyMuted.copy(alpha = 0.62f)
 private val HomeConfidenceChipColor = ClearRoadColors.RoadGreyMuted.copy(alpha = 0.72f)
 private val HomeProductTitleColor = ClearRoadColors.RoadGrey
 private val HomeProductBodyColor = ClearRoadColors.RoadGreyMuted
@@ -64,13 +63,6 @@ private const val RecommendationEmptyClosing =
     "and recommends ONE route for your selected mode."
 private const val RecommendationRefreshFeedbackMessage = "Updated just now"
 private const val RecommendationRefreshFeedbackDurationMs = 5_000L
-
-private fun recommendationModeContextLine(mode: PreferenceMode): String =
-    when (mode) {
-        PreferenceMode.FASTEST -> "Fastest way to get there"
-        PreferenceMode.NO_TOLLS -> "Best value route"
-        PreferenceMode.CALM -> "Lower traffic delay option"
-    }
 
 private fun Modifier.homeRecommendationCardSurface(): Modifier =
     shadow(
@@ -160,29 +152,6 @@ private fun RecommendationReadyContent(
     onRefreshRoute: (() -> Unit)?,
     showRefreshFeedback: Boolean,
 ) {
-    if (model.decisionLabel.isNotBlank()) {
-        Text(
-            text = model.decisionLabel,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Medium,
-                fontSize = 10.sp,
-                lineHeight = 13.sp,
-                letterSpacing = 0.4.sp,
-            ),
-            color = HomeDecisionEyebrowColor,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-    }
-    Text(
-        text = recommendationModeContextLine(model.mode),
-        style = MaterialTheme.typography.bodyMedium.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            lineHeight = 24.sp,
-        ),
-        color = HomeProductTitleColor,
-    )
-    Spacer(modifier = Modifier.height(8.dp))
     Text(
         text = model.travelTime,
         style = MaterialTheme.typography.displaySmall.copy(
@@ -194,9 +163,42 @@ private fun RecommendationReadyContent(
         color = HomeProductTitleColor,
         maxLines = 1,
     )
+    if (model.routeName.isNotBlank()) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = model.routeName,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 17.sp,
+                lineHeight = 25.sp,
+            ),
+            color = HomeProductTitleColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
     if (model.recommendationReason.isNotBlank()) {
         Spacer(modifier = Modifier.height(8.dp))
         RecommendationReasonChip(text = model.recommendationReason)
+    }
+    if (model.comparativeEvidenceLines.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(8.dp))
+        model.comparativeEvidenceLines.forEachIndexed { index, line ->
+            if (index > 0) {
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+            Text(
+                text = line,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = if (index == 0) FontWeight.Medium else FontWeight.Normal,
+                    fontSize = if (index == 0) 15.sp else 17.sp,
+                    lineHeight = if (index == 0) 22.sp else 25.sp,
+                ),
+                color = if (index == 0) HomeProductLabelColor else HomeProductBodyColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
     if (model.decisionSummary.isNotBlank()) {
         Spacer(modifier = Modifier.height(8.dp))

@@ -58,9 +58,10 @@ internal fun RouteDetailsScreen(
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Route ${model.routeNumber}",
+            text = model.routeIdentityTitle.ifBlank { "Route ${model.routeNumber}" },
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
             color = modeAccent,
+            maxLines = 2,
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -69,6 +70,13 @@ internal fun RouteDetailsScreen(
             modeAccent = modeAccent,
             cardBorder = cardBorder,
         )
+        if (model.rejectedAlternativeLines.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            RouteDetailsRejectedAlternativesCard(
+                lines = model.rejectedAlternativeLines,
+                cardBorder = cardBorder,
+            )
+        }
         Spacer(modifier = Modifier.height(12.dp))
         RouteDetailsTripCard(
             model = model,
@@ -216,6 +224,41 @@ private fun RouteDetailsConfidenceCallout(
                 style = MaterialTheme.typography.bodySmall,
                 color = ClearRoadColors.RoadGreyMuted,
             )
+        }
+    }
+}
+
+@Composable
+private fun RouteDetailsRejectedAlternativesCard(
+    lines: List<String>,
+    cardBorder: BorderStroke,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = ClearRoadColors.RouteCardSurfaceMuted,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = cardBorder,
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Text(
+                text = "Why not the other routes?",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = ClearRoadColors.RoadGreyMuted,
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            lines.forEachIndexed { index, line ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+                Text(
+                    text = line,
+                    style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
+                    color = ClearRoadColors.RoadGrey,
+                )
+            }
         }
     }
 }

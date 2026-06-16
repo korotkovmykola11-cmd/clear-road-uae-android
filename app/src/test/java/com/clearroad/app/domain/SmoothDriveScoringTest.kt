@@ -132,6 +132,118 @@ class SmoothDriveScoringTest {
         assertTrue(scores[0].total < scores[1].total)
         assertEquals(0, SmoothDriveScoring.pickWinnerIndex(listOf(motorway, mixedFarther)))
     }
+    @Test
+    fun inactiveGuard_testA_fastestBeatsMotorwayWhenAllDelayZero() {
+        val fastest =
+            route(
+                baseSec = 30 * 60,
+                trafficSec = 30 * 60,
+                distanceM = 30_000,
+                corridor = "local mixed route",
+            )
+        val motorwayThreeMinutesSlower =
+            route(
+                baseSec = 33 * 60,
+                trafficSec = 33 * 60,
+                distanceM = 30_000,
+                corridor = "Sheikh Zayed Rd/E11",
+            )
+        val routes = listOf(fastest, motorwayThreeMinutesSlower)
+        val scores = SmoothDriveScoring.scoreAll(routes)
+
+        assertTrue(SmoothDriveScoring.isDelaySignalInactive(routes))
+        assertTrue(scores.all { it.delaySignalInactiveGuardApplied })
+        assertEquals(0, SmoothDriveScoring.pickWinnerIndex(routes))
+        assertTrue(scores[0].total < scores[1].total)
+    }
+
+    @Test
+    fun inactiveGuard_testB_shorterDistanceWinsWhenSameTrafficTime() {
+        val shorter =
+            route(
+                baseSec = 30 * 60,
+                trafficSec = 30 * 60,
+                distanceM = 28_000,
+                corridor = "local mixed route",
+            )
+        val longer =
+            route(
+                baseSec = 30 * 60,
+                trafficSec = 30 * 60,
+                distanceM = 32_000,
+                corridor = "local mixed route",
+            )
+        val routes = listOf(shorter, longer)
+        val scores = SmoothDriveScoring.scoreAll(routes)
+
+        assertTrue(scores.all { it.delaySignalInactiveGuardApplied })
+        assertEquals(0, SmoothDriveScoring.pickWinnerIndex(routes))
+        assertTrue(scores[0].distanceComponent < scores[1].distanceComponent)
+    }
+
+    @Test
+    fun inactiveGuard_testC_peakFixturesKeepStage351Behavior() {
+        val scenarios =
+            listOf(
+                Stage352PeakFixtures.difcToMarina() to 2,
+                Stage352PeakFixtures.ajmanToDifc() to 1,
+                Stage352PeakFixtures.sharjahToDowntown() to 2,
+                Stage352PeakFixtures.jvcToAbuDhabi() to 2,
+            )
+        scenarios.forEach { (routes, expectedWinner) ->
+            assertTrue(!SmoothDriveScoring.isDelaySignalInactive(routes))
+            val scores = SmoothDriveScoring.scoreAll(routes)
+            assertTrue(scores.none { it.delaySignalInactiveGuardApplied })
+            assertEquals(expectedWinner, SmoothDriveScoring.pickWinnerIndex(routes))
+        }
+    }
+
+    @Test
+    fun inactiveGuard_testD_ajmanLikeZeroDelayDoesNotPickSlowestMotorwayCorridor() {
+        val r0 =
+            route(
+                baseSec = 36 * 60,
+                trafficSec = 36 * 60,
+                distanceM = 45_600,
+                corridor = "E11",
+            )
+        val r1 =
+            route(
+                baseSec = 38 * 60,
+                trafficSec = 38 * 60,
+                distanceM = 43_700,
+                corridor = "local street Marina",
+            )
+        val r2 =
+            route(
+                baseSec = 39 * 60,
+                trafficSec = 39 * 60,
+                distanceM = 40_900,
+                corridor = "Sheikh Mohammed Bin Zayed Rd/E311",
+            )
+        val routes = listOf(r0, r1, r2)
+
+        assertTrue(SmoothDriveScoring.isDelaySignalInactive(routes))
+        assertEquals(0, SmoothDriveScoring.pickWinnerIndex(routes))
+
+        val scores = SmoothDriveScoring.scoreAll(routes)
+        val winnerScore = scores[0].total
+        assertTrue(scores[1].total > winnerScore)
+        assertTrue(scores[2].total > winnerScore)
+    }
+
+    private fun route(
+        baseSec: Int,
+        trafficSec: Int,
+        distanceM: Int,
+        corridor: String,
+    ): SmoothDriveScoring.RouteInput =
+        SmoothDriveScoring.RouteInput(
+            baseDurationSeconds = baseSec,
+            durationInTrafficSeconds = trafficSec,
+            distanceMeters = distanceM,
+            corridorText = corridor,
+        )
 }
 
 /** Peak-traffic metrics from Stage 35.0 / 35.1 audit (`docs/stage-35-0-audit/`). */

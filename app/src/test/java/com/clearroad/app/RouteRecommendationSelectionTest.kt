@@ -41,7 +41,7 @@ class RouteRecommendationSelectionTest {
                     scan = "Al Khail Rd/E44 Al Khail Rd / E44 then E11 Toll road",
                 ),
             )
-        assertEquals(1, RouteRecommendationSelection.pickRecommendedRouteIndex(routes, PreferenceMode.NO_TOLLS))
+        assertEquals(0, RouteRecommendationSelection.pickRecommendedRouteIndex(routes, PreferenceMode.NO_TOLLS))
     }
 
     @Test

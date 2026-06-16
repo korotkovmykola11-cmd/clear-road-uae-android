@@ -1,12 +1,11 @@
 package com.clearroad.app
 
+import com.clearroad.app.domain.ModeExplanationPolicy
 import com.clearroad.app.domain.PreferenceMode
-import com.clearroad.app.domain.SalikDetection
-import java.util.Locale
 
 /**
  * Stage 32.7 — one-line factual reason chip for the Home recommendation card.
- * Copy only; does not affect route selection or scoring.
+ * Delegates to [ModeExplanationPolicy].
  */
 internal object RecommendationReasonLayer {
 
@@ -16,59 +15,10 @@ internal object RecommendationReasonLayer {
         routes: List<RealRouteDebugData>,
         recommendedIndex: Int,
     ): String =
-        when (mode) {
-            PreferenceMode.FASTEST -> fastestReason(recommended, routes, recommendedIndex)
-            PreferenceMode.NO_TOLLS -> saveAedReason(recommended)
-            PreferenceMode.CALM -> smoothDriveReason(recommended, routes)
-        }
-
-    private fun fastestReason(
-        recommended: RealRouteDebugData,
-        routes: List<RealRouteDebugData>,
-        recommendedIndex: Int,
-    ): String {
-        val nextAlternativeSeconds =
-            routes.indices
-                .filter { it != recommendedIndex }
-                .minOfOrNull { routes[it].durationSeconds }
-        val advantageMinutes =
-            nextAlternativeSeconds?.let {
-                minutesAdvantage(recommended.durationSeconds, it)
-            } ?: 0
-        if (advantageMinutes == 0) return ""
-        return "+$advantageMinutes min advantage"
-    }
-
-    private fun saveAedReason(recommended: RealRouteDebugData): String {
-        val gates = salikGateCount(recommended)
-        return "$gates Salik gates"
-    }
-
-    private fun smoothDriveReason(
-        recommended: RealRouteDebugData,
-        routes: List<RealRouteDebugData>,
-    ): String {
-        if (RouteTrafficDelayMetrics.isLowestDelayRatioAmong(recommended, routes)) {
-            return "Lowest traffic delay added"
-        }
-        val delayMinutes = RouteTrafficDelayMetrics.delayMinutesRounded(recommended)
-        if (delayMinutes > 0) {
-            return "+$delayMinutes min traffic delay"
-        }
-        return "Stable traffic timing"
-    }
-
-    private fun salikGateCount(recommended: RealRouteDebugData): Int {
-        val scan = recommended.corridorScanText.lowercase(Locale.US)
-        val tollRoadCount = SalikDetection.countOccurrences(scan, "toll road")
-        if (tollRoadCount > 0) return tollRoadCount
-        if (recommended.tollAED > 0) {
-            return (recommended.tollAED + SalikDetection.AED_PER_TOLL_ROAD - 1) /
-                SalikDetection.AED_PER_TOLL_ROAD
-        }
-        return 0
-    }
-
-    private fun minutesAdvantage(fasterSeconds: Int, slowerSeconds: Int): Int =
-        ((slowerSeconds - fasterSeconds).coerceAtLeast(0) + 59) / 60
+        ModeExplanationPolicy.reasonChip(
+            mode = mode,
+            recommended = recommended,
+            routes = routes,
+            recommendedIndex = recommendedIndex,
+        )
 }

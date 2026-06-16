@@ -94,6 +94,13 @@ internal object RouteRecommendationSelection {
                     "Google duration_in_traffic <= duration on every route at fetch time",
             )
         }
+        if (scores.any { it.delaySignalInactiveGuardApplied }) {
+            Log.w(
+                SMOOTH_LOG_TAG,
+                "DELAY_SIGNAL_INACTIVE_GUARD applied=true " +
+                    "reason=all_delay_zero corridorWeight=guarded",
+            )
+        }
         Log.d(SMOOTH_LOG_TAG, "")
         routes.forEachIndexed { index, route ->
             val input = smoothInputs[index]
@@ -282,7 +289,7 @@ internal object RouteRecommendationSelection {
         routes.indices.minWith(
             compareBy(
                 { idx ->
-                    legacyRouteScore(routes[idx], mode)
+                    legacyRouteScore(routes[idx], mode, routes)
                 },
                 { it },
             ),
@@ -291,9 +298,10 @@ internal object RouteRecommendationSelection {
     private fun legacyRouteScore(
         item: RealRouteDebugData,
         mode: PreferenceMode,
+        routes: List<RealRouteDebugData>,
     ): Double {
         val distanceKm = item.distanceMeters / 1000.0
-        val effectiveToll = effectiveTollAedForScoring(item)
+        val effectiveToll = effectiveTollAedForScoring(item, routes)
         val fuelAed = estimateFuelCostAed(distanceKm)
         val totalCostAed =
             estimateTotalRouteCostAed(effectiveToll, fuelAed).toDouble()

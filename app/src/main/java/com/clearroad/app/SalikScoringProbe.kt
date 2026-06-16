@@ -6,11 +6,19 @@ import com.clearroad.app.domain.SalikDetection
 
 private const val SALIK_SCORING_PROBE_TAG = "SalikScoringProbe"
 
-internal fun effectiveTollAedForScoring(item: RealRouteDebugData): Int {
+internal fun effectiveTollAedForScoring(
+    item: RealRouteDebugData,
+    allRoutes: List<RealRouteDebugData> = emptyList(),
+): Int {
     if (item.tollAED > 0) return item.tollAED
     if (!ArchitectureValidation.USE_HEURISTIC_SALIK_FOR_SCORING) return 0
+    if (allRoutes.isNotEmpty() && allRoutes.all { it.tollAED == 0 }) return 0
     return SalikDetection.estimate(item.corridorScanText).estimatedSalikPenaltyAed
 }
+
+/** True when Google shows no toll on any route — heuristic Salik is not used for ranking. */
+internal fun heuristicSalikInactiveForTrip(routes: List<RealRouteDebugData>): Boolean =
+    routes.isNotEmpty() && routes.all { it.tollAED == 0 }
 
 internal fun calculateLegacyRouteScore(
     mode: PreferenceMode,
@@ -50,7 +58,7 @@ internal fun logSalikScoringProbe(
     }
     routes.forEachIndexed { index, item ->
         val salikEstimate = SalikDetection.estimate(item.corridorScanText)
-        val effectiveToll = effectiveTollAedForScoring(item)
+        val effectiveToll = effectiveTollAedForScoring(item, routes)
         val distanceKm = item.distanceMeters / 1000.0
         val fuelAed = estimateFuelCostAed(distanceKm)
         val totalCostAed =
@@ -69,6 +77,7 @@ internal fun logSalikScoringProbe(
                 "duration=${item.durationText} " +
                 "distance=${item.distanceText} " +
                 "googleTollAED=${item.tollAED} " +
+                "heuristicInactive=${heuristicSalikInactiveForTrip(routes)} " +
                 "estimatedSalikPenaltyAed=${salikEstimate.estimatedSalikPenaltyAed} " +
                 "exposure=${salikEstimate.exposure} " +
                 "reason=${salikEstimate.reason} " +
