@@ -56,8 +56,7 @@ class WhyThisRouteLayerTest {
                 directionsStatus = "OK",
             )
         assertEquals("All options avoid Salik", copy.title)
-        assertTrue(copy.why.contains("All options avoid Salik"))
-        assertTrue(copy.why.contains("Time is the main difference here"))
+        assertEquals("", copy.why)
     }
 
     @Test
@@ -114,7 +113,7 @@ class WhyThisRouteLayerTest {
                 directionsStatus = "OK",
             )
         assertEquals("Smooth option matches fastest", copy.title)
-        assertTrue(copy.why.contains("Traffic conditions are similar"))
+        assertEquals("", copy.why)
     }
 
     @Test

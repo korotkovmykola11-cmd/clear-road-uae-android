@@ -79,10 +79,6 @@ internal object DetailsExplanationPolicy {
                 else ->
                     append(" It is the quickest option among these routes.")
             }
-            if (home.narrative.isNotBlank()) {
-                append(" ")
-                append(home.narrative)
-            }
         }
         return DetailsWhyCopy(
             title = detailsTitle(home.summary, PreferenceMode.FASTEST),
@@ -98,14 +94,16 @@ internal object DetailsExplanationPolicy {
     ): DetailsWhyCopy {
         val whyBody = buildString {
             if (SalikPresentationPolicy.allRoutesTollFree(routes)) {
-                append(home.summary.trim())
-                if (!home.summary.endsWith(".")) append(".")
-                append(" ")
-                append(home.narrative)
+                append(
+                    extraMinutesVersusFastest(
+                        recommended.durationSeconds,
+                        fastestSeconds,
+                    ).trim(),
+                )
             } else {
                 append(home.narrative)
+                append(extraMinutesVersusFastest(recommended.durationSeconds, fastestSeconds))
             }
-            append(extraMinutesVersusFastest(recommended.durationSeconds, fastestSeconds))
         }
         return DetailsWhyCopy(
             title = detailsTitle(home.summary, PreferenceMode.NO_TOLLS),
@@ -124,7 +122,7 @@ internal object DetailsExplanationPolicy {
         if (SmoothDrivePresentationPolicy.matchesFastestRoute(routes, recommendedIndex)) {
             return DetailsWhyCopy(
                 title = detailsTitle(home.summary, PreferenceMode.CALM),
-                why = home.narrative,
+                why = "",
             )
         }
         val delayMinutes = RouteTrafficDelayMetrics.delayMinutesRounded(recommended)
