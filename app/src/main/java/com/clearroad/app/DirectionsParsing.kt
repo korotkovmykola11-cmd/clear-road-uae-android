@@ -242,6 +242,58 @@ internal fun extractManeuverValuesFromRouteJson(routeJson: String): List<String>
     return maneuvers
 }
 
+internal data class DirectionsStepRecord(
+    val distanceMeters: Int,
+    val maneuver: String?,
+)
+
+/** Turn-by-turn steps from the first leg of one route object. */
+internal fun extractStepRecordsFromRouteJson(routeJson: String): List<DirectionsStepRecord> {
+    val legsIdx = routeJson.indexOf("\"legs\"")
+    if (legsIdx == -1) return emptyList()
+    val legsBracket = routeJson.indexOf('[', legsIdx)
+    if (legsBracket == -1) return emptyList()
+    val firstLegBrace = routeJson.indexOf('{', legsBracket)
+    if (firstLegBrace == -1) return emptyList()
+    val stepsIdx = routeJson.indexOf("\"steps\"", firstLegBrace)
+    if (stepsIdx == -1) return emptyList()
+    val stepsBracket = routeJson.indexOf('[', stepsIdx)
+    if (stepsBracket == -1) return emptyList()
+
+    val results = mutableListOf<DirectionsStepRecord>()
+    var i = stepsBracket + 1
+    while (i < routeJson.length) {
+        while (i < routeJson.length && (routeJson[i].isWhitespace() || routeJson[i] == ',')) i++
+        if (i >= routeJson.length) break
+        if (routeJson[i] == ']') break
+        if (routeJson[i] != '{') {
+            i++
+            continue
+        }
+        val stepStart = i
+        val stepEnd = findMatchingClosingBrace(routeJson, stepStart) ?: break
+        val stepJson = routeJson.substring(stepStart, stepEnd + 1)
+        val distanceIdx = stepJson.indexOf("\"distance\"")
+        val distanceMeters =
+            if (distanceIdx == -1) {
+                0
+            } else {
+                intValueFromDistanceOrDurationKey(stepJson, distanceIdx) ?: 0
+            }
+        val maneuverKey = "\"maneuver\""
+        val maneuverIdx = stepJson.indexOf(maneuverKey)
+        val maneuver =
+            if (maneuverIdx == -1) {
+                null
+            } else {
+                extractJsonQuotedStringFollowingKey(stepJson, maneuverIdx + maneuverKey.length)
+            }
+        results.add(DirectionsStepRecord(distanceMeters = distanceMeters, maneuver = maneuver))
+        i = stepEnd + 1
+    }
+    return results
+}
+
 private fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): String? {
     val colon = json.indexOf(':', searchFrom)
     if (colon == -1) return null

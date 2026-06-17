@@ -328,13 +328,19 @@ fun ClearRoadScreen(
                 selectedMode,
             )
         }
-    LaunchedEffect(realRouteDebugDataList, selectedMode, recommendedRouteIndex) {
+    LaunchedEffect(realRouteDebugDataList, selectedMode, recommendedRouteIndex, directionsResponse) {
         if (realRouteDebugDataList.isEmpty()) return@LaunchedEffect
         RouteRecommendationSelection.logSmoothAudit(realRouteDebugDataList)
         logSalikScoringProbe(
             routes = realRouteDebugDataList,
             mode = selectedMode,
             recommendedRouteIndex = recommendedRouteIndex,
+        )
+        logDriverStressAudit(
+            routes = realRouteDebugDataList,
+            rawJson = directionsResponse,
+            mode = selectedMode,
+            currentWinnerIndex = recommendedRouteIndex,
         )
     }
     val routeCardSelectionIndex =
