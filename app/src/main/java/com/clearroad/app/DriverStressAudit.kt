@@ -1,5 +1,6 @@
 package com.clearroad.app
 
+import com.clearroad.app.domain.SmoothDriveScoring
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -16,6 +17,9 @@ internal data class DriverStressRouteMetrics(
     val criticalManeuversPerKm: Double,
     val maxDensity2KmSegment: Int,
     val keywordDistribution: Map<String, Int>,
+    val stressRankByCriticalCount: Int = 0,
+    val stressRankByStepsPerKm: Int = 0,
+    val stressRankByDensity: Int = 0,
 )
 
 internal data class DriverStressSessionSummary(
@@ -24,6 +28,34 @@ internal data class DriverStressSessionSummary(
     val lowestCriticalManeuverIndex: Int,
     val timeLostMinIfLowestStressChosen: Int,
     val maneuversSavedPctIfLowestStressChosen: Int,
+)
+
+internal data class CalmStressCorrelation(
+    val calmWinnerIndex: Int,
+    val bestCriticalIndex: Int,
+    val bestStepsPerKmIndex: Int,
+    val bestDensityIndex: Int,
+    val winnerMatchesBestCritical: Boolean,
+    val winnerMatchesBestSteps: Boolean,
+    val winnerMatchesBestDensity: Boolean,
+)
+
+internal data class CalmScoreBreakdownLog(
+    val routeIndex: Int,
+    val delayScore: Double,
+    val corridorScore: Double,
+    val trafficScore: Double,
+    val distanceScore: Double,
+    val finalScore: Double,
+    val delaySignalInactiveGuardApplied: Boolean,
+)
+
+internal data class CalmAuditSummary(
+    val winner: Int,
+    val bestStressRoute: Int,
+    val stressGapPct: Int,
+    val timePenaltyMin: Int,
+    val calmPickedLowestStress: Boolean,
 )
 
 internal object DriverStressAudit {
@@ -121,6 +153,120 @@ internal object DriverStressAudit {
             timeLostMinIfLowestStressChosen = timeLostMin,
             maneuversSavedPctIfLowestStressChosen = maneuversSavedPct,
         )
+    }
+
+    fun attachStressRanks(
+        metrics: List<DriverStressRouteMetrics>,
+    ): List<DriverStressRouteMetrics> {
+        if (metrics.isEmpty()) return metrics
+        val criticalRanks = rankAscending(metrics) { it.criticalManeuversCount.toDouble() }
+        val stepsPerKmRanks = rankAscending(metrics) { it.stepsPerKm }
+        val densityRanks = rankAscending(metrics) { it.maxDensity2KmSegment.toDouble() }
+        return metrics.map { item ->
+            item.copy(
+                stressRankByCriticalCount = criticalRanks.getValue(item.routeIndex),
+                stressRankByStepsPerKm = stepsPerKmRanks.getValue(item.routeIndex),
+                stressRankByDensity = densityRanks.getValue(item.routeIndex),
+            )
+        }
+    }
+
+    fun buildCalmStressCorrelation(
+        metrics: List<DriverStressRouteMetrics>,
+        calmWinnerIndex: Int,
+    ): CalmStressCorrelation? {
+        if (metrics.isEmpty()) return null
+        val winnerIdx = calmWinnerIndex.coerceIn(0, metrics.lastIndex)
+        val bestCriticalIndex =
+            metrics.indices.minWith(
+                compareBy<Int> { metrics[it].criticalManeuversCount }.thenBy { it },
+            )
+        val bestStepsPerKmIndex =
+            metrics.indices.minWith(
+                compareBy<Int> { metrics[it].stepsPerKm }.thenBy { it },
+            )
+        val bestDensityIndex =
+            metrics.indices.minWith(
+                compareBy<Int> { metrics[it].maxDensity2KmSegment }.thenBy { it },
+            )
+        return CalmStressCorrelation(
+            calmWinnerIndex = winnerIdx,
+            bestCriticalIndex = bestCriticalIndex,
+            bestStepsPerKmIndex = bestStepsPerKmIndex,
+            bestDensityIndex = bestDensityIndex,
+            winnerMatchesBestCritical = winnerIdx == bestCriticalIndex,
+            winnerMatchesBestSteps = winnerIdx == bestStepsPerKmIndex,
+            winnerMatchesBestDensity = winnerIdx == bestDensityIndex,
+        )
+    }
+
+    fun buildCalmScoreBreakdowns(
+        routes: List<RealRouteDebugData>,
+    ): List<CalmScoreBreakdownLog> {
+        val inputs =
+            routes.map { route ->
+                RouteRecommendationSelection.toSmoothDriveRouteInput(route)
+            }
+        if (inputs.any { it == null }) return emptyList()
+        val smoothInputs = inputs.filterNotNull()
+        val scores = SmoothDriveScoring.scoreAll(smoothInputs)
+        return scores.mapIndexed { index, score ->
+            CalmScoreBreakdownLog(
+                routeIndex = index,
+                delayScore = score.delayRatioComponent + score.delayMinComponent,
+                corridorScore = score.corridorComponent,
+                trafficScore = score.timePenaltyComponent,
+                distanceScore = score.distanceComponent,
+                finalScore = score.total,
+                delaySignalInactiveGuardApplied = score.delaySignalInactiveGuardApplied,
+            )
+        }
+    }
+
+    fun buildCalmAuditSummary(
+        metrics: List<DriverStressRouteMetrics>,
+        calmWinnerIndex: Int,
+    ): CalmAuditSummary? {
+        if (metrics.isEmpty()) return null
+        val winnerIdx = calmWinnerIndex.coerceIn(0, metrics.lastIndex)
+        val bestStressRoute =
+            metrics.indices.minWith(
+                compareBy<Int> { metrics[it].criticalManeuversCount }.thenBy { it },
+            )
+        val winner = metrics[winnerIdx]
+        val bestStress = metrics[bestStressRoute]
+        val stressGapPct =
+            if (winner.criticalManeuversCount <= 0) {
+                0
+            } else {
+                (
+                    (winner.criticalManeuversCount - bestStress.criticalManeuversCount)
+                        .coerceAtLeast(0) *
+                        100.0 / winner.criticalManeuversCount
+                    ).roundToInt()
+            }
+        val timePenaltyMin =
+            (bestStress.durationInTrafficMin - winner.durationInTrafficMin).coerceAtLeast(0)
+        return CalmAuditSummary(
+            winner = winnerIdx,
+            bestStressRoute = bestStressRoute,
+            stressGapPct = stressGapPct,
+            timePenaltyMin = timePenaltyMin,
+            calmPickedLowestStress = winnerIdx == bestStressRoute,
+        )
+    }
+
+    internal fun rankAscending(
+        metrics: List<DriverStressRouteMetrics>,
+        value: (DriverStressRouteMetrics) -> Double,
+    ): Map<Int, Int> {
+        val ordered =
+            metrics
+                .map { it.routeIndex to value(it) }
+                .sortedWith(compareBy<Pair<Int, Double>> { it.second }.thenBy { it.first })
+        return ordered.mapIndexed { rankIndex, (routeIndex, _) ->
+            routeIndex to (rankIndex + 1)
+        }.toMap()
     }
 
     internal fun isCriticalManeuver(maneuver: String?): Boolean =

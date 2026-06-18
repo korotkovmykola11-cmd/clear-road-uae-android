@@ -37,13 +37,28 @@ internal fun logDriverStressAudit(
                 isCurrentWinner = index == winnerIdx,
             )
         }
+    val rankedMetrics = DriverStressAudit.attachStressRanks(metrics)
 
     Log.d(
         DRIVER_STRESS_AUDIT_TAG,
         "routeCount=${routes.size} mode=$mode currentWinnerIndex=$winnerIdx",
     )
-    metrics.forEach(::logDriverStressRouteMetrics)
-    DriverStressAudit.buildSessionSummary(metrics, winnerIdx)?.let(::logDriverStressSessionSummary)
+    rankedMetrics.forEach(::logDriverStressRouteMetrics)
+    DriverStressAudit.buildSessionSummary(rankedMetrics, winnerIdx)
+        ?.let(::logDriverStressSessionSummary)
+
+    if (mode == PreferenceMode.CALM) {
+        val calmWinnerIndex =
+            RouteRecommendationSelection.pickRecommendedRouteIndex(
+                routes,
+                PreferenceMode.CALM,
+            )
+        DriverStressAudit.buildCalmStressCorrelation(rankedMetrics, calmWinnerIndex)
+            ?.let(::logCalmStressCorrelation)
+        DriverStressAudit.buildCalmScoreBreakdowns(routes).forEach(::logCalmScoreBreakdown)
+        DriverStressAudit.buildCalmAuditSummary(rankedMetrics, calmWinnerIndex)
+            ?.let(::logCalmAuditSummary)
+    }
 }
 
 private fun logDriverStressRouteMetrics(metrics: DriverStressRouteMetrics) {
@@ -60,6 +75,9 @@ private fun logDriverStressRouteMetrics(metrics: DriverStressRouteMetrics) {
             "critical_maneuvers_count=${metrics.criticalManeuversCount} " +
             "critical_maneuvers_per_km=${formatDouble(metrics.criticalManeuversPerKm)} " +
             "max_density_2km_segment=${metrics.maxDensity2KmSegment} " +
+            "stressRankByCriticalCount=${metrics.stressRankByCriticalCount} " +
+            "stressRankByStepsPerKm=${metrics.stressRankByStepsPerKm} " +
+            "stressRankByDensity=${metrics.stressRankByDensity} " +
             "maneuver_keywords=${formatKeywordDistribution(metrics.keywordDistribution)}",
     )
 }
@@ -72,6 +90,43 @@ private fun logDriverStressSessionSummary(summary: DriverStressSessionSummary) {
             "lowestCriticalManeuverIndex=${summary.lowestCriticalManeuverIndex} " +
             "timeLostMinIfLowestStressChosen=${summary.timeLostMinIfLowestStressChosen} " +
             "maneuversSavedPctIfLowestStressChosen=${summary.maneuversSavedPctIfLowestStressChosen}",
+    )
+}
+
+private fun logCalmStressCorrelation(correlation: CalmStressCorrelation) {
+    Log.d(
+        DRIVER_STRESS_AUDIT_TAG,
+        "CALM_CORRELATION calmWinnerIndex=${correlation.calmWinnerIndex} " +
+            "bestCriticalIndex=${correlation.bestCriticalIndex} " +
+            "bestStepsPerKmIndex=${correlation.bestStepsPerKmIndex} " +
+            "bestDensityIndex=${correlation.bestDensityIndex} " +
+            "winnerMatchesBestCritical=${correlation.winnerMatchesBestCritical} " +
+            "winnerMatchesBestSteps=${correlation.winnerMatchesBestSteps} " +
+            "winnerMatchesBestDensity=${correlation.winnerMatchesBestDensity}",
+    )
+}
+
+private fun logCalmScoreBreakdown(breakdown: CalmScoreBreakdownLog) {
+    Log.d(
+        DRIVER_STRESS_AUDIT_TAG,
+        "CALM_SCORE_BREAKDOWN route=${breakdown.routeIndex} " +
+            "delayScore=${formatDouble(breakdown.delayScore)} " +
+            "corridorScore=${formatDouble(breakdown.corridorScore)} " +
+            "trafficScore=${formatDouble(breakdown.trafficScore)} " +
+            "distanceScore=${formatDouble(breakdown.distanceScore)} " +
+            "finalScore=${formatDouble(breakdown.finalScore)} " +
+            "delaySignalInactiveGuard=${breakdown.delaySignalInactiveGuardApplied}",
+    )
+}
+
+private fun logCalmAuditSummary(summary: CalmAuditSummary) {
+    Log.d(
+        DRIVER_STRESS_AUDIT_TAG,
+        "CALM_AUDIT_SUMMARY winner=${summary.winner} " +
+            "bestStressRoute=${summary.bestStressRoute} " +
+            "stressGapPct=${summary.stressGapPct} " +
+            "timePenaltyMin=${summary.timePenaltyMin} " +
+            "calmPickedLowestStress=${summary.calmPickedLowestStress}",
     )
 }
 

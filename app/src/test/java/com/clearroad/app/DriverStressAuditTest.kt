@@ -117,6 +117,131 @@ class DriverStressAuditTest {
     }
 
     @Test
+    fun attachStressRanks_assignsLowestAsRankOne() {
+        val metrics =
+            listOf(
+                DriverStressAudit.metricsFromSteps(
+                    steps = listOf(DirectionsStepRecord(1000, "merge")),
+                    route = route(durationSeconds = 20 * 60, distanceMeters = 2_000),
+                    routeIndex = 0,
+                    isCurrentWinner = true,
+                ),
+                DriverStressAudit.metricsFromSteps(
+                    steps = emptyList(),
+                    route = route(durationSeconds = 21 * 60, distanceMeters = 2_000),
+                    routeIndex = 1,
+                    isCurrentWinner = false,
+                ),
+                DriverStressAudit.metricsFromSteps(
+                    steps = listOf(DirectionsStepRecord(1000, "ramp-right")),
+                    route = route(durationSeconds = 22 * 60, distanceMeters = 2_000),
+                    routeIndex = 2,
+                    isCurrentWinner = false,
+                ),
+            )
+        val ranked = DriverStressAudit.attachStressRanks(metrics)
+
+        assertEquals(2, ranked[0].stressRankByCriticalCount)
+        assertEquals(1, ranked[1].stressRankByCriticalCount)
+        assertEquals(3, ranked[2].stressRankByCriticalCount)
+    }
+
+    @Test
+    fun buildCalmStressCorrelation_reportsMismatchWhenCalmPicksHigherStress() {
+        val metrics =
+            listOf(
+                DriverStressAudit.metricsFromSteps(
+                    steps =
+                        listOf(
+                            DirectionsStepRecord(1000, "merge"),
+                            DirectionsStepRecord(1000, "fork-left"),
+                            DirectionsStepRecord(1000, "ramp-right"),
+                        ),
+                    route = route(durationSeconds = 20 * 60, distanceMeters = 3_000),
+                    routeIndex = 0,
+                    isCurrentWinner = true,
+                ),
+                DriverStressAudit.metricsFromSteps(
+                    steps = listOf(DirectionsStepRecord(1000, "straight")),
+                    route = route(durationSeconds = 23 * 60, distanceMeters = 3_000),
+                    routeIndex = 1,
+                    isCurrentWinner = false,
+                ),
+            )
+        val ranked = DriverStressAudit.attachStressRanks(metrics)
+        val correlation = DriverStressAudit.buildCalmStressCorrelation(ranked, calmWinnerIndex = 0)!!
+
+        assertEquals(0, correlation.calmWinnerIndex)
+        assertEquals(1, correlation.bestCriticalIndex)
+        assertEquals(false, correlation.winnerMatchesBestCritical)
+    }
+
+    @Test
+    fun buildCalmAuditSummary_reportsStressGapAndTimePenalty() {
+        val metrics =
+            listOf(
+                DriverStressAudit.metricsFromSteps(
+                    steps =
+                        listOf(
+                            DirectionsStepRecord(1000, "merge"),
+                            DirectionsStepRecord(1000, "fork-left"),
+                            DirectionsStepRecord(1000, "ramp-right"),
+                        ),
+                    route = route(durationSeconds = 20 * 60, distanceMeters = 3_000),
+                    routeIndex = 0,
+                    isCurrentWinner = true,
+                ),
+                DriverStressAudit.metricsFromSteps(
+                    steps = listOf(DirectionsStepRecord(1000, "straight")),
+                    route = route(durationSeconds = 24 * 60, distanceMeters = 3_000),
+                    routeIndex = 1,
+                    isCurrentWinner = false,
+                ),
+            )
+        val summary = DriverStressAudit.buildCalmAuditSummary(metrics, calmWinnerIndex = 0)!!
+
+        assertEquals(0, summary.winner)
+        assertEquals(1, summary.bestStressRoute)
+        assertEquals(100, summary.stressGapPct)
+        assertEquals(4, summary.timePenaltyMin)
+        assertEquals(false, summary.calmPickedLowestStress)
+    }
+
+    @Test
+    fun buildCalmScoreBreakdowns_usesExistingSmoothDriveComponents() {
+        val routes =
+            listOf(
+                route(
+                    durationSeconds = 26 * 60,
+                    distanceMeters = 20_000,
+                    durationInTrafficSeconds = 28 * 60,
+                ).copy(
+                    baseDurationSeconds = 26 * 60,
+                    corridorScanText = "Sheikh Zayed Rd/E11",
+                ),
+                route(
+                    durationSeconds = 28 * 60,
+                    distanceMeters = 22_000,
+                    durationInTrafficSeconds = 30 * 60,
+                ).copy(
+                    baseDurationSeconds = 28 * 60,
+                    corridorScanText = "Marina local street satwa",
+                ),
+            )
+        val breakdowns = DriverStressAudit.buildCalmScoreBreakdowns(routes)
+
+        assertEquals(2, breakdowns.size)
+        assertTrue(breakdowns[0].finalScore > 0.0 || breakdowns[1].finalScore > 0.0)
+        assertTrue(
+            breakdowns.any {
+                it.delayScore != 0.0 ||
+                    it.trafficScore != 0.0 ||
+                    it.corridorScore != 0.0
+            },
+        )
+    }
+
+    @Test
     fun extractStepRecordsFromRouteJson_readsFixtureRouteSteps() {
         val fixture = File("../directions_debug.json")
         if (!fixture.exists()) return
