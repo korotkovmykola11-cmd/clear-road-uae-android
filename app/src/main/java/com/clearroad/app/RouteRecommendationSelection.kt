@@ -1,6 +1,7 @@
 package com.clearroad.app
 
 import android.util.Log
+import com.clearroad.app.domain.CalmStressTieBreak
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.SmoothDriveScoring
 
@@ -277,7 +278,11 @@ internal object RouteRecommendationSelection {
     private fun pickCalmRouteIndex(routes: List<RealRouteDebugData>): Int {
         val inputs = routes.map { toSmoothDriveRouteInput(it) }
         if (inputs.all { it != null }) {
-            return SmoothDriveScoring.pickWinnerIndex(inputs.filterNotNull())
+            val smoothInputs = inputs.filterNotNull()
+            val smoothWinner = SmoothDriveScoring.pickWinnerIndex(smoothInputs)
+            val stressInputs = DriverStressAudit.buildCalmStressInputs(routes) ?: return smoothWinner
+            val decision = CalmStressTieBreak.applyPolicyB(smoothWinner, stressInputs)
+            return decision.selectedIndex
         }
         return pickLegacyRouteIndex(routes, PreferenceMode.CALM)
     }

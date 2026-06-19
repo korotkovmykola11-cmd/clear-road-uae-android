@@ -190,6 +190,8 @@ private fun buildRealRouteDebugData(
         baseDurationSeconds = parsedDuration?.baseDurationSeconds ?: durationSeconds,
         durationInTrafficText = parsedDuration?.durationInTrafficText,
         durationInTrafficSeconds = parsedDuration?.durationInTrafficSeconds,
+        criticalManeuversCount =
+            routeJsonForToll?.let(DriverStressAudit::criticalManeuversCountFromRouteJson),
     )
 }
 

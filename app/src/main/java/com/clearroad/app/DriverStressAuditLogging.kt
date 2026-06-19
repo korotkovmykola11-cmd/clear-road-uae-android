@@ -1,7 +1,9 @@
 package com.clearroad.app
 
 import android.util.Log
+import com.clearroad.app.domain.CalmStressTieBreak
 import com.clearroad.app.domain.PreferenceMode
+import com.clearroad.app.domain.SmoothDriveScoring
 import java.util.Locale
 
 private const val DRIVER_STRESS_AUDIT_TAG = "DRIVER_STRESS_AUDIT"
@@ -53,6 +55,23 @@ internal fun logDriverStressAudit(
                 routes,
                 PreferenceMode.CALM,
             )
+        val smoothInputs =
+            routes.mapNotNull { RouteRecommendationSelection.toSmoothDriveRouteInput(it) }
+        if (smoothInputs.size == routes.size) {
+            val smoothWinner = SmoothDriveScoring.pickWinnerIndex(smoothInputs)
+            if (calmWinnerIndex != smoothWinner) {
+                DriverStressAudit.buildCalmAuditSummary(rankedMetrics, smoothWinner)
+                    ?.let { audit ->
+                        Log.d(
+                            CalmStressTieBreak.LOG_TAG,
+                            "policy=STRESS_TIE_BREAK_B calmWinnerIndex=$smoothWinner " +
+                                "overrideIndex=$calmWinnerIndex " +
+                                "stressGapPct=${audit.stressGapPct} " +
+                                "timePenaltyMin=${audit.timePenaltyMin}",
+                        )
+                    }
+            }
+        }
         DriverStressAudit.buildCalmStressCorrelation(rankedMetrics, calmWinnerIndex)
             ?.let(::logCalmStressCorrelation)
         DriverStressAudit.buildCalmScoreBreakdowns(routes).forEach(::logCalmScoreBreakdown)

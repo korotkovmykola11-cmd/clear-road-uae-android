@@ -1,5 +1,6 @@
 package com.clearroad.app
 
+import com.clearroad.app.domain.CalmStressTieBreak
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.SmoothDriveScoring
 import org.junit.Assert.assertEquals
@@ -111,6 +112,52 @@ class RouteRecommendationSelectionTest {
     @Test
     fun calm_emptyRoutes_returnsZero() {
         assertEquals(0, RouteRecommendationSelection.pickRecommendedRouteIndex(emptyList(), PreferenceMode.CALM))
+    }
+
+    @Test
+    fun calm_skipsPolicyBWhenCriticalCountsMissing() {
+        val routes =
+            listOf(
+                route(durationSec = 20 * 60, distanceM = 20_000, scan = "E11"),
+                route(durationSec = 22 * 60, distanceM = 22_000, scan = "E311"),
+            )
+        val withoutStress =
+            RouteRecommendationSelection.pickRecommendedRouteIndex(routes, PreferenceMode.CALM)
+        val withStress =
+            RouteRecommendationSelection.pickRecommendedRouteIndex(
+                routes.map { item -> item.copy(criticalManeuversCount = 10) },
+                PreferenceMode.CALM,
+            )
+        assertEquals(withoutStress, withStress)
+    }
+
+    @Test
+    fun calm_wiresPolicyBAfterSmoothDrive() {
+        val routes =
+            listOf(
+                route(durationSec = 20 * 60, distanceM = 20_000, scan = "E11 Sheikh Zayed Toll road")
+                    .copy(
+                        baseDurationSeconds = 20 * 60,
+                        durationInTrafficSeconds = 20 * 60,
+                        criticalManeuversCount = 20,
+                    ),
+                route(durationSec = 20 * 60, distanceM = 22_000, scan = "urban satwa weave local")
+                    .copy(
+                        baseDurationSeconds = 20 * 60,
+                        durationInTrafficSeconds = 20 * 60,
+                        criticalManeuversCount = 8,
+                    ),
+            )
+        val smoothInputs =
+            routes.mapNotNull { RouteRecommendationSelection.toSmoothDriveRouteInput(it) }
+        val smoothWinner = SmoothDriveScoring.pickWinnerIndex(smoothInputs)
+        val stressInputs = DriverStressAudit.buildCalmStressInputs(routes)!!
+        val expected =
+            CalmStressTieBreak.applyPolicyB(smoothWinner, stressInputs).selectedIndex
+        assertEquals(
+            expected,
+            RouteRecommendationSelection.pickRecommendedRouteIndex(routes, PreferenceMode.CALM),
+        )
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.clearroad.app
 
+import com.clearroad.app.domain.CalmStressTieBreak
 import com.clearroad.app.domain.SmoothDriveScoring
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -76,6 +77,21 @@ internal object DriverStressAudit {
             "sharp right",
             "roundabout",
         )
+
+    fun criticalManeuversCountFromRouteJson(routeJson: String): Int =
+        keywordDistribution(extractStepRecordsFromRouteJson(routeJson)).values.sum()
+
+    fun buildCalmStressInputs(
+        routes: List<RealRouteDebugData>,
+    ): List<CalmStressTieBreak.RouteStressInput>? {
+        if (routes.any { it.criticalManeuversCount == null }) return null
+        return routes.map { route ->
+            CalmStressTieBreak.RouteStressInput(
+                durationInTrafficMin = minutesRounded(trafficDurationSeconds(route)),
+                criticalManeuversCount = route.criticalManeuversCount!!,
+            )
+        }
+    }
 
     fun metricsFromRouteJson(
         routeJson: String,
