@@ -27,6 +27,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clearroad.app.guidance.MarshioGuidanceLaunch
+import com.clearroad.app.ui.model.GoogleMarshioDecisionState
+import com.clearroad.app.ui.model.RejectedAlternativeUiModel
+import com.clearroad.app.ui.model.RouteDecisionRouteCardUiModel
+import com.clearroad.app.ui.model.RouteGoogleMarshioDecisionUiModel
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
@@ -70,9 +75,16 @@ internal fun RouteDetailsScreen(
             modeAccent = modeAccent,
             cardBorder = cardBorder,
         )
-        if (model.rejectedAlternativeLines.isNotEmpty()) {
+        if (model.rejectedAlternatives.isNotEmpty()) {
             Spacer(modifier = Modifier.height(12.dp))
             RouteDetailsRejectedAlternativesCard(
+                introText = model.rejectedAlternativesIntro,
+                alternatives = model.rejectedAlternatives,
+                cardBorder = cardBorder,
+            )
+        } else if (model.rejectedAlternativeLines.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            RouteDetailsRejectedAlternativesLegacyCard(
                 lines = model.rejectedAlternativeLines,
                 cardBorder = cardBorder,
             )
@@ -88,12 +100,19 @@ internal fun RouteDetailsScreen(
                 fromLatLng = model.fromLatLng,
                 toLatLng = model.toLatLng,
                 routePathPoints = model.routePathPoints,
+                otherRoutePathPoints = model.otherRoutePathPoints,
+                routeOptionsCount = model.routeOptionsCount,
+                mapEvidence = model.mapEvidence,
+                cardBorder = cardBorder,
+            )
+            RouteDetailsIntelligenceSection(
+                request = model.routeIntelligenceRequest,
+                comparisonRequest = model.routeIntelligenceComparisonRequest,
                 cardBorder = cardBorder,
             )
             Spacer(modifier = Modifier.height(16.dp))
             RouteDetailsHandoffFooter(
-                fromLatLng = model.fromLatLng,
-                toLatLng = model.toLatLng,
+                model = model,
                 modeAccent = modeAccent,
             )
         }
@@ -139,33 +158,173 @@ private fun RouteDetailsWhyCard(
             } else {
                 Spacer(modifier = Modifier.height(10.dp))
             }
-            Text(
-                text = model.routeReasonTitle,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = ClearRoadColors.RoadGrey,
-            )
-            if (model.routeReasonWhy.isNotBlank()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = model.routeReasonWhy,
-                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                    color = ClearRoadColors.RoadGreyMuted,
-                )
-            }
-            if (model.recommendationConfidenceTitle.isNotBlank() ||
-                model.recommendationConfidenceText.isNotBlank()
-            ) {
-                Spacer(modifier = Modifier.height(12.dp))
-                RouteDetailsConfidenceCallout(
-                    title = model.recommendationConfidenceTitle,
-                    text = model.recommendationConfidenceText,
-                    tradeoffText = model.recommendationTradeoffText,
-                    isHighConfidence = model.isHighConfidence,
-                    modeAccent = modeAccent,
-                )
+
+            when {
+                model.googleMarshioDecision != null -> {
+                    RouteDetailsGoogleMarshioBlock(
+                        decision = model.googleMarshioDecision,
+                        modeAccent = modeAccent,
+                    )
+                }
+                model.showLegacyWhyCopy -> {
+                    Text(
+                        text = model.routeReasonTitle,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = ClearRoadColors.RoadGrey,
+                    )
+                    if (model.routeReasonWhy.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = model.routeReasonWhy,
+                            style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
+                            color = ClearRoadColors.RoadGreyMuted,
+                        )
+                    }
+                    if (model.recommendationConfidenceTitle.isNotBlank() ||
+                        model.recommendationConfidenceText.isNotBlank()
+                    ) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        RouteDetailsConfidenceCallout(
+                            title = model.recommendationConfidenceTitle,
+                            text = model.recommendationConfidenceText,
+                            tradeoffText = model.recommendationTradeoffText,
+                            isHighConfidence = model.isHighConfidence,
+                            modeAccent = modeAccent,
+                        )
+                    }
+                }
+                else -> {
+                    Text(
+                        text = "Route comparison will appear when routes finish loading.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = ClearRoadColors.RoadGreyMuted,
+                    )
+                }
             }
         }
     }
+}
+
+private val MarshioPickGreen = Color(0xFF00C853)
+
+@Composable
+private fun RouteDetailsGoogleMarshioBlock(
+    decision: RouteGoogleMarshioDecisionUiModel,
+    modeAccent: Color,
+) {
+    Text(
+        text = decision.headline,
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+        color = ClearRoadColors.RoadGrey,
+    )
+    Spacer(modifier = Modifier.height(6.dp))
+    Text(
+        text = decision.subtext,
+        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+        color = ClearRoadColors.RoadGrey,
+    )
+    Spacer(modifier = Modifier.height(14.dp))
+
+    when (decision.state) {
+        GoogleMarshioDecisionState.DISAGREES -> {
+            decision.googleRoute?.let { route ->
+                RouteDetailsDecisionRouteCard(route = route, emphasized = false)
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+            decision.marshioRoute?.let { route ->
+                RouteDetailsDecisionRouteCard(route = route, emphasized = true)
+            }
+            if (decision.disagreementReasons.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(14.dp))
+                Text(
+                    text = "Why?",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = ClearRoadColors.RoadGreyMuted,
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                decision.disagreementReasons.forEach { reason ->
+                    Text(
+                        text = "✓ $reason",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = ClearRoadColors.RoadGrey,
+                    )
+                }
+            }
+        }
+        GoogleMarshioDecisionState.AGREES,
+        GoogleMarshioDecisionState.NO_MEANINGFUL_DIFFERENCE,
+        -> {
+            decision.singleRoute?.let { route ->
+                RouteDetailsDecisionRouteCard(route = route, emphasized = true)
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(14.dp))
+    Text(
+        text = "Verdict",
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+        color = ClearRoadColors.RoadGreyMuted,
+    )
+    Spacer(modifier = Modifier.height(4.dp))
+    Text(
+        text = decision.verdictText,
+        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+        color = modeAccent,
+    )
+}
+
+@Composable
+private fun RouteDetailsDecisionRouteCard(
+    route: RouteDecisionRouteCardUiModel,
+    emphasized: Boolean,
+) {
+    val borderColor =
+        if (emphasized) MarshioPickGreen else ClearRoadColors.SalikNeutral.copy(alpha = 0.25f)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = if (emphasized) 2.dp else 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(10.dp),
+            )
+            .background(
+                color =
+                    if (emphasized) MarshioPickGreen.copy(alpha = 0.08f) else Color.Transparent,
+                shape = RoundedCornerShape(10.dp),
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Text(
+            text = route.cardTitle,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = if (emphasized) MarshioPickGreen else ClearRoadColors.RoadGreyMuted,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = route.roadName,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = ClearRoadColors.RoadGrey,
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        RouteDetailsMetricRow(label = "ETA", value = route.etaText)
+        RouteDetailsMetricRow(label = "Distance", value = route.distanceText)
+        route.trafficDelayText?.let { RouteDetailsMetricRow(label = "Traffic delay", value = it) }
+        route.salikText?.let { RouteDetailsMetricRow(label = "Salik", value = it) }
+    }
+}
+
+@Composable
+private fun RouteDetailsMetricRow(
+    label: String,
+    value: String,
+) {
+    Text(
+        text = "$label: $value",
+        style = MaterialTheme.typography.bodyMedium,
+        color = ClearRoadColors.RoadGrey,
+    )
 }
 
 @Composable
@@ -230,6 +389,71 @@ private fun RouteDetailsConfidenceCallout(
 
 @Composable
 private fun RouteDetailsRejectedAlternativesCard(
+    introText: String,
+    alternatives: List<RejectedAlternativeUiModel>,
+    cardBorder: BorderStroke,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = ClearRoadColors.RouteCardSurfaceMuted,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = cardBorder,
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Text(
+                text = "Other Google alternatives",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = ClearRoadColors.RoadGreyMuted,
+            )
+            if (introText.isNotBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = introText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ClearRoadColors.RoadGreyMuted,
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            alternatives.forEachIndexed { index, alternative ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+                Text(
+                    text = alternative.label,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = ClearRoadColors.RoadGrey,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                alternative.advantageLines.forEach { advantage ->
+                    Text(
+                        text = "✅ $advantage",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = ClearRoadColors.RoadGrey,
+                    )
+                }
+                alternative.drawbackLines.forEach { drawback ->
+                    Text(
+                        text = "❌ $drawback",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = ClearRoadColors.RoadGrey,
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = alternative.verdictText,
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                    color = ClearRoadColors.RoadGreyMuted,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RouteDetailsRejectedAlternativesLegacyCard(
     lines: List<String>,
     cardBorder: BorderStroke,
 ) {
@@ -244,7 +468,7 @@ private fun RouteDetailsRejectedAlternativesCard(
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
             Text(
-                text = "Why not the other routes?",
+                text = "Other Google alternatives",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = ClearRoadColors.RoadGreyMuted,
             )
@@ -365,14 +589,44 @@ private fun RouteDetailsMetricColumn(
 
 @Composable
 private fun RouteDetailsHandoffFooter(
-    fromLatLng: LatLng,
-    toLatLng: LatLng,
+    model: RouteDetailsUiModel,
     modeAccent: Color,
 ) {
     val context = LocalContext.current
+    val fromLatLng = model.fromLatLng ?: return
+    val toLatLng = model.toLatLng ?: return
+    val marshioRoutePath = model.handoffRoutePathPoints
+    val hasMarshioPath = marshioRoutePath.size >= 2
+    val showGuidanceEntry = MarshioGuidanceLaunch.showEntryInRouteDetails(BuildConfig.DEBUG, model)
     Column(modifier = Modifier.fillMaxWidth()) {
+        if (showGuidanceEntry) {
+            OutlinedButton(
+                onClick = {
+                    MarshioGuidanceLaunch.argsFromRouteDetails(model)?.let { args ->
+                        context.startActivity(MarshioGuidanceLaunch.createIntent(context, args))
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, modeAccent.copy(alpha = 0.55f)),
+            ) {
+                Text(
+                    text = "Start MARSHIO Guidance",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = modeAccent,
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
         OutlinedButton(
-            onClick = { openGoogleMapsHandoff(context, fromLatLng, toLatLng) },
+            onClick = {
+                openGoogleMapsHandoff(
+                    context = context,
+                    origin = fromLatLng,
+                    destination = toLatLng,
+                    marshioRoutePath = marshioRoutePath,
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             border = BorderStroke(1.dp, modeAccent.copy(alpha = 0.35f)),
@@ -398,7 +652,12 @@ private fun RouteDetailsHandoffFooter(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Opens your trip in Google Maps or Waze. Route may differ slightly.",
+            text =
+                if (hasMarshioPath) {
+                    "Opens Google Maps on MARSHIO's chosen route. Google may still adjust slightly for live traffic."
+                } else {
+                    "Opens your trip in Google Maps or Waze. Route may differ slightly."
+                },
             style = MaterialTheme.typography.bodySmall,
             color = ClearRoadColors.RoadGreyMuted,
         )

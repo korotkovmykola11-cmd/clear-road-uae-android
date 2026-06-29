@@ -7,6 +7,7 @@ import com.clearroad.app.domain.RouteIdentity
 import com.clearroad.app.domain.RouteIdentityPresentationPolicy
 import com.clearroad.app.domain.TripAtAGlancePolicy
 import com.clearroad.app.legacy.LegacyHomePresentation
+import com.clearroad.app.intelligence.RouteIntelligenceAssembly
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
 
@@ -100,6 +101,37 @@ internal object RouteDetailsAssembly {
                 detailRouteIndex = detailIdx,
                 isRecommendedRouteDetails = isRecommendedRouteDetails,
             )
+        val comparisonPresentation =
+            RouteDetailsComparisonPresentation.build(
+                routes = routes,
+                identities = input.identities,
+                detailRouteIndex = detailIdx,
+                recommendedIndex = recIdxForConfidence,
+                mode = input.mode,
+                directionsStatus = input.directionsStatus,
+            )
+        val mapEvidence =
+            if (isRecommendedRouteDetails) {
+                RouteMapEvidencePresentation.build(
+                    routes = routes,
+                    recommendedIndex = recIdxForConfidence,
+                    decisionState = comparisonPresentation.googleMarshioDecision?.state,
+                )
+            } else {
+                null
+            }
+        val handoffRoutePathPoints =
+            if (isRecommendedRouteDetails) {
+                routes.getOrNull(recIdxForConfidence)?.routePathPoints.orEmpty()
+            } else {
+                detailItem.routePathPoints
+            }
+        val guidanceRoute =
+            if (isRecommendedRouteDetails) {
+                routes.getOrNull(recIdxForConfidence) ?: detailItem
+            } else {
+                detailItem
+            }
         return buildRouteDetailsUiModel(
             routeIndex = detailIdx,
             routeNumber = detailIdx + 1,
@@ -120,6 +152,34 @@ internal object RouteDetailsAssembly {
             isHighConfidence =
                 recommendationConfidenceCopy?.isHighConfidence ?: false,
             rejectedAlternativeLines = rejectedAlternativeLines,
+            rejectedAlternativesIntro = comparisonPresentation.rejectedAlternativesIntro,
+            rejectedAlternatives = comparisonPresentation.rejectedAlternatives,
+            googleMarshioDecision = comparisonPresentation.googleMarshioDecision,
+            showLegacyWhyCopy =
+                comparisonPresentation.googleMarshioDecision == null && !isRecommendedRouteDetails,
+            otherRoutePathPoints = comparisonPresentation.otherRoutePathPoints,
+            routeOptionsCount = comparisonPresentation.routeOptionsCount,
+            mapEvidence = mapEvidence,
+            handoffRoutePathPoints = handoffRoutePathPoints,
+            googleDefaultRoutePathPoints = routes.firstOrNull()?.routePathPoints.orEmpty(),
+            durationSeconds = guidanceRoute.durationSeconds,
+            selectedRouteIndex = recIdxForConfidence,
+            showMarshioGuidanceEntry =
+                isRecommendedRouteDetails && handoffRoutePathPoints.size >= 2,
+            routeIntelligenceRequest =
+                RouteIntelligenceAssembly.buildRequest(
+                    routes = routes,
+                    identities = input.identities,
+                    recommendedIndex = recIdxForConfidence,
+                    isRecommendedRouteDetails = isRecommendedRouteDetails,
+                ),
+            routeIntelligenceComparisonRequest =
+                RouteIntelligenceAssembly.buildComparisonRequest(
+                    routes = routes,
+                    identities = input.identities,
+                    recommendedIndex = recIdxForConfidence,
+                    isRecommendedRouteDetails = isRecommendedRouteDetails,
+                ),
             fromLatLng = input.fromLatLng,
             toLatLng = input.toLatLng,
         )

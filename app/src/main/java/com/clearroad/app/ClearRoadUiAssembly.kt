@@ -3,7 +3,12 @@ package com.clearroad.app
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.model.ChoiceWhyTipUiModel
 import com.clearroad.app.ui.model.RouteCardUiModel
+import com.clearroad.app.ui.model.RejectedAlternativeUiModel
+import com.clearroad.app.ui.model.RouteGoogleMarshioDecisionUiModel
+import com.clearroad.app.ui.model.RouteMapEvidenceUiModel
 import com.clearroad.app.ui.model.RouteDetailsUiModel
+import com.clearroad.app.ui.model.RouteIntelligenceComparisonRequestUiModel
+import com.clearroad.app.ui.model.RouteIntelligenceRequestUiModel
 import com.google.android.gms.maps.model.LatLng
 
 internal fun salikMetaText(tollAed: Int, personality: String): String =
@@ -63,6 +68,20 @@ internal fun buildRouteDetailsUiModel(
     recommendationTradeoffText: String?,
     isHighConfidence: Boolean,
     rejectedAlternativeLines: List<String> = emptyList(),
+    rejectedAlternativesIntro: String = "",
+    rejectedAlternatives: List<RejectedAlternativeUiModel> = emptyList(),
+    googleMarshioDecision: RouteGoogleMarshioDecisionUiModel? = null,
+    showLegacyWhyCopy: Boolean = false,
+    otherRoutePathPoints: List<List<LatLng>> = emptyList(),
+    routeOptionsCount: Int = 1,
+    mapEvidence: RouteMapEvidenceUiModel? = null,
+    handoffRoutePathPoints: List<LatLng> = emptyList(),
+    googleDefaultRoutePathPoints: List<LatLng> = emptyList(),
+    durationSeconds: Int = 0,
+    selectedRouteIndex: Int = 0,
+    showMarshioGuidanceEntry: Boolean = false,
+    routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
+    routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
     fromLatLng: LatLng?,
     toLatLng: LatLng?,
 ): RouteDetailsUiModel =
@@ -82,11 +101,25 @@ internal fun buildRouteDetailsUiModel(
         recommendationTradeoffText = recommendationTradeoffText,
         isHighConfidence = isHighConfidence,
         rejectedAlternativeLines = rejectedAlternativeLines,
+        rejectedAlternativesIntro = rejectedAlternativesIntro,
+        rejectedAlternatives = rejectedAlternatives,
+        googleMarshioDecision = googleMarshioDecision,
+        showLegacyWhyCopy = showLegacyWhyCopy,
         whyTags = whyTagsForRoute(item, routeIndex, selectedMode, routes),
         mode = selectedMode,
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
         routePathPoints = item.routePathPoints,
+        otherRoutePathPoints = otherRoutePathPoints,
+        routeOptionsCount = routeOptionsCount,
+        mapEvidence = mapEvidence,
+        handoffRoutePathPoints = handoffRoutePathPoints,
+        googleDefaultRoutePathPoints = googleDefaultRoutePathPoints,
+        durationSeconds = durationSeconds,
+        selectedRouteIndex = selectedRouteIndex,
+        showMarshioGuidanceEntry = showMarshioGuidanceEntry,
+        routeIntelligenceRequest = routeIntelligenceRequest,
+        routeIntelligenceComparisonRequest = routeIntelligenceComparisonRequest,
     )
 
 internal fun choiceWhyTipUiModel(

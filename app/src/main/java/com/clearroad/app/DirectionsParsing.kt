@@ -25,6 +25,7 @@ internal data class RealRouteDebugData(
     val durationInTrafficSeconds: Int? = null,
     /** From Directions steps; null when route JSON unavailable — tie-break skipped. */
     val criticalManeuversCount: Int? = null,
+    val googleSteps: List<DirectionsStepRecord> = emptyList(),
 )
 
 internal fun buildDirectionsUrl(origin: LatLng, destination: LatLng): String {
@@ -589,6 +590,7 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
             durationInTrafficText = duration.durationInTrafficText,
             durationInTrafficSeconds = duration.durationInTrafficSeconds,
             criticalManeuversCount = DriverStressAudit.criticalManeuversCountFromRouteJson(routeJson),
+            googleSteps = extractStepRecordsFromRouteJson(routeJson),
         )
     }
 
