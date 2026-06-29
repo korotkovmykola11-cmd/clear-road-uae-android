@@ -32,12 +32,13 @@ class OsmOverpassParserTest {
             }
             """.trimIndent()
 
-        val elements = OsmOverpassParser.parseElements(json)
+        val result = OsmOverpassParser.parseResponse(json)
 
-        assertEquals(2, elements.size)
-        assertEquals("traffic_signals", elements[0].tags["highway"])
-        assertEquals("roundabout", elements[1].tags["junction"])
-        assertEquals(2, elements[1].points.size)
+        assertTrue(result is OsmOverpassParser.ParseResult.Ok)
+        assertEquals(2, (result as OsmOverpassParser.ParseResult.Ok).elements.size)
+        assertEquals("traffic_signals", result.elements[0].tags["highway"])
+        assertEquals("roundabout", result.elements[1].tags["junction"])
+        assertEquals(2, result.elements[1].points.size)
     }
 
     @Test

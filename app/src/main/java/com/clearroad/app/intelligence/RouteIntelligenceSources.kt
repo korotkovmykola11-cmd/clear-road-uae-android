@@ -22,30 +22,36 @@ internal class OsmOverpassSource(
             fetchOverpassJson(query)
                 ?: return unavailable("Overpass request failed")
 
-        val elements = OsmOverpassParser.parseElements(json)
-        val features = OsmRouteFeatureExtractor.extract(route.routePathPoints, elements)
-        val fetchedAt = Instant.now()
+        when (val parseResult = OsmOverpassParser.parseResponse(json)) {
+            is OsmOverpassParser.ParseResult.MalformedJson ->
+                return unavailable(parseResult.errorMessage)
+            is OsmOverpassParser.ParseResult.Ok -> {
+                val features =
+                    OsmRouteFeatureExtractor.extract(route.routePathPoints, parseResult.elements)
+                val fetchedAt = Instant.now()
 
-        return SourceData(
-            provider = PROVIDER,
-            status = SourceStatus.OK,
-            trafficSignalsCount = features.trafficSignalsCount,
-            roundaboutsCount = features.roundaboutsCount,
-            mainRoadRatio = features.mainRoadRatio,
-            roadTypeBreakdown = features.roadTypeBreakdown,
-            evidence =
-                RouteEvidence(
-                    trafficLights = features.trafficLightEvidence,
-                    roundabouts = features.roundaboutEvidence,
-                    mainRoad = features.mainRoadEvidence,
-                ),
-            metadata =
-                SourceMetadata(
+                return SourceData(
                     provider = PROVIDER,
-                    fetchedAt = fetchedAt,
-                    confidence = MEDIUM_CONFIDENCE,
-                ),
-        )
+                    status = SourceStatus.OK,
+                    trafficSignalsCount = features.trafficSignalsCount,
+                    roundaboutsCount = features.roundaboutsCount,
+                    mainRoadRatio = features.mainRoadRatio,
+                    roadTypeBreakdown = features.roadTypeBreakdown,
+                    evidence =
+                        RouteEvidence(
+                            trafficLights = features.trafficLightEvidence,
+                            roundabouts = features.roundaboutEvidence,
+                            mainRoad = features.mainRoadEvidence,
+                        ),
+                    metadata =
+                        SourceMetadata(
+                            provider = PROVIDER,
+                            fetchedAt = fetchedAt,
+                            confidence = MEDIUM_CONFIDENCE,
+                        ),
+                )
+            }
+        }
     }
 
     internal suspend fun fetchOverpassJson(query: String): String? {

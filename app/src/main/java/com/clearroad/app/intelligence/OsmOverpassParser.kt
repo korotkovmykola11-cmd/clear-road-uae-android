@@ -1,6 +1,7 @@
 package com.clearroad.app.intelligence
 
 import com.google.android.gms.maps.model.LatLng
+import org.json.JSONException
 import org.json.JSONObject
 
 internal data class OsmOverpassElement(
@@ -12,13 +13,27 @@ internal data class OsmOverpassElement(
 
 internal object OsmOverpassParser {
 
-    fun parseElements(json: String): List<OsmOverpassElement> {
-        val elements = JSONObject(json).optJSONArray("elements") ?: return emptyList()
-        return buildList {
-            for (index in 0 until elements.length()) {
-                val obj = elements.optJSONObject(index) ?: continue
-                parseElement(obj)?.let(::add)
-            }
+    internal sealed interface ParseResult {
+        data class Ok(val elements: List<OsmOverpassElement>) : ParseResult
+
+        data class MalformedJson(val errorMessage: String) : ParseResult
+    }
+
+    fun parseResponse(json: String): ParseResult {
+        return try {
+            val elements = JSONObject(json).optJSONArray("elements") ?: return ParseResult.Ok(emptyList())
+            ParseResult.Ok(
+                buildList {
+                    for (index in 0 until elements.length()) {
+                        val obj = elements.optJSONObject(index) ?: continue
+                        parseElement(obj)?.let(::add)
+                    }
+                },
+            )
+        } catch (exception: JSONException) {
+            ParseResult.MalformedJson(
+                "Malformed Overpass JSON: ${exception.message ?: "parse error"}",
+            )
         }
     }
 
