@@ -4,7 +4,15 @@ import com.clearroad.app.domain.DecisionResult
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.domain.RouteOption
 
-/** Rollback-only sample-route decision engine. Prod uses [RouteRecommendationSelection]. */
+/**
+ * Rollback-only sample-route decision engine.
+ *
+ * Inactive in production while [com.clearroad.app.ArchitectureValidation.RECOMMENDATION_ONLY_HOME]
+ * is true — [com.clearroad.app.MainActivity] does not call [choose] on the live Home path.
+ * Production route selection uses [com.clearroad.app.RouteRecommendationSelection].
+ *
+ * Keep for legacy Home rollback only; do not wire new features here.
+ */
 internal object RouteDecisionEngine {
 
     val sampleRoutes: List<RouteOption> = listOf(
