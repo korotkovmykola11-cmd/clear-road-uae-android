@@ -110,6 +110,7 @@ internal fun buildRouteDetailsUiModel(
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
         routePathPoints = item.routePathPoints,
+        trafficSegments = TrafficPolylineBuilder.build(item),
         otherRoutePathPoints = otherRoutePathPoints,
         routeOptionsCount = routeOptionsCount,
         mapEvidence = mapEvidence,

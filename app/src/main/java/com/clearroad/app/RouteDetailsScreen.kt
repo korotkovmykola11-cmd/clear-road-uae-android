@@ -102,6 +102,7 @@ internal fun RouteDetailsScreen(
                 fromLatLng = model.fromLatLng,
                 toLatLng = model.toLatLng,
                 routePathPoints = model.routePathPoints,
+                trafficSegments = model.trafficSegments,
                 otherRoutePathPoints = model.otherRoutePathPoints,
                 routeOptionsCount = model.routeOptionsCount,
                 mapEvidence = model.mapEvidence,

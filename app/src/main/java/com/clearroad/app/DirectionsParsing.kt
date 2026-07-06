@@ -26,6 +26,8 @@ internal data class RealRouteDebugData(
     /** From Directions steps; null when route JSON unavailable — tie-break skipped. */
     val criticalManeuversCount: Int? = null,
     val googleSteps: List<DirectionsStepRecord> = emptyList(),
+    val trafficSpeedIntervals: List<RouteSpeedInterval> = emptyList(),
+    val stepTrafficRecords: List<DirectionsStepTrafficRecord> = emptyList(),
 )
 
 internal fun buildDirectionsUrl(origin: LatLng, destination: LatLng): String {
@@ -99,7 +101,7 @@ private fun textFromDistanceOrDurationKey(json: String, keyIndex: Int): String? 
     return json.substring(strStart, strEnd)
 }
 
-private fun intValueFromDistanceOrDurationKey(json: String, keyIndex: Int): Int? {
+internal fun intValueFromDistanceOrDurationKey(json: String, keyIndex: Int): Int? {
     val colon = json.indexOf(':', keyIndex)
     if (colon == -1) return null
     var i = colon + 1
@@ -297,7 +299,7 @@ internal fun extractStepRecordsFromRouteJson(routeJson: String): List<Directions
     return results
 }
 
-private fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): String? {
+internal fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): String? {
     val colon = json.indexOf(':', searchFrom)
     if (colon == -1) return null
     var j = colon + 1
@@ -479,7 +481,7 @@ internal fun firstRouteObjectJson(directionsJson: String): String? {
     return null
 }
 
-private fun findMatchingClosingBrace(json: String, openBraceIndex: Int): Int? {
+internal fun findMatchingClosingBrace(json: String, openBraceIndex: Int): Int? {
     if (openBraceIndex >= json.length || json[openBraceIndex] != '{') return null
     var depth = 0
     var i = openBraceIndex
@@ -574,6 +576,8 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
         val corridorScanText = buildCorridorScanText(routeJson)
         val routePathPoints =
             decodeRoutePathPoints(extractOverviewPolylinePoints(routeJson))
+        val (trafficSpeedIntervals, stepTrafficRecords) =
+            TrafficSpeedParsing.parseRouteTraffic(routeJson, routePathPoints.size)
 
         return RealRouteDebugData(
             distanceText = distanceText,
@@ -591,6 +595,8 @@ internal fun extractRouteLegsDebugData(json: String): List<RealRouteDebugData> {
             durationInTrafficSeconds = duration.durationInTrafficSeconds,
             criticalManeuversCount = DriverStressAudit.criticalManeuversCountFromRouteJson(routeJson),
             googleSteps = extractStepRecordsFromRouteJson(routeJson),
+            trafficSpeedIntervals = trafficSpeedIntervals,
+            stepTrafficRecords = stepTrafficRecords,
         )
     }
 

@@ -1,5 +1,6 @@
 package com.clearroad.app.ui.model
 
+import com.clearroad.app.TrafficSegment
 import com.clearroad.app.domain.PreferenceMode
 import com.google.android.gms.maps.model.LatLng
 
@@ -177,6 +178,7 @@ data class RouteDetailsUiModel(
     val fromLatLng: LatLng? = null,
     val toLatLng: LatLng? = null,
     val routePathPoints: List<LatLng> = emptyList(),
+    val trafficSegments: List<TrafficSegment> = emptyList(),
     val otherRoutePathPoints: List<List<LatLng>> = emptyList(),
     val routeOptionsCount: Int = 1,
     val mapEvidence: RouteMapEvidenceUiModel? = null,

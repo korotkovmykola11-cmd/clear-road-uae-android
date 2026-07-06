@@ -1,4 +1,4 @@
-package com.clearroad.app
+﻿package com.clearroad.app
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.clearroad.app.ui.model.RouteMapEvidenceUiModel
@@ -55,6 +56,7 @@ internal fun MapPreviewCard(
     fromLatLng: LatLng,
     toLatLng: LatLng,
     routePathPoints: List<LatLng> = emptyList(),
+    trafficSegments: List<TrafficSegment> = emptyList(),
     otherRoutePathPoints: List<List<LatLng>> = emptyList(),
     routeOptionsCount: Int = 1,
     mapEvidence: RouteMapEvidenceUiModel? = null,
@@ -78,6 +80,7 @@ internal fun MapPreviewCard(
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
         routePathPoints = routePathPoints,
+        trafficSegments = trafficSegments,
         otherRoutePathPoints = otherRoutePathPoints,
         routeOptionsCount = routeOptionsCount,
         cardBorder = cardBorder,
@@ -107,7 +110,7 @@ private fun RouteComparisonEvidenceSection(
         ComparisonMapCard(
             headline = mapEvidence.strategicHeadline,
             caption = mapEvidence.strategicCaption,
-            legend = "Green = MARSHIO · Gray = Google",
+            legend = "Green = MARSHIO ┬À Gray = Google",
             cardBorder = cardBorder,
             fromLatLng = fromLatLng,
             toLatLng = toLatLng,
@@ -132,7 +135,7 @@ private fun RouteComparisonEvidenceSection(
             ComparisonMapCard(
                 headline = mapEvidence.localHeadline,
                 caption = mapEvidence.localCaption,
-                legend = "Green = MARSHIO · Gray = Google",
+                legend = "Green = MARSHIO ┬À Gray = Google",
                 cardBorder = cardBorder,
                 fromLatLng = fromLatLng,
                 toLatLng = toLatLng,
@@ -155,6 +158,7 @@ private fun SingleRouteMapPreviewCard(
     fromLatLng: LatLng,
     toLatLng: LatLng,
     routePathPoints: List<LatLng>,
+    trafficSegments: List<TrafficSegment>,
     otherRoutePathPoints: List<List<LatLng>>,
     routeOptionsCount: Int,
     cardBorder: BorderStroke,
@@ -167,7 +171,7 @@ private fun SingleRouteMapPreviewCard(
         headline = "Route preview",
         caption = null,
         legend = if (totalOptions > 1) {
-            "Green = MARSHIO recommendation · Gray = alternatives"
+            "Green = MARSHIO recommendation ┬À Gray = alternatives"
         } else {
             null
         },
@@ -179,6 +183,7 @@ private fun SingleRouteMapPreviewCard(
         modifier = modifier,
         boundsPoints = buildFullTripBounds(fromLatLng, toLatLng, routePathPoints, alternativePaths),
     ) {
+        val density = LocalDensity.current.density
         alternativePaths.forEach { path ->
             Polyline(
                 points = path,
@@ -187,14 +192,24 @@ private fun SingleRouteMapPreviewCard(
                 zIndex = 0f,
             )
         }
-        if (routePathPoints.isNotEmpty()) {
-            Polyline(
-                points = routePathPoints,
-                color = RecommendedRoutePolylineColor,
-                width = RecommendedRoutePolylineWidth,
-                zIndex = 1f,
-            )
-        }
+        val segmentsToRender =
+            trafficSegments.filter { it.points.size >= 2 }.ifEmpty {
+                if (routePathPoints.size >= 2) {
+                    listOf(
+                        TrafficSegment(
+                            points = routePathPoints,
+                            speedCategory = SpeedCategory.UNKNOWN,
+                        ),
+                    )
+                } else {
+                    emptyList()
+                }
+            }
+        RenderTrafficSegments(
+            segments = segmentsToRender,
+            density = density,
+            zIndexBase = 1f,
+        )
     }
 }
 
