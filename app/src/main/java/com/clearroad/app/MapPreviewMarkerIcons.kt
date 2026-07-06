@@ -16,10 +16,10 @@ internal object MapPreviewMarkerIcons {
     private const val SPLIT_FILL = 0xFFFFA000.toInt()
 
     fun start(context: Context): BitmapDescriptor =
-        circlePin(context, fillColor = START_FILL, diameterDp = 36f)
+        circlePin(context, fillColor = START_FILL, diameterDp = 8f, borderDp = 2f)
 
     fun end(context: Context): BitmapDescriptor =
-        circlePin(context, fillColor = END_FILL, diameterDp = 36f)
+        circlePin(context, fillColor = END_FILL, diameterDp = 8f, borderDp = 2f)
 
     fun split(context: Context): BitmapDescriptor =
         circlePin(context, fillColor = SPLIT_FILL, diameterDp = 32f)
@@ -28,10 +28,11 @@ internal object MapPreviewMarkerIcons {
         context: Context,
         @ColorInt fillColor: Int,
         diameterDp: Float,
+        borderDp: Float = 3f,
     ): BitmapDescriptor {
         val density = context.resources.displayMetrics.density
-        val size = (diameterDp * density).toInt().coerceAtLeast(36)
-        val ring = (3f * density).coerceAtLeast(4f)
+        val size = ((diameterDp + 2f * borderDp) * density).toInt().coerceAtLeast(1)
+        val ring = borderDp * density
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val center = size / 2f

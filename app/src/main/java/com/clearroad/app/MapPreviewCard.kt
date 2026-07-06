@@ -1,4 +1,4 @@
-﻿package com.clearroad.app
+package com.clearroad.app
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -25,7 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.clearroad.app.ui.model.GoogleMarshioDecisionState
+import com.clearroad.app.ui.model.RouteGoogleMarshioDecisionUiModel
 import com.clearroad.app.ui.model.RouteMapEvidenceUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -51,6 +55,38 @@ private val SharedRoutePolylineWidth = 14f
 private val StrategicMapBoundsPaddingPx = 112
 private val LocalMapBoundsPaddingPx = 72
 
+private const val RoutePreviewLegend =
+    "Green = MARSHIO selected route · Gray = Google alternatives"
+private const val ForkFallbackMessage = "Routes differ on this trip."
+
+internal const val MarshioGoogleValidationLine =
+    "MARSHIO checked Google's route — same pick."
+
+internal fun routePreviewDecisionCaption(
+    decision: RouteGoogleMarshioDecisionUiModel?,
+): String =
+    when (decision?.state) {
+        GoogleMarshioDecisionState.AGREES,
+        GoogleMarshioDecisionState.NO_MEANINGFUL_DIFFERENCE,
+        -> MarshioGoogleValidationLine
+        GoogleMarshioDecisionState.DISAGREES ->
+            "MARSHIO chose a different route than Google."
+        null -> "MARSHIO route preview."
+    }
+
+internal fun routePreviewShowsAlternativesLegend(alternativePathCount: Int): Boolean =
+    alternativePathCount > 0
+
+internal fun hasLocalForkMapEvidence(mapEvidence: RouteMapEvidenceUiModel): Boolean =
+    mapEvidence.splitPoint != null &&
+        mapEvidence.googleDivergentPath.size >= 2 &&
+        mapEvidence.marshioDivergentPath.size >= 2
+
+internal fun routePreviewForkFallbackVisible(
+    mapEvidence: RouteMapEvidenceUiModel?,
+): Boolean =
+    mapEvidence?.enabled == true && !hasLocalForkMapEvidence(mapEvidence)
+
 @Composable
 internal fun MapPreviewCard(
     fromLatLng: LatLng,
@@ -60,98 +96,76 @@ internal fun MapPreviewCard(
     junctionAnnotations: List<RouteJunctionAnnotation> = emptyList(),
     otherRoutePathPoints: List<List<LatLng>> = emptyList(),
     routeOptionsCount: Int = 1,
+    googleMarshioDecision: RouteGoogleMarshioDecisionUiModel? = null,
     mapEvidence: RouteMapEvidenceUiModel? = null,
     cardBorder: BorderStroke,
     modifier: Modifier = Modifier,
+    mapPreviewHeight: Dp = MapPreviewHeight,
 ) {
-    val evidenceMode = mapEvidence?.enabled == true
-    if (evidenceMode && mapEvidence != null) {
-        RouteComparisonEvidenceSection(
+    val alternativePaths = otherRoutePathPoints.filter { it.isNotEmpty() }
+    val decisionCaption = routePreviewDecisionCaption(googleMarshioDecision)
+    val strategicCaption =
+        if (googleMarshioDecision?.state == GoogleMarshioDecisionState.DISAGREES) {
+            mapEvidence?.strategicCaption?.takeIf { it.isNotBlank() }
+        } else {
+            null
+        }
+    val showLegend = routePreviewShowsAlternativesLegend(alternativePaths.size)
+    val preMapNote =
+        if (routePreviewForkFallbackVisible(mapEvidence)) ForkFallbackMessage else null
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        SingleRouteMapPreviewCard(
             fromLatLng = fromLatLng,
             toLatLng = toLatLng,
-            mapEvidence = mapEvidence,
-            marshioRoutePath = routePathPoints,
+            routePathPoints = routePathPoints,
+            trafficSegments = trafficSegments,
+            junctionAnnotations = junctionAnnotations,
+            alternativePaths = alternativePaths,
+            decisionCaption = decisionCaption,
+            strategicCaption = strategicCaption,
+            preMapNote = preMapNote,
+            showLegend = showLegend,
             cardBorder = cardBorder,
-            modifier = modifier,
+            mapPreviewHeight = mapPreviewHeight,
         )
-        return
+        if (mapEvidence?.enabled == true && hasLocalForkMapEvidence(mapEvidence)) {
+            RouteLocalForkEvidenceCard(
+                fromLatLng = fromLatLng,
+                toLatLng = toLatLng,
+                mapEvidence = mapEvidence,
+                cardBorder = cardBorder,
+            )
+        }
     }
-
-    SingleRouteMapPreviewCard(
-        fromLatLng = fromLatLng,
-        toLatLng = toLatLng,
-        routePathPoints = routePathPoints,
-        trafficSegments = trafficSegments,
-        junctionAnnotations = junctionAnnotations,
-        otherRoutePathPoints = otherRoutePathPoints,
-        routeOptionsCount = routeOptionsCount,
-        cardBorder = cardBorder,
-        modifier = modifier,
-    )
 }
 
 @Composable
-private fun RouteComparisonEvidenceSection(
+private fun RouteLocalForkEvidenceCard(
     fromLatLng: LatLng,
     toLatLng: LatLng,
     mapEvidence: RouteMapEvidenceUiModel,
-    marshioRoutePath: List<LatLng>,
     cardBorder: BorderStroke,
-    modifier: Modifier = Modifier,
 ) {
-    val googlePath = mapEvidence.googleComparisonPath
-    val marshioPath =
-        mapEvidence.marshioComparisonPath.takeIf { it.size >= 2 }
-            ?: marshioRoutePath
-    val hasLocalForkEvidence =
-        mapEvidence.splitPoint != null &&
-            mapEvidence.googleDivergentPath.size >= 2 &&
-            mapEvidence.marshioDivergentPath.size >= 2
-
-    Column(modifier = modifier.fillMaxWidth()) {
-        ComparisonMapCard(
-            headline = mapEvidence.strategicHeadline,
-            caption = mapEvidence.strategicCaption,
-            legend = "Green = MARSHIO ┬À Gray = Google",
-            cardBorder = cardBorder,
-            fromLatLng = fromLatLng,
-            toLatLng = toLatLng,
-            boundsPaddingPx = StrategicMapBoundsPaddingPx,
-            showStartEndMarkers = true,
-            boundsPoints =
-                buildStrategicComparisonBounds(
-                    fromLatLng = fromLatLng,
-                    toLatLng = toLatLng,
-                    googlePath = googlePath,
-                    marshioPath = marshioPath,
-                ),
-        ) {
-            renderFullCorridorPolylines(
-                googlePath = googlePath,
-                marshioPath = marshioPath,
-            )
-        }
-
-        if (hasLocalForkEvidence) {
-            Spacer(modifier = Modifier.height(12.dp))
-            ComparisonMapCard(
-                headline = mapEvidence.localHeadline,
-                caption = mapEvidence.localCaption,
-                legend = "Green = MARSHIO ┬À Gray = Google",
-                cardBorder = cardBorder,
-                fromLatLng = fromLatLng,
-                toLatLng = toLatLng,
-                boundsPaddingPx = LocalMapBoundsPaddingPx,
-                showStartEndMarkers = false,
-                footerLabel = mapEvidence.splitLabel,
-                splitPoint = mapEvidence.splitPoint,
-                splitMarkerTitle = mapEvidence.splitLabel,
-                splitMarkerSnippet = mapEvidence.localCaption,
-                boundsPoints = buildLocalEvidenceBounds(mapEvidence),
-            ) {
-                renderLocalForkPolylines(mapEvidence = mapEvidence)
-            }
-        }
+    Spacer(modifier = Modifier.height(12.dp))
+    ComparisonMapCard(
+        decisionFirst = false,
+        headline = mapEvidence.localHeadline,
+        caption = mapEvidence.localCaption,
+        detailCaption = null,
+        legend = RoutePreviewLegend,
+        cardBorder = cardBorder,
+        fromLatLng = fromLatLng,
+        toLatLng = toLatLng,
+        boundsPaddingPx = LocalMapBoundsPaddingPx,
+        showStartEndMarkers = false,
+        footerLabel = mapEvidence.splitLabel,
+        splitPoint = mapEvidence.splitPoint,
+        splitMarkerTitle = mapEvidence.splitLabel,
+        splitMarkerSnippet = mapEvidence.localCaption,
+        boundsPoints = buildLocalEvidenceBounds(mapEvidence),
+    ) {
+        renderLocalForkPolylines(mapEvidence = mapEvidence)
     }
 }
 
@@ -162,29 +176,37 @@ private fun SingleRouteMapPreviewCard(
     routePathPoints: List<LatLng>,
     trafficSegments: List<TrafficSegment>,
     junctionAnnotations: List<RouteJunctionAnnotation>,
-    otherRoutePathPoints: List<List<LatLng>>,
-    routeOptionsCount: Int,
+    alternativePaths: List<List<LatLng>>,
+    decisionCaption: String,
+    strategicCaption: String?,
+    preMapNote: String?,
+    showLegend: Boolean,
     cardBorder: BorderStroke,
+    mapPreviewHeight: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val alternativePaths = otherRoutePathPoints.filter { it.isNotEmpty() }
-    val totalOptions = routeOptionsCount.coerceAtLeast(1 + alternativePaths.size)
-
     ComparisonMapCard(
-        headline = "Route preview",
-        caption = null,
-        legend = if (totalOptions > 1) {
-            "Green = MARSHIO recommendation ┬À Gray = alternatives"
-        } else {
-            null
-        },
+        decisionFirst = true,
+        sectionLabel = "Route preview",
+        decisionHeadline = decisionCaption,
+        supportingCaption = strategicCaption,
+        preMapNote = preMapNote,
+        legend = if (showLegend) RoutePreviewLegend else null,
         cardBorder = cardBorder,
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
         boundsPaddingPx = StrategicMapBoundsPaddingPx,
         showStartEndMarkers = true,
+        mapPreviewHeight = mapPreviewHeight,
         modifier = modifier,
-        boundsPoints = buildFullTripBounds(fromLatLng, toLatLng, routePathPoints, alternativePaths, junctionAnnotations),
+        boundsPoints =
+            buildFullTripBounds(
+                fromLatLng = fromLatLng,
+                toLatLng = toLatLng,
+                marshioPath = routePathPoints,
+                alternativePaths = alternativePaths,
+                junctionAnnotations = junctionAnnotations,
+            ),
     ) {
         val density = LocalDensity.current.density
         alternativePaths.forEach { path ->
@@ -219,9 +241,15 @@ private fun SingleRouteMapPreviewCard(
 
 @Composable
 private fun ComparisonMapCard(
-    headline: String,
-    caption: String?,
-    legend: String?,
+    decisionFirst: Boolean,
+    sectionLabel: String? = null,
+    decisionHeadline: String? = null,
+    supportingCaption: String? = null,
+    preMapNote: String? = null,
+    headline: String? = null,
+    caption: String? = null,
+    detailCaption: String? = null,
+    legend: String? = null,
     cardBorder: BorderStroke,
     fromLatLng: LatLng,
     toLatLng: LatLng,
@@ -233,6 +261,7 @@ private fun ComparisonMapCard(
     splitMarkerTitle: String? = null,
     splitMarkerSnippet: String? = null,
     boundsPoints: List<LatLng>? = null,
+    mapPreviewHeight: Dp = MapPreviewHeight,
     mapContent: @Composable @GoogleMapComposable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -261,32 +290,88 @@ private fun ComparisonMapCard(
         border = cardBorder,
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
-            Text(
-                text = headline,
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = ClearRoadColors.RoadGreyMuted,
-            )
-            if (!caption.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = caption,
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                    color = ClearRoadColors.RoadGrey,
-                )
-            }
-            if (!legend.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = legend,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = ClearRoadColors.RoadGreyMuted,
-                )
+            if (decisionFirst) {
+                if (!sectionLabel.isNullOrBlank()) {
+                    Text(
+                        text = sectionLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = ClearRoadColors.RoadGreyMuted,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                if (!decisionHeadline.isNullOrBlank()) {
+                    Text(
+                        text = decisionHeadline,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 17.sp,
+                            lineHeight = 23.sp,
+                        ),
+                        color = ClearRoadColors.RoadGrey,
+                    )
+                }
+                if (!supportingCaption.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = supportingCaption,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ClearRoadColors.RoadGreyMuted,
+                    )
+                }
+                if (!legend.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = legend,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                        color = ClearRoadColors.RoadGrey,
+                    )
+                }
+                if (!preMapNote.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = preMapNote,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ClearRoadColors.RoadGreyMuted,
+                    )
+                }
+            } else {
+                if (!headline.isNullOrBlank()) {
+                    Text(
+                        text = headline,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = ClearRoadColors.RoadGreyMuted,
+                    )
+                }
+                if (!caption.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = caption,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                        color = ClearRoadColors.RoadGrey,
+                    )
+                }
+                if (!detailCaption.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = detailCaption,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ClearRoadColors.RoadGreyMuted,
+                    )
+                }
+                if (!legend.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = legend,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ClearRoadColors.RoadGreyMuted,
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(12.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(MapPreviewHeight)
+                    .height(mapPreviewHeight)
                     .clip(RoundedCornerShape(10.dp)),
             ) {
                 GoogleMap(
@@ -367,30 +452,6 @@ private fun ComparisonMapCard(
 
 @Composable
 @GoogleMapComposable
-private fun renderFullCorridorPolylines(
-    googlePath: List<LatLng>,
-    marshioPath: List<LatLng>,
-) {
-    if (googlePath.size >= 2) {
-        Polyline(
-            points = googlePath,
-            color = AlternativeRoutePolylineColor,
-            width = AlternativeRoutePolylineWidth,
-            zIndex = 0f,
-        )
-    }
-    if (marshioPath.size >= 2 && marshioPath != googlePath) {
-        Polyline(
-            points = marshioPath,
-            color = RecommendedRoutePolylineColor,
-            width = RecommendedRoutePolylineWidth,
-            zIndex = 1f,
-        )
-    }
-}
-
-@Composable
-@GoogleMapComposable
 private fun renderLocalForkPolylines(
     mapEvidence: RouteMapEvidenceUiModel,
 ) {
@@ -419,19 +480,6 @@ private fun renderLocalForkPolylines(
         zIndex = 2f,
     )
 }
-
-private fun buildStrategicComparisonBounds(
-    fromLatLng: LatLng,
-    toLatLng: LatLng,
-    googlePath: List<LatLng>,
-    marshioPath: List<LatLng>,
-): List<LatLng> =
-    buildList {
-        add(fromLatLng)
-        add(toLatLng)
-        addAll(googlePath)
-        addAll(marshioPath)
-    }
 
 private fun buildFullTripBounds(
     fromLatLng: LatLng,

@@ -106,6 +106,7 @@ internal fun RouteDetailsScreen(
                 junctionAnnotations = model.junctionAnnotations,
                 otherRoutePathPoints = model.otherRoutePathPoints,
                 routeOptionsCount = model.routeOptionsCount,
+                googleMarshioDecision = model.googleMarshioDecision,
                 mapEvidence = model.mapEvidence,
                 cardBorder = cardBorder,
             )
