@@ -57,6 +57,7 @@ internal fun MapPreviewCard(
     toLatLng: LatLng,
     routePathPoints: List<LatLng> = emptyList(),
     trafficSegments: List<TrafficSegment> = emptyList(),
+    junctionAnnotations: List<RouteJunctionAnnotation> = emptyList(),
     otherRoutePathPoints: List<List<LatLng>> = emptyList(),
     routeOptionsCount: Int = 1,
     mapEvidence: RouteMapEvidenceUiModel? = null,
@@ -81,6 +82,7 @@ internal fun MapPreviewCard(
         toLatLng = toLatLng,
         routePathPoints = routePathPoints,
         trafficSegments = trafficSegments,
+        junctionAnnotations = junctionAnnotations,
         otherRoutePathPoints = otherRoutePathPoints,
         routeOptionsCount = routeOptionsCount,
         cardBorder = cardBorder,
@@ -159,6 +161,7 @@ private fun SingleRouteMapPreviewCard(
     toLatLng: LatLng,
     routePathPoints: List<LatLng>,
     trafficSegments: List<TrafficSegment>,
+    junctionAnnotations: List<RouteJunctionAnnotation>,
     otherRoutePathPoints: List<List<LatLng>>,
     routeOptionsCount: Int,
     cardBorder: BorderStroke,
@@ -181,7 +184,7 @@ private fun SingleRouteMapPreviewCard(
         boundsPaddingPx = StrategicMapBoundsPaddingPx,
         showStartEndMarkers = true,
         modifier = modifier,
-        boundsPoints = buildFullTripBounds(fromLatLng, toLatLng, routePathPoints, alternativePaths),
+        boundsPoints = buildFullTripBounds(fromLatLng, toLatLng, routePathPoints, alternativePaths, junctionAnnotations),
     ) {
         val density = LocalDensity.current.density
         alternativePaths.forEach { path ->
@@ -210,6 +213,7 @@ private fun SingleRouteMapPreviewCard(
             density = density,
             zIndexBase = 1f,
         )
+        RenderJunctionAnnotations(annotations = junctionAnnotations)
     }
 }
 
@@ -434,12 +438,14 @@ private fun buildFullTripBounds(
     toLatLng: LatLng,
     marshioPath: List<LatLng>,
     alternativePaths: List<List<LatLng>>,
+    junctionAnnotations: List<RouteJunctionAnnotation> = emptyList(),
 ): List<LatLng> =
     buildList {
         add(fromLatLng)
         add(toLatLng)
         addAll(marshioPath)
         alternativePaths.forEach { path -> addAll(path) }
+        junctionAnnotations.forEach { add(it.position) }
     }
 
 private fun buildLocalEvidenceBounds(

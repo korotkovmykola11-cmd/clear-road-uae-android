@@ -250,6 +250,8 @@ internal fun extractManeuverValuesFromRouteJson(routeJson: String): List<String>
 internal data class DirectionsStepRecord(
     val distanceMeters: Int,
     val maneuver: String?,
+    val htmlInstructions: String? = null,
+    val startLocation: LatLng? = null,
 )
 
 /** Turn-by-turn steps from the first leg of one route object. */
@@ -293,10 +295,58 @@ internal fun extractStepRecordsFromRouteJson(routeJson: String): List<Directions
             } else {
                 extractJsonQuotedStringFollowingKey(stepJson, maneuverIdx + maneuverKey.length)
             }
-        results.add(DirectionsStepRecord(distanceMeters = distanceMeters, maneuver = maneuver))
+        val htmlInstructionsKey = "\"html_instructions\""
+        val htmlIdx = stepJson.indexOf(htmlInstructionsKey)
+        val htmlInstructions =
+            if (htmlIdx == -1) {
+                null
+            } else {
+                extractJsonQuotedStringFollowingKey(stepJson, htmlIdx + htmlInstructionsKey.length)
+            }
+        val startLocation = extractLatLngFromStartLocation(stepJson)
+        results.add(
+            DirectionsStepRecord(
+                distanceMeters = distanceMeters,
+                maneuver = maneuver,
+                htmlInstructions = htmlInstructions,
+                startLocation = startLocation,
+            ),
+        )
         i = stepEnd + 1
     }
     return results
+}
+
+internal fun extractLatLngFromStartLocation(stepJson: String): LatLng? {
+    val key = "\"start_location\""
+    val idx = stepJson.indexOf(key)
+    if (idx == -1) return null
+    val latKey = "\"lat\""
+    val lngKey = "\"lng\""
+    val latIdx = stepJson.indexOf(latKey, idx)
+    val lngIdx = stepJson.indexOf(lngKey, idx)
+    if (latIdx == -1 || lngIdx == -1) return null
+    val lat = readJsonNumberAfterKey(stepJson, latIdx + latKey.length) ?: return null
+    val lng = readJsonNumberAfterKey(stepJson, lngIdx + lngKey.length) ?: return null
+    return LatLng(lat, lng)
+}
+
+private fun readJsonNumberAfterKey(
+    json: String,
+    searchFrom: Int,
+): Double? {
+    val colon = json.indexOf(':', searchFrom)
+    if (colon == -1) return null
+    var i = colon + 1
+    while (i < json.length && json[i].isWhitespace()) i++
+    val start = i
+    while (i < json.length &&
+        (json[i].isDigit() || json[i] == '-' || json[i] == '.' || json[i] == 'e' || json[i] == 'E' || json[i] == '+')
+    ) {
+        i++
+    }
+    if (i == start) return null
+    return json.substring(start, i).toDoubleOrNull()
 }
 
 internal fun extractJsonQuotedStringFollowingKey(json: String, searchFrom: Int): String? {

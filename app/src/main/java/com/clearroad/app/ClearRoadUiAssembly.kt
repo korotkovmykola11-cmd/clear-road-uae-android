@@ -111,6 +111,7 @@ internal fun buildRouteDetailsUiModel(
         toLatLng = toLatLng,
         routePathPoints = item.routePathPoints,
         trafficSegments = TrafficPolylineBuilder.build(item),
+        junctionAnnotations = JunctionAnnotationBuilder.build(item),
         otherRoutePathPoints = otherRoutePathPoints,
         routeOptionsCount = routeOptionsCount,
         mapEvidence = mapEvidence,
