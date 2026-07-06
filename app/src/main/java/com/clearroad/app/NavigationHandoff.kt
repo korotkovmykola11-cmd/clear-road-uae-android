@@ -15,30 +15,44 @@ private val WAZE_PLAY_STORE_MARKET_URI =
 private val WAZE_PLAY_STORE_WEB_URI =
     Uri.parse("https://play.google.com/store/apps/details?id=$WAZE_PACKAGE")
 
-internal fun latLngParam(latLng: LatLng): String =
-    "${latLng.latitude},${latLng.longitude}"
-
-internal fun googleMapsDirectionsUri(origin: LatLng, destination: LatLng): Uri =
-    Uri.parse(
-        "https://www.google.com/maps/dir/?api=1" +
-            "&origin=${latLngParam(origin)}" +
-            "&destination=${latLngParam(destination)}" +
-            "&travelmode=driving",
-    )
-
 internal fun wazeNavigateUri(destination: LatLng): Uri =
     Uri.parse(
         "https://waze.com/ul?ll=${latLngParam(destination)}&navigate=yes",
     )
 
+/**
+ * Opens Google Maps on MARSHIO's chosen path when [marshioRoutePath] is available.
+ * Waypoints are intermediate `/maps/dir/` path points so Google follows MARSHIO's polyline.
+ */
 internal fun openGoogleMapsHandoff(
     context: Context,
     origin: LatLng,
     destination: LatLng,
+    marshioRoutePath: List<LatLng> = emptyList(),
 ) {
-    val uri = googleMapsDirectionsUri(origin, destination)
-    Log.d(TAG, "Google Maps handoff: generic ACTION_VIEW, uri=$uri")
-    launchViewIntent(context, uri, preferPackage = null)
+    val hasMarshioPath = marshioRoutePath.size >= 2
+    val waypoints =
+        if (hasMarshioPath) {
+            sampleNavigationWaypoints(
+                path = marshioRoutePath,
+                origin = origin,
+                destination = destination,
+            )
+        } else {
+            Log.w(
+                TAG,
+                "Google Maps handoff: marshioRoutePath.size=${marshioRoutePath.size} < 2; " +
+                    "origin→destination only (no MARSHIO waypoints)",
+            )
+            emptyList()
+        }
+    val uri = Uri.parse(googleMapsDirectionsUrl(origin, destination, waypoints))
+    Log.d(
+        TAG,
+        "Google Maps handoff: marshioRoutePath.size=${marshioRoutePath.size} " +
+            "usingMarshioRoute=$hasMarshioPath uri=$uri waypointCount=${waypoints.size}",
+    )
+    launchViewIntent(context, uri, preferPackage = GOOGLE_MAPS_PACKAGE)
 }
 
 /** App-specific launch for diagnostics; not used in normal handoff. */
@@ -46,9 +60,19 @@ internal fun openGoogleMapsHandoffAppSpecific(
     context: Context,
     origin: LatLng,
     destination: LatLng,
+    marshioRoutePath: List<LatLng> = emptyList(),
 ) {
-    val uri = googleMapsDirectionsUri(origin, destination)
-    Log.d(TAG, "Google Maps handoff: app-specific ($GOOGLE_MAPS_PACKAGE), uri=$uri")
+    val waypoints =
+        sampleNavigationWaypoints(
+            path = marshioRoutePath,
+            origin = origin,
+            destination = destination,
+        )
+    val uri = Uri.parse(googleMapsDirectionsUrl(origin, destination, waypoints))
+    Log.d(
+        TAG,
+        "Google Maps handoff: app-specific ($GOOGLE_MAPS_PACKAGE), uri=$uri waypointCount=${waypoints.size}",
+    )
     launchViewIntent(context, uri, preferPackage = GOOGLE_MAPS_PACKAGE)
 }
 
