@@ -12,11 +12,17 @@ import org.junit.Test
 class MarshioGuidanceLaunchTest {
 
     @Test
-    fun showEntryInRouteDetails_visibleInDebugWhenMarshioPathExists() {
+    fun showEntryInRouteDetails_visibleWhenMarshioPathExists() {
         val model = sampleRouteDetailsModel(showMarshioGuidanceEntry = true)
 
-        assertTrue(MarshioGuidanceLaunch.showEntryInRouteDetails(isDebugBuild = true, model = model))
-        assertFalse(MarshioGuidanceLaunch.showEntryInRouteDetails(isDebugBuild = false, model = model))
+        assertTrue(MarshioGuidanceLaunch.showEntryInRouteDetails(model = model))
+    }
+
+    @Test
+    fun showEntryInRouteDetails_hiddenWhenNotRecommended() {
+        val model = sampleRouteDetailsModel(showMarshioGuidanceEntry = false)
+
+        assertFalse(MarshioGuidanceLaunch.showEntryInRouteDetails(model = model))
     }
 
     @Test
@@ -27,7 +33,7 @@ class MarshioGuidanceLaunchTest {
                 handoffRoutePathPoints = emptyList(),
             )
 
-        assertFalse(MarshioGuidanceLaunch.showEntryInRouteDetails(isDebugBuild = true, model = model))
+        assertFalse(MarshioGuidanceLaunch.showEntryInRouteDetails(model = model))
     }
 
     @Test

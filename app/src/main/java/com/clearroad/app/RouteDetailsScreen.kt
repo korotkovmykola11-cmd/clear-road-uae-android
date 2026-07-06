@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -597,10 +599,10 @@ private fun RouteDetailsHandoffFooter(
     val toLatLng = model.toLatLng ?: return
     val marshioRoutePath = model.handoffRoutePathPoints
     val hasMarshioPath = marshioRoutePath.size >= 2
-    val showGuidanceEntry = MarshioGuidanceLaunch.showEntryInRouteDetails(BuildConfig.DEBUG, model)
+    val showGuidanceEntry = MarshioGuidanceLaunch.showEntryInRouteDetails(model)
     Column(modifier = Modifier.fillMaxWidth()) {
         if (showGuidanceEntry) {
-            OutlinedButton(
+            Button(
                 onClick = {
                     MarshioGuidanceLaunch.argsFromRouteDetails(model)?.let { args ->
                         context.startActivity(MarshioGuidanceLaunch.createIntent(context, args))
@@ -608,12 +610,15 @@ private fun RouteDetailsHandoffFooter(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, modeAccent.copy(alpha = 0.55f)),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1D9E75),
+                        contentColor = Color.White,
+                    ),
             ) {
                 Text(
-                    text = "Start MARSHIO Guidance",
+                    text = "Follow with MARSHIO",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = modeAccent,
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))

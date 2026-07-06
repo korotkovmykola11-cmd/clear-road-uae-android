@@ -2,11 +2,14 @@ package com.clearroad.app.guidance
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
 
 /** Presentation-only launch wiring for in-app MARSHIO Guidance. */
 internal object MarshioGuidanceLaunch {
+
+    private const val TAG = "MarshioGuidanceLaunch"
 
     data class Args(
         val fromLatLng: LatLng,
@@ -34,11 +37,9 @@ internal object MarshioGuidanceLaunch {
     }
 
     fun showEntryInRouteDetails(
-        isDebugBuild: Boolean,
         model: RouteDetailsUiModel,
     ): Boolean =
-        isDebugBuild &&
-            model.showMarshioGuidanceEntry &&
+        model.showMarshioGuidanceEntry &&
             model.fromLatLng != null &&
             model.toLatLng != null &&
             model.handoffRoutePathPoints.size >= 2
@@ -63,8 +64,9 @@ internal object MarshioGuidanceLaunch {
     fun createIntent(
         context: Context,
         args: Args,
-    ): Intent =
-        Intent(context, MarshioGuidanceActivity::class.java).apply {
+    ): Intent {
+        Log.d(TAG, "guidance intent path size=${args.marshioPath.size}")
+        return Intent(context, MarshioGuidanceActivity::class.java).apply {
             putExtra(EXTRA_FROM_LAT, args.fromLatLng.latitude)
             putExtra(EXTRA_FROM_LNG, args.fromLatLng.longitude)
             putExtra(EXTRA_TO_LAT, args.toLatLng.latitude)
@@ -81,6 +83,7 @@ internal object MarshioGuidanceLaunch {
                 putExtra(EXTRA_GOOGLE_LONGITUDES, args.googlePath.map { it.longitude }.toDoubleArray())
             }
         }
+    }
 
     fun readArgs(intent: Intent): Args? {
         if (!intent.hasExtra(EXTRA_MARSHIO_LATITUDES)) return null
