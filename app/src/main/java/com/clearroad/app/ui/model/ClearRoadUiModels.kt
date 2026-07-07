@@ -159,6 +159,13 @@ data class RouteCardUiModel(
     val mode: PreferenceMode,
 )
 
+data class MarshioGuidanceGoogleStepUiModel(
+    val distanceMeters: Int,
+    val maneuver: String?,
+    val htmlInstructions: String? = null,
+    val startLocation: LatLng? = null,
+)
+
 data class RouteDetailsUiModel(
     val routeNumber: Int,
     val routeIdentityTitle: String,
@@ -194,6 +201,7 @@ data class RouteDetailsUiModel(
     val durationSeconds: Int = 0,
     val selectedRouteIndex: Int = 0,
     val showMarshioGuidanceEntry: Boolean = false,
+    val marshioGuidanceGoogleSteps: List<MarshioGuidanceGoogleStepUiModel> = emptyList(),
     val routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
     val routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
     val showRouteIntelligenceSection: Boolean = false,

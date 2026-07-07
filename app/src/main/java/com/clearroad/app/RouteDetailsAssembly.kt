@@ -8,6 +8,7 @@ import com.clearroad.app.domain.RouteIdentityPresentationPolicy
 import com.clearroad.app.domain.TripAtAGlancePolicy
 import com.clearroad.app.legacy.LegacyHomePresentation
 import com.clearroad.app.intelligence.RouteIntelligenceAssembly
+import com.clearroad.app.ui.model.MarshioGuidanceGoogleStepUiModel
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
 
@@ -149,6 +150,8 @@ internal object RouteDetailsAssembly {
                     directionsStatus = input.directionsStatus,
                 ),
             )
+        val showMarshioGuidanceEntry =
+            isRecommendedRouteDetails && handoffRoutePathPoints.size >= 2
         return buildRouteDetailsUiModel(
             routeIndex = detailIdx,
             routeNumber = detailIdx + 1,
@@ -181,8 +184,20 @@ internal object RouteDetailsAssembly {
             googleDefaultRoutePathPoints = routes.firstOrNull()?.routePathPoints.orEmpty(),
             durationSeconds = guidanceRoute.durationSeconds,
             selectedRouteIndex = recIdxForConfidence,
-            showMarshioGuidanceEntry =
-                isRecommendedRouteDetails && handoffRoutePathPoints.size >= 2,
+            showMarshioGuidanceEntry = showMarshioGuidanceEntry,
+            marshioGuidanceGoogleSteps =
+                if (showMarshioGuidanceEntry) {
+                    guidanceRoute.googleSteps.map { step ->
+                        MarshioGuidanceGoogleStepUiModel(
+                            distanceMeters = step.distanceMeters,
+                            maneuver = step.maneuver,
+                            htmlInstructions = step.htmlInstructions,
+                            startLocation = step.startLocation,
+                        )
+                    }
+                } else {
+                    emptyList()
+                },
             routeIntelligenceRequest =
                 RouteIntelligenceAssembly.buildRequest(
                     routes = routes,

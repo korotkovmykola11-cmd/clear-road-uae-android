@@ -628,7 +628,18 @@ private fun RouteDetailsHandoffFooter(
         if (showGuidanceEntry) {
             Button(
                 onClick = {
-                    MarshioGuidanceLaunch.argsFromRouteDetails(model)?.let { args ->
+                    MarshioGuidanceLaunch.argsFromRouteDetails(
+                        model,
+                        googleSteps =
+                            model.marshioGuidanceGoogleSteps.map { step ->
+                                DirectionsStepRecord(
+                                    distanceMeters = step.distanceMeters,
+                                    maneuver = step.maneuver,
+                                    htmlInstructions = step.htmlInstructions,
+                                    startLocation = step.startLocation,
+                                )
+                            },
+                    )?.let { args ->
                         context.startActivity(MarshioGuidanceLaunch.createIntent(context, args))
                     }
                 },
