@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,8 +20,11 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 private const val SIMULATION_TICK_MS = 250L
@@ -65,6 +70,10 @@ internal fun MarshioGuidanceRouteScreen(
             locationStatus = if (useSimulation) null else guidanceState.locationStatus,
         )
         Spacer(modifier = Modifier.height(12.dp))
+        MarshioGuidanceManeuverBanner(
+            state = guidanceState.state,
+            steps = session.steps,
+        )
         MarshioGuidanceMap(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,6 +96,48 @@ internal fun MarshioGuidanceRouteScreen(
                 Text("Restart simulation")
             }
         }
+    }
+}
+
+@Composable
+private fun MarshioGuidanceManeuverBanner(
+    state: MarshioGuidanceSimulation.State?,
+    steps: List<GuidanceStepUi>,
+) {
+    if (state == null) return
+
+    val bannerText =
+        when {
+            state.offRoute -> "Off route"
+            steps.isEmpty() -> null
+            else -> {
+                val stepIndex =
+                    MarshioGuidanceStepTracker.currentStepIndex(
+                        traveledMeters = state.traveledMeters,
+                        steps = steps,
+                    )
+                if (stepIndex == -1) null else steps[stepIndex].instruction
+            }
+        } ?: return
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = Color.White,
+        shadowElevation = 2.dp,
+    ) {
+        Text(
+            text = bannerText,
+            modifier = Modifier.padding(8.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+            ),
+        )
     }
 }
 

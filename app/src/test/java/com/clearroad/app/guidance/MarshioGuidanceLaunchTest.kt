@@ -1,5 +1,6 @@
 package com.clearroad.app.guidance
 
+import com.clearroad.app.DirectionsStepRecord
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
@@ -94,6 +95,79 @@ class MarshioGuidanceLaunchTest {
         assertEquals(args.marshioPath, session.marshioPath)
         assertEquals(args.googlePath, session.googlePath)
         assertEquals(args.selectedRouteIndex, session.selectedRouteIndex)
+        assertEquals(args.steps, session.steps)
+    }
+
+    @Test
+    fun stepsJsonRoundTrip_preservesGuidanceSteps() {
+        val steps =
+            listOf(
+                GuidanceStepUi(
+                    instruction = "Continue on Sheikh Zayed Rd",
+                    distanceMeters = 500,
+                    startLatLng = 25.2048 to 55.2708,
+                ),
+                GuidanceStepUi(
+                    instruction = "Turn right",
+                    distanceMeters = 120,
+                    startLatLng = null,
+                ),
+            )
+
+        val json = MarshioGuidanceLaunch.encodeStepsJson(steps)
+
+        assertEquals(steps, MarshioGuidanceLaunch.decodeStepsJson(json))
+    }
+
+    @Test
+    fun argsFromRouteDetails_mapsGoogleStepsToGuidanceSteps() {
+        val googleSteps =
+            listOf(
+                DirectionsStepRecord(
+                    distanceMeters = 500,
+                    maneuver = "straight",
+                    htmlInstructions = "<b>Continue on Sheikh Zayed Rd</b>",
+                    startLocation = LatLng(25.2048, 55.2708),
+                ),
+            )
+        val model = sampleRouteDetailsModel()
+
+        val args = MarshioGuidanceLaunch.argsFromRouteDetails(model, googleSteps = googleSteps)
+
+        assertNotNull(args)
+        assertEquals(1, args?.steps?.size)
+        assertEquals("Continue on Sheikh Zayed Rd", args?.steps?.first()?.instruction)
+        assertEquals(500, args?.steps?.first()?.distanceMeters)
+        assertEquals(25.2048 to 55.2708, args?.steps?.first()?.startLatLng)
+    }
+
+    @Test
+    fun mapGuidanceSteps_stripsHtmlAndCapsAtFifty() {
+        val googleSteps =
+            (1..55).map { index ->
+                DirectionsStepRecord(
+                    distanceMeters = index * 10,
+                    maneuver = "straight",
+                    htmlInstructions = "<b>Step $index</b>",
+                    startLocation = LatLng(25.0 + index * 0.001, 55.0),
+                )
+            }
+
+        val mapped = MarshioGuidanceLaunch.mapGuidanceSteps(googleSteps)
+
+        assertEquals(50, mapped.size)
+        assertEquals("Step 1", mapped.first().instruction)
+        assertEquals(10, mapped.first().distanceMeters)
+    }
+
+    @Test
+    fun argsFromRouteDetails_emptyGoogleSteps_yieldsEmptyStepList() {
+        val model = sampleRouteDetailsModel()
+
+        val args = MarshioGuidanceLaunch.argsFromRouteDetails(model)
+
+        assertNotNull(args)
+        assertTrue(args?.steps?.isEmpty() == true)
     }
 
     private fun sampleRouteDetailsModel(

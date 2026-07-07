@@ -3,13 +3,24 @@ package com.clearroad.app.guidance
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.clearroad.app.DirectionsStepRecord
+import com.clearroad.app.JunctionAnnotationClassifier
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
+import org.json.JSONArray
+import org.json.JSONObject
+
+data class GuidanceStepUi(
+    val instruction: String,
+    val distanceMeters: Int,
+    val startLatLng: Pair<Double, Double>?,
+)
 
 /** Presentation-only launch wiring for in-app MARSHIO Guidance. */
 internal object MarshioGuidanceLaunch {
 
     private const val TAG = "MarshioGuidanceLaunch"
+    private const val MAX_GUIDANCE_STEPS = 50
 
     data class Args(
         val fromLatLng: LatLng,
@@ -21,6 +32,7 @@ internal object MarshioGuidanceLaunch {
         val selectedRouteIndex: Int,
         val marshioPath: List<LatLng>,
         val googlePath: List<LatLng>,
+        val steps: List<GuidanceStepUi> = emptyList(),
     ) {
         fun toSession(): MarshioGuidanceSession =
             MarshioGuidanceSession(
@@ -33,6 +45,7 @@ internal object MarshioGuidanceLaunch {
                 distanceText = distanceText,
                 durationSeconds = durationSeconds,
                 selectedRouteIndex = selectedRouteIndex,
+                steps = steps,
             )
     }
 
@@ -44,7 +57,10 @@ internal object MarshioGuidanceLaunch {
             model.toLatLng != null &&
             model.handoffRoutePathPoints.size >= 2
 
-    fun argsFromRouteDetails(model: RouteDetailsUiModel): Args? {
+    fun argsFromRouteDetails(
+        model: RouteDetailsUiModel,
+        googleSteps: List<DirectionsStepRecord> = emptyList(),
+    ): Args? {
         val from = model.fromLatLng ?: return null
         val to = model.toLatLng ?: return null
         if (model.handoffRoutePathPoints.size < 2) return null
@@ -58,14 +74,75 @@ internal object MarshioGuidanceLaunch {
             selectedRouteIndex = model.selectedRouteIndex,
             marshioPath = model.handoffRoutePathPoints,
             googlePath = model.googleDefaultRoutePathPoints,
+            steps = mapGuidanceSteps(googleSteps),
         )
+    }
+
+    internal fun mapGuidanceSteps(
+        googleSteps: List<DirectionsStepRecord>,
+    ): List<GuidanceStepUi> {
+        if (googleSteps.isEmpty()) return emptyList()
+        return googleSteps
+            .take(MAX_GUIDANCE_STEPS)
+            .map { step ->
+                val instruction =
+                    JunctionAnnotationClassifier.stripHtml(step.htmlInstructions)
+                        .ifBlank { step.maneuver.orEmpty() }
+                GuidanceStepUi(
+                    instruction = instruction,
+                    distanceMeters = step.distanceMeters,
+                    startLatLng = step.startLocation?.let { it.latitude to it.longitude },
+                )
+            }
+    }
+
+    internal fun encodeStepsJson(steps: List<GuidanceStepUi>): String {
+        val array = JSONArray()
+        steps.forEach { step ->
+            array.put(
+                JSONObject().apply {
+                    put("instruction", step.instruction)
+                    put("distanceMeters", step.distanceMeters)
+                    step.startLatLng?.let { (lat, lng) ->
+                        put("startLat", lat)
+                        put("startLng", lng)
+                    }
+                },
+            )
+        }
+        return array.toString()
+    }
+
+    internal fun decodeStepsJson(json: String?): List<GuidanceStepUi> {
+        if (json.isNullOrBlank()) return emptyList()
+        val array = JSONArray(json)
+        val steps = mutableListOf<GuidanceStepUi>()
+        for (index in 0 until array.length()) {
+            val obj = array.getJSONObject(index)
+            val startLat = obj.optDouble("startLat", Double.NaN)
+            val startLng = obj.optDouble("startLng", Double.NaN)
+            val startLatLng =
+                if (startLat.isNaN() || startLng.isNaN()) {
+                    null
+                } else {
+                    startLat to startLng
+                }
+            steps.add(
+                GuidanceStepUi(
+                    instruction = obj.optString("instruction", ""),
+                    distanceMeters = obj.optInt("distanceMeters", 0),
+                    startLatLng = startLatLng,
+                ),
+            )
+        }
+        return steps
     }
 
     fun createIntent(
         context: Context,
         args: Args,
     ): Intent {
-        Log.d(TAG, "guidance intent path size=${args.marshioPath.size}")
+        Log.d(TAG, "guidance intent path size=${args.marshioPath.size} steps=${args.steps.size}")
         return Intent(context, MarshioGuidanceActivity::class.java).apply {
             putExtra(EXTRA_FROM_LAT, args.fromLatLng.latitude)
             putExtra(EXTRA_FROM_LNG, args.fromLatLng.longitude)
@@ -81,6 +158,9 @@ internal object MarshioGuidanceLaunch {
             if (args.googlePath.size >= 2) {
                 putExtra(EXTRA_GOOGLE_LATITUDES, args.googlePath.map { it.latitude }.toDoubleArray())
                 putExtra(EXTRA_GOOGLE_LONGITUDES, args.googlePath.map { it.longitude }.toDoubleArray())
+            }
+            if (args.steps.isNotEmpty()) {
+                putExtra(EXTRA_STEPS_JSON, encodeStepsJson(args.steps))
             }
         }
     }
@@ -126,6 +206,7 @@ internal object MarshioGuidanceLaunch {
                     LatLng(marshioLatitudes[index], marshioLongitudes[index])
                 },
             googlePath = googlePath,
+            steps = decodeStepsJson(intent.getStringExtra(EXTRA_STEPS_JSON)),
         )
     }
 
@@ -142,6 +223,7 @@ internal object MarshioGuidanceLaunch {
     private const val EXTRA_MARSHIO_LONGITUDES = "marshio_guidance.marshio_longitudes"
     private const val EXTRA_GOOGLE_LATITUDES = "marshio_guidance.google_latitudes"
     private const val EXTRA_GOOGLE_LONGITUDES = "marshio_guidance.google_longitudes"
+    private const val EXTRA_STEPS_JSON = "marshio_guidance.steps_json"
 }
 
 data class MarshioGuidanceSession(
@@ -154,4 +236,5 @@ data class MarshioGuidanceSession(
     val distanceText: String,
     val durationSeconds: Int,
     val selectedRouteIndex: Int,
+    val steps: List<GuidanceStepUi> = emptyList(),
 )
