@@ -3,6 +3,9 @@ package com.clearroad.app.guidance
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +22,8 @@ class MarshioGuidanceActivity : ComponentActivity() {
             ClearRoad2Theme {
                 if (args == null) {
                     MarshioGuidanceMissingArgsScreen()
+                } else if (args.marshioPath.size < 2) {
+                    MarshioGuidanceUnavailableGeometryScreen()
                 } else {
                     MarshioGuidanceRouteScreen(
                         session = args.toSession(),
@@ -37,4 +42,13 @@ private fun MarshioGuidanceMissingArgsScreen() {
         text = "MARSHIO Guidance could not load route data.",
         modifier = Modifier.padding(16.dp),
     )
+}
+
+@Composable
+private fun MarshioGuidanceUnavailableGeometryScreen() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "Route geometry unavailable")
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "MARSHIO cannot draw this route yet")
+    }
 }

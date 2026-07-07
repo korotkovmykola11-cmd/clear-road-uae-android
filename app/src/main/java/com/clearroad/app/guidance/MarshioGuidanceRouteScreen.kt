@@ -31,6 +31,11 @@ internal fun MarshioGuidanceRouteScreen(
     useSimulation: Boolean = false,
     showRestartSimulation: Boolean = false,
 ) {
+    if (session.marshioPath.size < 2) {
+        MarshioGuidanceUnavailableGeometryContent(modifier = modifier)
+        return
+    }
+
     val guidanceState =
         if (useSimulation) {
             rememberSimulatedGuidanceState(session)
@@ -210,3 +215,23 @@ private fun locationStatusDetail(status: MarshioGuidanceLocationStatus?): String
         MarshioGuidanceLocationStatus.TRACKING, null ->
             ""
     }
+
+@Composable
+private fun MarshioGuidanceUnavailableGeometryContent(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+    ) {
+        Text(
+            text = "Route geometry unavailable",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "MARSHIO cannot draw this route yet",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
