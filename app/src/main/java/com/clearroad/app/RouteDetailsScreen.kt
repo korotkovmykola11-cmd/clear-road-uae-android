@@ -24,12 +24,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clearroad.app.guidance.MarshioGuidanceLaunch
+import com.clearroad.app.ui.driveweather.DriveMoodBackground
+import com.clearroad.app.ui.driveweather.DriveWeatherSection
 import com.clearroad.app.ui.model.GoogleMarshioDecisionState
 import com.clearroad.app.ui.model.RejectedAlternativeUiModel
 import com.clearroad.app.ui.model.RouteDecisionRouteCardUiModel
@@ -72,11 +75,27 @@ internal fun RouteDetailsScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        RouteDetailsWhyCard(
-            model = model,
-            modeAccent = modeAccent,
-            cardBorder = cardBorder,
-        )
+        if (model.driveWeather != null) {
+            DriveMoodBackground(
+                mood = model.driveWeather.hero.mood,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .padding(bottom = 4.dp),
+            ) {
+                DriveWeatherSection(
+                    model = model.driveWeather,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp),
+                )
+            }
+        } else {
+            RouteDetailsWhyCard(
+                model = model,
+                modeAccent = modeAccent,
+                cardBorder = cardBorder,
+            )
+        }
         if (model.rejectedAlternatives.isNotEmpty()) {
             Spacer(modifier = Modifier.height(12.dp))
             RouteDetailsRejectedAlternativesCard(

@@ -132,6 +132,23 @@ internal object RouteDetailsAssembly {
             } else {
                 detailItem
             }
+        val driveWeather =
+            DriveWeatherAssembly.build(
+                DriveWeatherAssembly.Input(
+                    detailRoute = detailItem,
+                    detailRouteIndex = detailIdx,
+                    routes = routes,
+                    identities = input.identities,
+                    mode = input.mode,
+                    recommendedIndex = recIdxForConfidence,
+                    isRecommendedRouteDetails = isRecommendedRouteDetails,
+                    googleMarshioDecision = comparisonPresentation.googleMarshioDecision,
+                    routeIdentityTitle = detailRouteIdentityTitle,
+                    routeReasonTitle = routeReasonTitle,
+                    routeReasonWhy = routeReasonWhy,
+                    directionsStatus = input.directionsStatus,
+                ),
+            )
         return buildRouteDetailsUiModel(
             routeIndex = detailIdx,
             routeNumber = detailIdx + 1,
@@ -189,6 +206,7 @@ internal object RouteDetailsAssembly {
                 ),
             fromLatLng = input.fromLatLng,
             toLatLng = input.toLatLng,
+            driveWeather = driveWeather,
         )
     }
 

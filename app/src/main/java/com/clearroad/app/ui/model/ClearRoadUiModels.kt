@@ -3,6 +3,7 @@ package com.clearroad.app.ui.model
 import com.clearroad.app.RouteJunctionAnnotation
 import com.clearroad.app.TrafficSegment
 import com.clearroad.app.domain.PreferenceMode
+import com.clearroad.app.ui.driveweather.DriveWeatherUiModel
 import com.google.android.gms.maps.model.LatLng
 
 data class RouteIntelligenceRouteInputUiModel(
@@ -197,4 +198,5 @@ data class RouteDetailsUiModel(
     val routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
     val showRouteIntelligenceSection: Boolean = false,
     val routeIntelligenceUnavailableReason: String? = null,
+    val driveWeather: DriveWeatherUiModel? = null,
 )

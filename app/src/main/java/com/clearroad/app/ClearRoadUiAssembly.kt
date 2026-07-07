@@ -86,6 +86,7 @@ internal fun buildRouteDetailsUiModel(
     routeIntelligenceUnavailableReason: String? = null,
     fromLatLng: LatLng?,
     toLatLng: LatLng?,
+    driveWeather: com.clearroad.app.ui.driveweather.DriveWeatherUiModel? = null,
 ): RouteDetailsUiModel =
     RouteDetailsUiModel(
         routeNumber = routeNumber,
@@ -126,6 +127,7 @@ internal fun buildRouteDetailsUiModel(
         routeIntelligenceComparisonRequest = routeIntelligenceComparisonRequest,
         showRouteIntelligenceSection = showRouteIntelligenceSection,
         routeIntelligenceUnavailableReason = routeIntelligenceUnavailableReason,
+        driveWeather = driveWeather,
     )
 
 internal fun choiceWhyTipUiModel(
