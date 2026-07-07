@@ -14,10 +14,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +45,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 
 private val MapPreviewHeight = 272.dp
 private val RecommendedRoutePolylineColor = Color(0xFF00E676)
@@ -270,16 +271,7 @@ private fun ComparisonMapCard(
     var endIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var splitIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
     val cameraPositionState = rememberCameraPositionState()
-
-    LaunchedEffect(fromLatLng, toLatLng, boundsPaddingPx, boundsPoints) {
-        val boundsBuilder = LatLngBounds.builder().include(fromLatLng).include(toLatLng)
-        boundsPoints?.forEach { boundsBuilder.include(it) }
-        runCatching {
-            cameraPositionState.move(
-                CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), boundsPaddingPx),
-            )
-        }
-    }
+    val scope = rememberCoroutineScope()
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -401,6 +393,19 @@ private fun ComparisonMapCard(
                         }
                         if (splitPoint != null && splitIcon == null) {
                             splitIcon = MapPreviewMarkerIcons.split(context)
+                        }
+                        val boundsBuilder =
+                            LatLngBounds.builder().include(fromLatLng).include(toLatLng)
+                        boundsPoints?.forEach { boundsBuilder.include(it) }
+                        scope.launch {
+                            runCatching {
+                                cameraPositionState.move(
+                                    CameraUpdateFactory.newLatLngBounds(
+                                        boundsBuilder.build(),
+                                        boundsPaddingPx,
+                                    ),
+                                )
+                            }
                         }
                     },
                 ) {
