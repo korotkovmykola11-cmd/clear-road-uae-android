@@ -2,7 +2,7 @@
 
 **Status:** Primary project constitution  
 **Current stable tag:** `stage-22.0-stable`  
-**Companion docs:** `PRODUCT_IDENTITY.md`, `DESIGN_DIRECTION.md` (detail locks — subordinate to this file)
+**Companion docs:** `PRODUCT_IDENTITY.md`, `DESIGN_DIRECTION.md` (detail locks — subordinate to this file), [product-thesis.md](product-thesis.md) (driver-facing hypothesis — no engineering jargon)
 
 ---
 
