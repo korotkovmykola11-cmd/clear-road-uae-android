@@ -180,6 +180,13 @@ internal object RouteDetailsAssembly {
                     recommendedIndex = recIdxForConfidence,
                     isRecommendedRouteDetails = isRecommendedRouteDetails,
                 ),
+            showRouteIntelligenceSection = isRecommendedRouteDetails,
+            routeIntelligenceUnavailableReason =
+                RouteIntelligenceAssembly.unavailableReason(
+                    routes = routes,
+                    recommendedIndex = recIdxForConfidence,
+                    isRecommendedRouteDetails = isRecommendedRouteDetails,
+                ),
             fromLatLng = input.fromLatLng,
             toLatLng = input.toLatLng,
         )

@@ -44,6 +44,10 @@ data class RouteIntelligenceUiModel(
     val loading: Boolean = false,
     val available: Boolean = false,
     val unavailableMessage: String = "",
+    /** Short driver headline, e.g. "Busy city drive." */
+    val summaryLine: String = "",
+    /** One-sentence travel guidance below the headline. */
+    val explanationLine: String = "",
     val marshioRoute: RouteIntelligenceRouteRowUiModel? = null,
     val alternativeRoute: RouteIntelligenceRouteRowUiModel? = null,
 )
@@ -191,4 +195,6 @@ data class RouteDetailsUiModel(
     val showMarshioGuidanceEntry: Boolean = false,
     val routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
     val routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
+    val showRouteIntelligenceSection: Boolean = false,
+    val routeIntelligenceUnavailableReason: String? = null,
 )

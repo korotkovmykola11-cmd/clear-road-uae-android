@@ -82,6 +82,8 @@ internal fun buildRouteDetailsUiModel(
     showMarshioGuidanceEntry: Boolean = false,
     routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
     routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
+    showRouteIntelligenceSection: Boolean = false,
+    routeIntelligenceUnavailableReason: String? = null,
     fromLatLng: LatLng?,
     toLatLng: LatLng?,
 ): RouteDetailsUiModel =
@@ -122,6 +124,8 @@ internal fun buildRouteDetailsUiModel(
         showMarshioGuidanceEntry = showMarshioGuidanceEntry,
         routeIntelligenceRequest = routeIntelligenceRequest,
         routeIntelligenceComparisonRequest = routeIntelligenceComparisonRequest,
+        showRouteIntelligenceSection = showRouteIntelligenceSection,
+        routeIntelligenceUnavailableReason = routeIntelligenceUnavailableReason,
     )
 
 internal fun choiceWhyTipUiModel(

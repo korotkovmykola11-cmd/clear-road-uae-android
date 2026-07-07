@@ -10,6 +10,11 @@ object RouteIntelligencePresentation {
 
     const val UNAVAILABLE_MESSAGE = "Route Intelligence unavailable."
 
+    internal data class DriverRouteCopy(
+        val headline: String,
+        val explanation: String,
+    )
+
     suspend fun load(
         request: RouteIntelligenceRequestUiModel,
         service: RouteIntelligenceService = RouteIntelligenceService.default(),
@@ -39,18 +44,132 @@ object RouteIntelligencePresentation {
                 )
             }
 
+            val comparisonAlternative =
+                alternativeProfile?.takeIf { it.osmSourceStatus == SourceStatus.OK }
+            val driverCopy = driverRouteCopy(marshioProfile, comparisonAlternative)
+
             RouteIntelligenceUiModel(
                 loading = false,
                 available = true,
+                summaryLine = driverCopy.headline,
+                explanationLine = driverCopy.explanation,
                 marshioRoute = rowUiModel("MARSHIO route", request.marshioRoute.routeName, marshioProfile),
                 alternativeRoute =
                     request.alternativeRoute?.let { alternative ->
                         alternativeProfile?.let { profile ->
-                            rowUiModel("Alternative", alternative.routeName, profile)
+                            rowUiModel(
+                                label = comparisonRouteLabel(alternative.routeIndex),
+                                routeName = alternative.routeName,
+                                profile = profile,
+                            )
                         }
                     },
             )
         }
+
+    internal fun comparisonRouteLabel(routeIndex: Int): String =
+        if (routeIndex == 0) "Google default" else "Alternative"
+
+    internal fun driverRouteCopy(
+        marshio: RouteProfile,
+        alternative: RouteProfile?,
+    ): DriverRouteCopy {
+        val headline = driverHeadline(marshio)
+        val explanation = driverExplanation(marshio, alternative)
+        return DriverRouteCopy(headline = headline, explanation = explanation)
+    }
+
+
+    internal fun driverHeadline(marshio: RouteProfile): String {
+        val signals = marshio.trafficSignalsCount ?: 0
+        val roundabouts = marshio.roundaboutsCount ?: 0
+        val complexity = marshio.complexityScore
+        val mainRoadRatio = marshio.mainRoadRatio
+
+        if (mainRoadRatio != null && mainRoadRatio >= 0.65f && (complexity ?: 1f) < 0.4f) {
+            return "Smooth highway drive."
+        }
+        if (
+            (complexity != null && complexity >= 0.55f) ||
+                signals >= 6 ||
+                roundabouts >= 5
+        ) {
+            return "Busy city drive."
+        }
+        if (
+            (complexity != null && complexity < 0.3f) &&
+                signals <= 2 &&
+                roundabouts <= 2
+        ) {
+            return "Easy city drive."
+        }
+        if (mainRoadRatio != null && mainRoadRatio >= 0.5f && (complexity ?: 1f) < 0.45f) {
+            return "Calm route."
+        }
+        return "Steady city drive."
+    }
+
+    internal fun driverExplanation(
+        marshio: RouteProfile,
+        alternative: RouteProfile?,
+    ): String {
+        alternative?.let { alt ->
+            val marshioSignals = marshio.trafficSignalsCount
+            val alternativeSignals = alt.trafficSignalsCount
+            if (marshioSignals != null && alternativeSignals != null) {
+                when {
+                    marshioSignals >= alternativeSignals + 2 ->
+                        return "More intersections than the Google route."
+                    marshioSignals + 2 <= alternativeSignals ->
+                        return "Fewer intersections than the Google route."
+                }
+            }
+            val marshioComplexity = marshio.complexityScore
+            val alternativeComplexity = alt.complexityScore
+            if (
+                marshioComplexity != null &&
+                    alternativeComplexity != null &&
+                    marshioComplexity >= alternativeComplexity + 0.15f
+            ) {
+                return "Expect a busier drive than the Google route."
+            }
+            if (
+                marshioComplexity != null &&
+                    alternativeComplexity != null &&
+                    marshioComplexity + 0.15f <= alternativeComplexity
+            ) {
+                return "A calmer drive than the Google route."
+            }
+        }
+
+        val roundabouts = marshio.roundaboutsCount ?: 0
+        val signals = marshio.trafficSignalsCount ?: 0
+        val mainRoadRatio = marshio.mainRoadRatio
+        val complexity = marshio.complexityScore
+
+        if (roundabouts >= 5) {
+            return "Mostly city streets with many roundabouts."
+        }
+        if (mainRoadRatio != null && mainRoadRatio >= 0.65f) {
+            return "Mostly highway driving with fewer decision points."
+        }
+        if (signals >= 6) {
+            return "More intersections than usual along the way."
+        }
+        if (roundabouts >= 3) {
+            return "Many roundabouts ahead on city streets."
+        }
+        if (mainRoadRatio != null && mainRoadRatio < 0.35f) {
+            return "Mostly local roads through the city."
+        }
+        if (complexity != null && complexity < 0.3f && signals <= 2 && roundabouts <= 2) {
+            return "Simple route with few decision points."
+        }
+        if (mainRoadRatio != null && mainRoadRatio >= 0.35f && mainRoadRatio < 0.65f) {
+            return "Mix of main roads and city streets."
+        }
+        return "Expect a typical urban mix of streets and junctions."
+    }
 
     fun rowUiModel(
         label: String,
@@ -64,31 +183,41 @@ object RouteIntelligencePresentation {
             trafficSignalsLine = trafficSignalsLine(profile.trafficSignalsCount),
             roundaboutsLine = roundaboutsLine(profile.roundaboutsCount),
             mainRoadLine = mainRoadLine(profile.mainRoadRatio),
-            complexityLine = ComplexityScoreCalculator.complexityLabel(profile.complexityScore),
+            complexityLine = drivingWorkloadLine(profile.complexityScore),
         )
     }
 
     fun trafficSignalsLine(count: Int?): String =
-        when (count) {
-            null -> "Traffic signals: unavailable"
-            0 -> "No traffic signals detected"
-            1 -> "1 traffic signal"
-            else -> "$count traffic signals"
+        when {
+            count == null -> "Traffic lights along the route unavailable"
+            count == 0 -> "No traffic lights along the route"
+            count <= 2 -> "Few traffic lights"
+            count <= 5 -> "Several traffic lights"
+            else -> "Many traffic lights"
         }
 
     fun roundaboutsLine(count: Int?): String =
-        when (count) {
-            null -> "Roundabouts: unavailable"
-            0 -> "No roundabouts detected"
-            1 -> "1 roundabout"
-            else -> "$count roundabouts"
+        when {
+            count == null -> "Roundabouts along the route unavailable"
+            count == 0 -> "No roundabouts"
+            count <= 2 -> "Few roundabouts"
+            count <= 5 -> "Several roundabouts"
+            else -> "Many roundabouts"
         }
 
     fun mainRoadLine(ratio: Float?): String =
         when {
-            ratio == null -> "Road class: unavailable"
-            ratio >= 0.65f -> "Mostly main roads"
+            ratio == null -> "Road mix unavailable"
+            ratio >= 0.65f -> "Mostly highway driving"
             ratio >= 0.35f -> "Mix of main and local streets"
-            else -> "More local streets"
+            else -> "Mostly local roads"
+        }
+
+    fun drivingWorkloadLine(score: Float?): String =
+        when {
+            score == null -> "Driving workload unavailable"
+            score < 0.25f -> "Light driving workload"
+            score < 0.55f -> "Moderate driving workload"
+            else -> "Higher driving workload"
         }
 }

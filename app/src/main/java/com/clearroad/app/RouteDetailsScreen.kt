@@ -113,6 +113,8 @@ internal fun RouteDetailsScreen(
             RouteDetailsIntelligenceSection(
                 request = model.routeIntelligenceRequest,
                 comparisonRequest = model.routeIntelligenceComparisonRequest,
+                showSection = model.showRouteIntelligenceSection,
+                unavailableReason = model.routeIntelligenceUnavailableReason,
                 cardBorder = cardBorder,
             )
             Spacer(modifier = Modifier.height(16.dp))

@@ -11,6 +11,24 @@ import com.clearroad.app.ui.model.RouteIntelligenceRouteInputUiModel
 /** Builds read-only Route Intelligence inputs — does not affect route selection. */
 internal object RouteIntelligenceAssembly {
 
+    fun unavailableReason(
+        routes: List<RealRouteDebugData>,
+        recommendedIndex: Int,
+        isRecommendedRouteDetails: Boolean,
+    ): String? {
+        if (!isRecommendedRouteDetails) return null
+        if (routes.isEmpty()) return "Road details unavailable"
+        val recIdx = recommendedIndex.coerceIn(0, routes.lastIndex)
+        if (routes[recIdx].routePathPoints.size < 2) {
+            return "Route shape unavailable — intelligence skipped"
+        }
+        val alternativeIndex = pickAlternativeIndex(routes, recIdx) ?: return "Not enough route alternatives"
+        if (routes[alternativeIndex].routePathPoints.size < 2) {
+            return "Route shape unavailable — intelligence skipped"
+        }
+        return null
+    }
+
     fun buildRequest(
         routes: List<RealRouteDebugData>,
         identities: List<RouteIdentity>,

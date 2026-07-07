@@ -303,6 +303,56 @@ class RouteIntelligenceAssemblyReportTest {
         assertEquals(0, request.googleDefaultRouteIndex)
     }
 
+    @Test
+    fun unavailableReason_shapeMissingWhenMarshioPolylineTooShort() {
+        val routes =
+            listOf(
+                routeWithPath(index = 0),
+                routeWithPath(index = 1).copy(routePathPoints = emptyList()),
+            )
+
+        val reason =
+            RouteIntelligenceAssembly.unavailableReason(
+                routes = routes,
+                recommendedIndex = 1,
+                isRecommendedRouteDetails = true,
+            )
+
+        assertEquals("Route shape unavailable — intelligence skipped", reason)
+    }
+
+    @Test
+    fun unavailableReason_nullWhenGeometryAndAlternativesExist() {
+        val routes =
+            listOf(
+                routeWithPath(index = 0),
+                routeWithPath(index = 1),
+            )
+
+        val reason =
+            RouteIntelligenceAssembly.unavailableReason(
+                routes = routes,
+                recommendedIndex = 1,
+                isRecommendedRouteDetails = true,
+            )
+
+        assertNull(reason)
+    }
+
+    @Test
+    fun unavailableReason_notEnoughAlternativesForSingleRoute() {
+        val routes = listOf(routeWithPath(index = 0))
+
+        val reason =
+            RouteIntelligenceAssembly.unavailableReason(
+                routes = routes,
+                recommendedIndex = 0,
+                isRecommendedRouteDetails = true,
+            )
+
+        assertEquals("Not enough route alternatives", reason)
+    }
+
     private fun routeWithPath(index: Int) =
         com.clearroad.app.RealRouteDebugData(
             distanceText = "5 km",
