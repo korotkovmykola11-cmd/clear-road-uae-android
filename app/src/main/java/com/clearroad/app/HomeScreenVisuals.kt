@@ -89,6 +89,12 @@ internal fun HomeDubaiBackground(modifier: Modifier = Modifier) {
 private fun Modifier.homeLightCardSurface(
     shape: Shape = HomeProductCardShape,
 ): Modifier =
+    homeLightCardDecoration(shape)
+
+/** Card chrome only — use behind unclipped content (e.g. autocomplete dropdown). */
+private fun Modifier.homeLightCardDecoration(
+    shape: Shape = HomeProductCardShape,
+): Modifier =
     shadow(
         elevation = 2.dp,
         shape = shape,
@@ -363,12 +369,12 @@ internal fun HomeRouteInputGroup(
     fromPredictions: @Composable ColumnScope.() -> Unit = {},
     toPredictions: @Composable ColumnScope.() -> Unit = {},
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .homeLightCardSurface(shape = HomeRouteInputPanelShape)
-            .padding(vertical = 6.dp),
-    ) {
+    Box(modifier = modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .homeLightCardDecoration(shape = HomeRouteInputPanelShape),
+        )
         Box(
             modifier = Modifier
                 .offset(x = 21.dp, y = 18.dp)
@@ -378,7 +384,11 @@ internal fun HomeRouteInputGroup(
                     ClearRoadColors.SalikNeutral.copy(alpha = 0.35f),
                 ),
         )
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+        ) {
             HomeRouteInputRow(
                 dotColor = ClearRoadColors.InputDotFrom,
                 placeholder = fromPlaceholder,
