@@ -14,30 +14,27 @@ private const val WAYPOINT_MIN_SPACING_METERS = 120.0
 internal fun latLngParam(latLng: LatLng): String =
     "${latLng.latitude},${latLng.longitude}"
 
-private fun encodeLatLngForUrl(latLng: LatLng): String =
-    "${latLng.latitude}%2C${latLng.longitude}"
-
 /**
- * Builds a Google Maps directions URL that routes through [waypoints].
- * Uses `/maps/dir/` path segments (lat,lng) — the `via:` query prefix is not supported
- * on Android Google Maps and is treated as a literal address search.
+ * Builds a Google Maps directions URL using the documented Maps URLs query format.
+ * Intermediate [waypoints] are pipe-separated (`%7C`); omit the param when empty.
  */
 internal fun googleMapsDirectionsUrl(
     origin: LatLng,
     destination: LatLng,
     waypoints: List<LatLng> = emptyList(),
 ): String {
-    if (waypoints.isEmpty()) {
-        return "https://www.google.com/maps/dir/?api=1" +
-            "&origin=${encodeLatLngForUrl(origin)}" +
-            "&destination=${encodeLatLngForUrl(destination)}" +
-            "&travelmode=driving"
-    }
-
-    val path =
-        (listOf(origin) + waypoints + destination)
-            .joinToString("/") { encodeLatLngForUrl(it) }
-    return "https://www.google.com/maps/dir/$path?api=1&travelmode=driving"
+    val url =
+        buildString {
+            append("https://www.google.com/maps/dir/?api=1")
+            append("&origin=").append(latLngParam(origin))
+            append("&destination=").append(latLngParam(destination))
+            if (waypoints.isNotEmpty()) {
+                append("&waypoints=")
+                append(waypoints.joinToString("%7C") { latLngParam(it) })
+            }
+            append("&travelmode=driving")
+        }
+    return url
 }
 
 internal fun sampleNavigationWaypoints(
