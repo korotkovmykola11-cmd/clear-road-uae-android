@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,12 +19,12 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 
 private val MarshioRouteColor = Color(0xFF00E676)
 private val GoogleRouteColor = Color(0xFF757575)
@@ -51,23 +52,12 @@ internal fun MarshioGuidanceMap(
     var guidanceIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var initialBoundsApplied by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
+    val scope = rememberCoroutineScope()
+    val cameraFollowing = followCamera && initialBoundsApplied
 
-    LaunchedEffect(fromLatLng, toLatLng, marshioPath, googlePath, followCamera) {
-        if (followCamera || initialBoundsApplied) return@LaunchedEffect
-        val boundsBuilder = LatLngBounds.builder().include(fromLatLng).include(toLatLng)
-        marshioPath.forEach { boundsBuilder.include(it) }
-        googlePath.forEach { boundsBuilder.include(it) }
-        runCatching {
-            cameraPositionState.move(
-                CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), MapBoundsPaddingPx),
-            )
-            initialBoundsApplied = true
-        }
-    }
-
-    LaunchedEffect(guidancePosition, guidanceBearing, followCamera) {
+    LaunchedEffect(guidancePosition, guidanceBearing, cameraFollowing) {
         val position = guidancePosition ?: return@LaunchedEffect
-        if (!followCamera) return@LaunchedEffect
+        if (!cameraFollowing) return@LaunchedEffect
         val cameraBuilder = CameraPosition.Builder()
             .target(position)
             .zoom(FollowZoom)
@@ -84,10 +74,10 @@ internal fun MarshioGuidanceMap(
         properties = rememberMarshioMapProperties(),
         uiSettings = MapUiSettings(
             zoomControlsEnabled = false,
-            scrollGesturesEnabled = !followCamera,
-            zoomGesturesEnabled = !followCamera,
+            scrollGesturesEnabled = !cameraFollowing,
+            zoomGesturesEnabled = !cameraFollowing,
             tiltGesturesEnabled = false,
-            rotationGesturesEnabled = !followCamera,
+            rotationGesturesEnabled = !cameraFollowing,
             compassEnabled = false,
             mapToolbarEnabled = false,
             myLocationButtonEnabled = false,
@@ -97,6 +87,23 @@ internal fun MarshioGuidanceMap(
             if (startIcon == null) startIcon = MapPreviewMarkerIcons.start(context)
             if (endIcon == null) endIcon = MapPreviewMarkerIcons.end(context)
             if (guidanceIcon == null) guidanceIcon = GuidanceMarkerIcons.guidanceDot(context)
+            if (!initialBoundsApplied) {
+                val boundsBuilder = LatLngBounds.builder().include(fromLatLng).include(toLatLng)
+                marshioPath.forEach { boundsBuilder.include(it) }
+                googlePath.forEach { boundsBuilder.include(it) }
+                scope.launch {
+                    runCatching {
+                        cameraPositionState.move(
+                            CameraUpdateFactory.newLatLngBounds(
+                                boundsBuilder.build(),
+                                MapBoundsPaddingPx,
+                            ),
+                        )
+                    }.onSuccess {
+                        initialBoundsApplied = true
+                    }
+                }
+            }
         },
     ) {
         if (googlePath.size >= 2) {
