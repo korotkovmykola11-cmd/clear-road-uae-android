@@ -74,8 +74,8 @@ internal fun MarshioGuidanceMap(
         properties = rememberMarshioMapProperties(),
         uiSettings = MapUiSettings(
             zoomControlsEnabled = false,
-            scrollGesturesEnabled = !cameraFollowing,
-            zoomGesturesEnabled = !cameraFollowing,
+            scrollGesturesEnabled = true,
+            zoomGesturesEnabled = true,
             tiltGesturesEnabled = false,
             rotationGesturesEnabled = !cameraFollowing,
             compassEnabled = false,

@@ -84,7 +84,7 @@ internal fun MarshioGuidanceRouteScreen(
             googlePath = session.googlePath,
             guidancePosition = guidanceState.state?.position,
             guidanceBearing = guidanceState.state?.bearingDegrees,
-            followCamera = !useSimulation && guidanceState.state != null,
+            followCamera = false,
             useSimulatedMarkerLabel = useSimulation,
         )
         if (showRestartSimulation && useSimulation) {
