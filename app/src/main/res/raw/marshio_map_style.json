@@ -1,0 +1,27 @@
+[
+  {
+    "featureType": "poi",
+    "stylers": [{ "visibility": "off" }]
+  },
+  {
+    "featureType": "poi.park",
+    "stylers": [{ "visibility": "simplified" }]
+  },
+  {
+    "featureType": "transit",
+    "stylers": [{ "visibility": "off" }]
+  },
+  {
+    "featureType": "landscape",
+    "stylers": [{ "saturation": -30 }]
+  },
+  {
+    "featureType": "water",
+    "stylers": [{ "saturation": -20 }, { "lightness": 10 }]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.icon",
+    "stylers": [{ "visibility": "off" }]
+  }
+]

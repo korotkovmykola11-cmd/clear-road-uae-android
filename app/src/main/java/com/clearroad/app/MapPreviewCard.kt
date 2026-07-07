@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clearroad.app.map.rememberMarshioMapProperties
 import com.clearroad.app.ui.model.GoogleMarshioDecisionState
 import com.clearroad.app.ui.model.RouteGoogleMarshioDecisionUiModel
 import com.clearroad.app.ui.model.RouteMapEvidenceUiModel
@@ -377,7 +378,7 @@ private fun ComparisonMapCard(
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
-                    properties = MapProperties(isMyLocationEnabled = false),
+                    properties = rememberMarshioMapProperties(),
                     uiSettings = MapUiSettings(
                         zoomControlsEnabled = false,
                         scrollGesturesEnabled = false,

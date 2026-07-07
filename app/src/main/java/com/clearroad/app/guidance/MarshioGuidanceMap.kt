@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.clearroad.app.MapPreviewMarkerIcons
+import com.clearroad.app.map.rememberMarshioMapProperties
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.CameraPosition
@@ -80,7 +81,7 @@ internal fun MarshioGuidanceMap(
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
-        properties = MapProperties(isMyLocationEnabled = false),
+        properties = rememberMarshioMapProperties(),
         uiSettings = MapUiSettings(
             zoomControlsEnabled = false,
             scrollGesturesEnabled = !followCamera,
