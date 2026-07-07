@@ -1,9 +1,11 @@
 *.iml
+!.idea/modules/**/*.iml
 .gradle
 /local.properties
 /.idea/caches
 /.idea/libraries
-/.idea/modules.xml
+# modules.xml is required for Android Studio Run to resolve the app module
+# /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
@@ -14,3 +16,10 @@
 .cxx
 local.properties
 .tmp-yuno-extract/
+
+# Lab and research (not shipped in production APK)
+app/src/debug/
+.wip-backup-*/
+.traffic-staging-*.kt
+experiments/
+docs/screenshots/
