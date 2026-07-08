@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +23,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.launch
 
 private val MarshioRouteColor = Color(0xFF00E676)
 private val GoogleRouteColor = Color(0xFF757575)
@@ -50,10 +48,29 @@ internal fun MarshioGuidanceMap(
     var startIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var endIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var guidanceIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
+    var mapReady by remember { mutableStateOf(false) }
     var initialBoundsApplied by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
-    val scope = rememberCoroutineScope()
     val cameraFollowing = followCamera && initialBoundsApplied
+
+    LaunchedEffect(mapReady, marshioPath, fromLatLng, toLatLng) {
+        if (!mapReady || initialBoundsApplied) return@LaunchedEffect
+        if (marshioPath.size < 2) return@LaunchedEffect
+        val boundsBuilder = LatLngBounds.builder()
+        marshioPath.forEach { boundsBuilder.include(it) }
+        boundsBuilder.include(fromLatLng)
+        boundsBuilder.include(toLatLng)
+        runCatching {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngBounds(
+                    boundsBuilder.build(),
+                    MapBoundsPaddingPx,
+                ),
+            )
+        }.onSuccess {
+            initialBoundsApplied = true
+        }
+    }
 
     LaunchedEffect(guidancePosition, guidanceBearing, cameraFollowing) {
         val position = guidancePosition ?: return@LaunchedEffect
@@ -84,26 +101,10 @@ internal fun MarshioGuidanceMap(
             indoorLevelPickerEnabled = false,
         ),
         onMapLoaded = {
+            mapReady = true
             if (startIcon == null) startIcon = MapPreviewMarkerIcons.start(context)
             if (endIcon == null) endIcon = MapPreviewMarkerIcons.end(context)
             if (guidanceIcon == null) guidanceIcon = GuidanceMarkerIcons.guidanceDot(context)
-            if (!initialBoundsApplied) {
-                val boundsBuilder = LatLngBounds.builder().include(fromLatLng).include(toLatLng)
-                marshioPath.forEach { boundsBuilder.include(it) }
-                googlePath.forEach { boundsBuilder.include(it) }
-                scope.launch {
-                    runCatching {
-                        cameraPositionState.move(
-                            CameraUpdateFactory.newLatLngBounds(
-                                boundsBuilder.build(),
-                                MapBoundsPaddingPx,
-                            ),
-                        )
-                    }.onSuccess {
-                        initialBoundsApplied = true
-                    }
-                }
-            }
         },
     ) {
         if (googlePath.size >= 2) {

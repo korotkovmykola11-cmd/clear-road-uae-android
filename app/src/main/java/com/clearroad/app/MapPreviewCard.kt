@@ -14,10 +14,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +45,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.launch
 
 private val MapPreviewHeight = 272.dp
 private val RecommendedRoutePolylineColor = Color(0xFF00E676)
@@ -270,8 +269,22 @@ private fun ComparisonMapCard(
     var startIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var endIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var splitIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
+    var mapReady by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
-    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(mapReady, fromLatLng, toLatLng, boundsPoints, boundsPaddingPx) {
+        if (!mapReady) return@LaunchedEffect
+        val boundsBuilder = LatLngBounds.builder().include(fromLatLng).include(toLatLng)
+        boundsPoints?.forEach { boundsBuilder.include(it) }
+        runCatching {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngBounds(
+                    boundsBuilder.build(),
+                    boundsPaddingPx,
+                ),
+            )
+        }
+    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -373,8 +386,8 @@ private fun ComparisonMapCard(
                     properties = rememberMarshioMapProperties(),
                     uiSettings = MapUiSettings(
                         zoomControlsEnabled = false,
-                        scrollGesturesEnabled = false,
-                        zoomGesturesEnabled = false,
+                        scrollGesturesEnabled = true,
+                        zoomGesturesEnabled = true,
                         tiltGesturesEnabled = false,
                         rotationGesturesEnabled = false,
                         compassEnabled = false,
@@ -383,6 +396,7 @@ private fun ComparisonMapCard(
                         indoorLevelPickerEnabled = false,
                     ),
                     onMapLoaded = {
+                        mapReady = true
                         if (showStartEndMarkers) {
                             if (startIcon == null) {
                                 startIcon = MapPreviewMarkerIcons.start(context)
@@ -393,19 +407,6 @@ private fun ComparisonMapCard(
                         }
                         if (splitPoint != null && splitIcon == null) {
                             splitIcon = MapPreviewMarkerIcons.split(context)
-                        }
-                        val boundsBuilder =
-                            LatLngBounds.builder().include(fromLatLng).include(toLatLng)
-                        boundsPoints?.forEach { boundsBuilder.include(it) }
-                        scope.launch {
-                            runCatching {
-                                cameraPositionState.move(
-                                    CameraUpdateFactory.newLatLngBounds(
-                                        boundsBuilder.build(),
-                                        boundsPaddingPx,
-                                    ),
-                                )
-                            }
                         }
                     },
                 ) {
