@@ -1,0 +1,71 @@
+{
+  "batch": "stage-0a-fixtures",
+  "notes": "Five frozen Google Classic Directions fixtures from docs/stage-34-4-live.",
+  "cases": [
+    {
+      "caseId": "stage34-route1",
+      "originLabel": "DIFC",
+      "destinationLabel": "Dubai Marina",
+      "originLat": 25.2138142,
+      "originLng": 55.2820336,
+      "destinationLat": 25.0784811,
+      "destinationLng": 55.1375463,
+      "fixtureFile": "route1-DIFC-Marina.json",
+      "expectedMajorCorridors": ["E11"],
+      "tags": ["urban", "toll"],
+      "notes": "Frozen live capture; three Google alternatives on Sheikh Zayed / local connectors."
+    },
+    {
+      "caseId": "stage34-route2",
+      "originLabel": "Dubai Marina",
+      "destinationLabel": "Dubai Airport T3",
+      "originLat": 25.0784811,
+      "originLng": 55.1375463,
+      "destinationLat": 25.2584301,
+      "destinationLng": 55.3698345,
+      "fixtureFile": "route2-Marina-AirportT3.json",
+      "expectedMajorCorridors": ["E11", "E311"],
+      "tags": ["airport", "toll", "urban"],
+      "notes": "Includes E311 alternative via MBZ Road."
+    },
+    {
+      "caseId": "stage34-route3",
+      "originLabel": "Sharjah Samnan",
+      "destinationLabel": "Downtown Dubai",
+      "originLat": 25.338715,
+      "originLng": 55.420114,
+      "destinationLat": 25.1976146,
+      "destinationLng": 55.2743122,
+      "fixtureFile": "route3-Sharjah-Downtown.json",
+      "expectedMajorCorridors": ["E11", "E311", "E44"],
+      "tags": ["inter-emirate", "peak", "toll"],
+      "notes": "E11 vs E311 vs E311+E44 corridor fork."
+    },
+    {
+      "caseId": "stage34-route4",
+      "originLabel": "Ajman",
+      "destinationLabel": "DIFC",
+      "originLat": 25.4051615,
+      "originLng": 55.5135881,
+      "destinationLat": 25.2138142,
+      "destinationLng": 55.2820336,
+      "fixtureFile": "route4-Ajman-DIFC.json",
+      "expectedMajorCorridors": ["E11", "E311", "E44"],
+      "tags": ["inter-emirate", "toll"],
+      "notes": "North emirates into DIFC; three major corridor alternatives."
+    },
+    {
+      "caseId": "stage34-route5",
+      "originLabel": "JVC",
+      "destinationLabel": "Abu Dhabi",
+      "originLat": 25.0600077,
+      "originLng": 55.2099569,
+      "destinationLat": 24.4873245,
+      "destinationLng": 54.6066894,
+      "fixtureFile": "route5-JVC-AbuDhabi.json",
+      "expectedMajorCorridors": ["E11", "E10", "E44"],
+      "tags": ["long-distance", "inter-emirate"],
+      "notes": "Long-distance Dubai to Abu Dhabi with Al Khail/E44 variant."
+    }
+  ]
+}
