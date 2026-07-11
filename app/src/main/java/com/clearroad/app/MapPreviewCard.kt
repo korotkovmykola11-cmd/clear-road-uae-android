@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +56,11 @@ private val AlternativeRoutePolylineWidth = 18f
 private val SharedRoutePolylineWidth = 14f
 private val StrategicMapBoundsPaddingPx = 112
 private val LocalMapBoundsPaddingPx = 72
+
+internal enum class RoutePreviewCameraPolicy {
+    AlwaysFitOnDataChange,
+    InitialFitOnce,
+}
 
 private const val RoutePreviewLegend =
     "Green = MARSHIO selected route · Gray = Google alternatives"
@@ -102,6 +108,7 @@ internal fun MapPreviewCard(
     cardBorder: BorderStroke,
     modifier: Modifier = Modifier,
     mapPreviewHeight: Dp = MapPreviewHeight,
+    onStudyRouteClick: (() -> Unit)? = null,
 ) {
     val alternativePaths = otherRoutePathPoints.filter { it.isNotEmpty() }
     val decisionCaption = routePreviewDecisionCaption(googleMarshioDecision)
@@ -130,6 +137,21 @@ internal fun MapPreviewCard(
             cardBorder = cardBorder,
             mapPreviewHeight = mapPreviewHeight,
         )
+        if (onStudyRouteClick != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = onStudyRouteClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                border = cardBorder,
+            ) {
+                Text(
+                    text = "Explore route",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+                    color = ClearRoadColors.RoadGrey,
+                )
+            }
+        }
         if (mapEvidence?.enabled == true && hasLocalForkMapEvidence(mapEvidence)) {
             RouteLocalForkEvidenceCard(
                 fromLatLng = fromLatLng,
@@ -209,34 +231,176 @@ private fun SingleRouteMapPreviewCard(
                 junctionAnnotations = junctionAnnotations,
             ),
     ) {
-        val density = LocalDensity.current.density
-        alternativePaths.forEach { path ->
-            Polyline(
-                points = path,
-                color = AlternativeRoutePolylineColor,
-                width = AlternativeRoutePolylineWidth,
-                zIndex = 0f,
-            )
+        RoutePreviewMapLayers(
+            routePathPoints = routePathPoints,
+            trafficSegments = trafficSegments,
+            junctionAnnotations = junctionAnnotations,
+            alternativePaths = alternativePaths,
+        )
+    }
+}
+
+@Composable
+@GoogleMapComposable
+internal fun RoutePreviewMapLayers(
+    routePathPoints: List<LatLng>,
+    trafficSegments: List<TrafficSegment>,
+    junctionAnnotations: List<RouteJunctionAnnotation>,
+    alternativePaths: List<List<LatLng>>,
+) {
+    val density = LocalDensity.current.density
+    alternativePaths.forEach { path ->
+        Polyline(
+            points = path,
+            color = AlternativeRoutePolylineColor,
+            width = AlternativeRoutePolylineWidth,
+            zIndex = 0f,
+        )
+    }
+    val segmentsToRender =
+        trafficSegments.filter { it.points.size >= 2 }.ifEmpty {
+            if (routePathPoints.size >= 2) {
+                listOf(
+                    TrafficSegment(
+                        points = routePathPoints,
+                        speedCategory = SpeedCategory.UNKNOWN,
+                    ),
+                )
+            } else {
+                emptyList()
+            }
         }
-        val segmentsToRender =
-            trafficSegments.filter { it.points.size >= 2 }.ifEmpty {
-                if (routePathPoints.size >= 2) {
-                    listOf(
-                        TrafficSegment(
-                            points = routePathPoints,
-                            speedCategory = SpeedCategory.UNKNOWN,
-                        ),
-                    )
-                } else {
-                    emptyList()
+    RenderTrafficSegments(
+        segments = segmentsToRender,
+        density = density,
+        zIndexBase = 1f,
+    )
+    RenderJunctionAnnotations(annotations = junctionAnnotations)
+}
+
+@Composable
+internal fun RoutePreviewMapHost(
+    fromLatLng: LatLng,
+    toLatLng: LatLng,
+    boundsPaddingPx: Int,
+    showStartEndMarkers: Boolean,
+    modifier: Modifier = Modifier,
+    boundsPoints: List<LatLng>? = null,
+    splitPoint: LatLng? = null,
+    splitMarkerTitle: String? = null,
+    splitMarkerSnippet: String? = null,
+    cameraPolicy: RoutePreviewCameraPolicy = RoutePreviewCameraPolicy.AlwaysFitOnDataChange,
+    zoomControlsEnabled: Boolean = false,
+    fitRouteTrigger: Int = 0,
+    mapContent: @Composable @GoogleMapComposable () -> Unit,
+) {
+    val context = LocalContext.current
+    var startIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
+    var endIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
+    var splitIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
+    var mapReady by remember { mutableStateOf(false) }
+    var initialFitComplete by remember { mutableStateOf(false) }
+    val cameraPositionState = rememberCameraPositionState()
+
+    suspend fun fitRouteBounds(): Boolean {
+        val boundsBuilder = LatLngBounds.builder().include(fromLatLng).include(toLatLng)
+        boundsPoints?.forEach { boundsBuilder.include(it) }
+        return runCatching {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngBounds(
+                    boundsBuilder.build(),
+                    boundsPaddingPx,
+                ),
+            )
+        }.isSuccess
+    }
+
+    when (cameraPolicy) {
+        RoutePreviewCameraPolicy.AlwaysFitOnDataChange -> {
+            LaunchedEffect(mapReady, fromLatLng, toLatLng, boundsPoints, boundsPaddingPx) {
+                if (!mapReady) return@LaunchedEffect
+                fitRouteBounds()
+            }
+        }
+        RoutePreviewCameraPolicy.InitialFitOnce -> {
+            LaunchedEffect(mapReady) {
+                if (!mapReady || initialFitComplete) return@LaunchedEffect
+                if (fitRouteBounds()) {
+                    initialFitComplete = true
                 }
             }
-        RenderTrafficSegments(
-            segments = segmentsToRender,
-            density = density,
-            zIndexBase = 1f,
-        )
-        RenderJunctionAnnotations(annotations = junctionAnnotations)
+            LaunchedEffect(fitRouteTrigger) {
+                if (!mapReady || fitRouteTrigger == 0) return@LaunchedEffect
+                fitRouteBounds()
+            }
+        }
+    }
+
+    Box(modifier = modifier) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            properties = rememberMarshioMapProperties(),
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = zoomControlsEnabled,
+                scrollGesturesEnabled = true,
+                zoomGesturesEnabled = true,
+                tiltGesturesEnabled = false,
+                rotationGesturesEnabled = false,
+                compassEnabled = false,
+                mapToolbarEnabled = false,
+                myLocationButtonEnabled = false,
+                indoorLevelPickerEnabled = false,
+            ),
+            onMapLoaded = {
+                mapReady = true
+                if (showStartEndMarkers) {
+                    if (startIcon == null) {
+                        startIcon = MapPreviewMarkerIcons.start(context)
+                    }
+                    if (endIcon == null) {
+                        endIcon = MapPreviewMarkerIcons.end(context)
+                    }
+                }
+                if (splitPoint != null && splitIcon == null) {
+                    splitIcon = MapPreviewMarkerIcons.split(context)
+                }
+            },
+        ) {
+            mapContent()
+            if (showStartEndMarkers) {
+                startIcon?.let { icon ->
+                    Marker(
+                        state = MarkerState(position = fromLatLng),
+                        title = "Start",
+                        icon = icon,
+                        zIndex = 2f,
+                        onClick = { true },
+                    )
+                }
+                endIcon?.let { icon ->
+                    Marker(
+                        state = MarkerState(position = toLatLng),
+                        title = "End",
+                        icon = icon,
+                        zIndex = 2f,
+                        onClick = { true },
+                    )
+                }
+            }
+            splitPoint?.let { point ->
+                splitIcon?.let { icon ->
+                    Marker(
+                        state = MarkerState(position = point),
+                        title = splitMarkerTitle,
+                        snippet = splitMarkerSnippet,
+                        icon = icon,
+                        zIndex = 3f,
+                        onClick = { true },
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -265,27 +429,6 @@ private fun ComparisonMapCard(
     mapPreviewHeight: Dp = MapPreviewHeight,
     mapContent: @Composable @GoogleMapComposable () -> Unit,
 ) {
-    val context = LocalContext.current
-    var startIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
-    var endIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
-    var splitIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
-    var mapReady by remember { mutableStateOf(false) }
-    val cameraPositionState = rememberCameraPositionState()
-
-    LaunchedEffect(mapReady, fromLatLng, toLatLng, boundsPoints, boundsPaddingPx) {
-        if (!mapReady) return@LaunchedEffect
-        val boundsBuilder = LatLngBounds.builder().include(fromLatLng).include(toLatLng)
-        boundsPoints?.forEach { boundsBuilder.include(it) }
-        runCatching {
-            cameraPositionState.animate(
-                CameraUpdateFactory.newLatLngBounds(
-                    boundsBuilder.build(),
-                    boundsPaddingPx,
-                ),
-            )
-        }
-    }
-
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -374,77 +517,22 @@ private fun ComparisonMapCard(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(mapPreviewHeight)
-                    .clip(RoundedCornerShape(10.dp)),
-            ) {
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState,
-                    properties = rememberMarshioMapProperties(),
-                    uiSettings = MapUiSettings(
-                        zoomControlsEnabled = false,
-                        scrollGesturesEnabled = true,
-                        zoomGesturesEnabled = true,
-                        tiltGesturesEnabled = false,
-                        rotationGesturesEnabled = false,
-                        compassEnabled = false,
-                        mapToolbarEnabled = false,
-                        myLocationButtonEnabled = false,
-                        indoorLevelPickerEnabled = false,
-                    ),
-                    onMapLoaded = {
-                        mapReady = true
-                        if (showStartEndMarkers) {
-                            if (startIcon == null) {
-                                startIcon = MapPreviewMarkerIcons.start(context)
-                            }
-                            if (endIcon == null) {
-                                endIcon = MapPreviewMarkerIcons.end(context)
-                            }
-                        }
-                        if (splitPoint != null && splitIcon == null) {
-                            splitIcon = MapPreviewMarkerIcons.split(context)
-                        }
-                    },
-                ) {
-                    mapContent()
-                    if (showStartEndMarkers) {
-                        startIcon?.let { icon ->
-                            Marker(
-                                state = MarkerState(position = fromLatLng),
-                                title = "Start",
-                                icon = icon,
-                                zIndex = 2f,
-                                onClick = { true },
-                            )
-                        }
-                        endIcon?.let { icon ->
-                            Marker(
-                                state = MarkerState(position = toLatLng),
-                                title = "End",
-                                icon = icon,
-                                zIndex = 2f,
-                                onClick = { true },
-                            )
-                        }
-                    }
-                    splitPoint?.let { point ->
-                        splitIcon?.let { icon ->
-                            Marker(
-                                state = MarkerState(position = point),
-                                title = splitMarkerTitle,
-                                snippet = splitMarkerSnippet,
-                                icon = icon,
-                                zIndex = 3f,
-                                onClick = { true },
-                            )
-                        }
-                    }
-                }
-            }
+            RoutePreviewMapHost(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(mapPreviewHeight)
+                        .clip(RoundedCornerShape(10.dp)),
+                fromLatLng = fromLatLng,
+                toLatLng = toLatLng,
+                boundsPaddingPx = boundsPaddingPx,
+                showStartEndMarkers = showStartEndMarkers,
+                boundsPoints = boundsPoints,
+                splitPoint = splitPoint,
+                splitMarkerTitle = splitMarkerTitle,
+                splitMarkerSnippet = splitMarkerSnippet,
+                mapContent = mapContent,
+            )
             if (!footerLabel.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -488,7 +576,7 @@ private fun renderLocalForkPolylines(
     )
 }
 
-private fun buildFullTripBounds(
+internal fun buildFullTripBounds(
     fromLatLng: LatLng,
     toLatLng: LatLng,
     marshioPath: List<LatLng>,

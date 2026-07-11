@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
 import com.clearroad.app.domain.PreferenceMode
@@ -284,6 +285,7 @@ fun ClearRoadScreen(
     var selectedRouteIndex by remember { mutableStateOf(0) }
     var directionsLoading by remember { mutableStateOf(false) }
     var detailsRouteIndex by remember { mutableStateOf<Int?>(null) }
+    var routePreviewModel by remember { mutableStateOf<RouteDetailsUiModel?>(null) }
     var showRouteInputs by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -380,6 +382,11 @@ fun ClearRoadScreen(
             idx !in realRouteDebugDataList.indices
         ) {
             detailsRouteIndex = null
+        }
+    }
+    LaunchedEffect(detailsRouteIndex) {
+        if (detailsRouteIndex == null) {
+            routePreviewModel = null
         }
     }
     Box(modifier = modifier.fillMaxSize()) {
@@ -787,32 +794,42 @@ fun ClearRoadScreen(
         }
         }
 
-        detailsRouteIndex?.let { detailIdx ->
-            val detailItem = realRouteDebugDataList.getOrNull(detailIdx)
-            if (detailItem != null) {
-                ModalBottomSheet(
-                    onDismissRequest = { detailsRouteIndex = null },
-                    containerColor = ClearRoadColors.RouteCardSurface,
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                ) {
-                    RouteDetailsScreen(
-                        model =
-                            RouteDetailsAssembly.buildUiModel(
-                                RouteDetailsAssembly.Input(
-                                    detailRouteIndex = detailIdx,
-                                    detailRoute = detailItem,
-                                    routes = realRouteDebugDataList,
-                                    identities = routeIdentities,
-                                    mode = selectedMode,
-                                    recommendedRouteIndex = recommendedRouteIndex,
-                                    directionsStatus = directionsStatus,
-                                    fromLatLng = selectedFromLatLng,
-                                    toLatLng = selectedToLatLng,
-                                    useLegacyHomeFallback =
-                                        !ArchitectureValidation.RECOMMENDATION_ONLY_HOME,
-                                ),
+        val activeRoutePreview = routePreviewModel
+        if (activeRoutePreview != null) {
+            RouteStudyScreen(
+                model = activeRoutePreview,
+                onClose = { routePreviewModel = null },
+            )
+        } else {
+            detailsRouteIndex?.let { detailIdx ->
+                val detailItem = realRouteDebugDataList.getOrNull(detailIdx)
+                if (detailItem != null) {
+                    val routeDetailsModel =
+                        RouteDetailsAssembly.buildUiModel(
+                            RouteDetailsAssembly.Input(
+                                detailRouteIndex = detailIdx,
+                                detailRoute = detailItem,
+                                routes = realRouteDebugDataList,
+                                identities = routeIdentities,
+                                mode = selectedMode,
+                                recommendedRouteIndex = recommendedRouteIndex,
+                                directionsStatus = directionsStatus,
+                                fromLatLng = selectedFromLatLng,
+                                toLatLng = selectedToLatLng,
+                                useLegacyHomeFallback =
+                                    !ArchitectureValidation.RECOMMENDATION_ONLY_HOME,
                             ),
-                    )
+                        )
+                    ModalBottomSheet(
+                        onDismissRequest = { detailsRouteIndex = null },
+                        containerColor = ClearRoadColors.RouteCardSurface,
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                    ) {
+                        RouteDetailsScreen(
+                            model = routeDetailsModel,
+                            onExpandMap = { routePreviewModel = routeDetailsModel },
+                        )
+                    }
                 }
             }
         }
