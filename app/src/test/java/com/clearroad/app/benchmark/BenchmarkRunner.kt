@@ -59,6 +59,18 @@ object BenchmarkRunner {
                     error(parseResult.message)
             }
 
+        return analyzeCase(
+            benchmarkCase = manifest.case,
+            candidates = candidates,
+            sourceLabel = manifest.fixtureFile,
+        )
+    }
+
+    fun analyzeCase(
+        benchmarkCase: UaeRouteBenchmarkCase,
+        candidates: List<BenchmarkRouteCandidate>,
+        sourceLabel: String = "",
+    ): BenchmarkReport.CaseResult {
         val classified =
             candidates.map { candidate ->
                 val classification =
@@ -99,10 +111,10 @@ object BenchmarkRunner {
             genuinelyDifferentCandidateIds(pairComparisons).size
 
         return BenchmarkReport.CaseResult(
-            caseId = manifest.case.caseId,
-            originLabel = manifest.case.originLabel,
-            destinationLabel = manifest.case.destinationLabel,
-            fixtureFile = manifest.fixtureFile,
+            caseId = benchmarkCase.caseId,
+            originLabel = benchmarkCase.originLabel,
+            destinationLabel = benchmarkCase.destinationLabel,
+            fixtureFile = sourceLabel,
             rawCandidateCount = candidates.size,
             validCandidateCount = validCandidates.size,
             distinctPrimaryCorridorCount = distinctPrimaryCorridors.size,
