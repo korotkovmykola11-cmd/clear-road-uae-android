@@ -18,10 +18,14 @@ internal const val STAGE0B_LIVE_PROPERTY = "benchmark.stage0b.live"
 internal const val STAGE0B_LIVE_ENV = "BENCHMARK_STAGE0B_LIVE"
 internal const val STAGE0B_CASE_COUNT_PROPERTY = "benchmark.stage0b.caseCount"
 internal const val STAGE0B_CASE_COUNT_ENV = "BENCHMARK_STAGE0B_CASE_COUNT"
+internal const val STAGE0B_CASE_OFFSET_PROPERTY = "benchmark.stage0b.caseOffset"
+internal const val STAGE0B_CASE_OFFSET_ENV = "BENCHMARK_STAGE0B_CASE_OFFSET"
 
 internal object Stage0BLivePilotConfig {
     const val DEFAULT_CASE_COUNT = 1
-    val ALLOWED_CASE_COUNTS = setOf(1, 3, 10)
+    const val DEFAULT_CASE_OFFSET = 0
+    val ALLOWED_CASE_COUNTS = setOf(1, 2, 3, 10)
+    val CASE_CATALOG_SIZE = Stage0BLiveCases.all.size
 
     fun isLiveEnabled(
         liveProperty: String? = System.getProperty(STAGE0B_LIVE_PROPERTY),
@@ -45,17 +49,92 @@ internal object Stage0BLivePilotConfig {
         return parsed.takeIf { it in ALLOWED_CASE_COUNTS }
     }
 
-    fun selectedCases(caseCount: Int): List<UaeRouteBenchmarkCase> = Stage0BLiveCases.all.take(caseCount)
+    fun resolveCaseOffset(
+        caseOffsetProperty: String? = System.getProperty(STAGE0B_CASE_OFFSET_PROPERTY),
+        environment: Map<String, String> = System.getenv(),
+    ): Int? {
+        val raw =
+            caseOffsetProperty?.trim()?.takeIf { it.isNotEmpty() }
+                ?: environment[STAGE0B_CASE_OFFSET_ENV]?.trim()?.takeIf { it.isNotEmpty() }
+                ?: DEFAULT_CASE_OFFSET.toString()
+        val parsed = raw.toIntOrNull() ?: return null
+        return parsed.takeIf { it >= 0 }
+    }
+
+    fun validateCaseWindow(caseOffset: Int, caseCount: Int): String? {
+        if (caseCount <= 0) {
+            return "Invalid Stage 0B case count (require count > 0; " +
+                "set -D$STAGE0B_CASE_COUNT_PROPERTY or $STAGE0B_CASE_COUNT_ENV)"
+        }
+        if (caseCount > CASE_CATALOG_SIZE) {
+            return "Invalid Stage 0B case count (count=$caseCount exceeds catalog size=$CASE_CATALOG_SIZE; " +
+                "set -D$STAGE0B_CASE_COUNT_PROPERTY or $STAGE0B_CASE_COUNT_ENV)"
+        }
+        if (caseOffset < 0) {
+            return "Invalid Stage 0B case offset (require offset >= 0; " +
+                "set -D$STAGE0B_CASE_OFFSET_PROPERTY or $STAGE0B_CASE_OFFSET_ENV)"
+        }
+        if (caseOffset > CASE_CATALOG_SIZE - caseCount) {
+            return "Invalid Stage 0B case window (offset=$caseOffset, count=$caseCount, " +
+                "catalog size=$CASE_CATALOG_SIZE; require offset + count <= catalog size; " +
+                "set -D$STAGE0B_CASE_OFFSET_PROPERTY or $STAGE0B_CASE_OFFSET_ENV and " +
+                "-D$STAGE0B_CASE_COUNT_PROPERTY or $STAGE0B_CASE_COUNT_ENV)"
+        }
+        return null
+    }
+
+    fun selectedCases(
+        caseCount: Int,
+        caseOffset: Int = DEFAULT_CASE_OFFSET,
+    ): List<UaeRouteBenchmarkCase> = Stage0BLiveCases.all.drop(caseOffset).take(caseCount)
 }
 
+internal sealed interface Stage0BLivePreflightOutcome {
+    data class Skip(val reason: String) : Stage0BLivePreflightOutcome
+
+    data class InvalidConfig(val message: String) : Stage0BLivePreflightOutcome
+
+    data object Ready : Stage0BLivePreflightOutcome
+}
+
+internal class Stage0BLiveConfigurationException(
+    message: String,
+) : RuntimeException(message)
+
 internal data class Stage0BLivePreflight(
-    val shouldRunLive: Boolean,
-    val skipReason: String?,
+    val outcome: Stage0BLivePreflightOutcome,
     val config: BenchmarkLiveConfig.LoadResult,
     val caseCount: Int = Stage0BLivePilotConfig.DEFAULT_CASE_COUNT,
-    val selectedCases: List<UaeRouteBenchmarkCase> =
-        Stage0BLivePilotConfig.selectedCases(Stage0BLivePilotConfig.DEFAULT_CASE_COUNT),
-)
+    val caseOffset: Int = Stage0BLivePilotConfig.DEFAULT_CASE_OFFSET,
+    val selectedCases: List<UaeRouteBenchmarkCase> = emptyList(),
+) {
+    val shouldRunLive: Boolean
+        get() = outcome is Stage0BLivePreflightOutcome.Ready
+
+    val skipReason: String?
+        get() =
+            when (val current = outcome) {
+                is Stage0BLivePreflightOutcome.Skip -> current.reason
+                else -> null
+            }
+
+    val configurationError: String?
+        get() =
+            when (val current = outcome) {
+                is Stage0BLivePreflightOutcome.InvalidConfig -> current.message
+                else -> null
+            }
+}
+
+internal fun enforceStage0BLivePreflight(preflight: Stage0BLivePreflight) {
+    when (preflight.outcome) {
+        is Stage0BLivePreflightOutcome.InvalidConfig ->
+            org.junit.Assert.fail(preflight.configurationError)
+        is Stage0BLivePreflightOutcome.Skip ->
+            org.junit.Assume.assumeTrue(preflight.skipReason, false)
+        Stage0BLivePreflightOutcome.Ready -> Unit
+    }
+}
 
 internal data class ResolvedApiKeys(
     val googleApiKey: String,
@@ -76,42 +155,64 @@ internal object Stage0BLiveBenchmarkGate {
     fun preflight(
         liveProperty: String? = System.getProperty(STAGE0B_LIVE_PROPERTY),
         caseCountProperty: String? = System.getProperty(STAGE0B_CASE_COUNT_PROPERTY),
+        caseOffsetProperty: String? = System.getProperty(STAGE0B_CASE_OFFSET_PROPERTY),
         environment: Map<String, String> = System.getenv(),
         startDirectory: Path = Path.of("").toAbsolutePath().normalize(),
     ): Stage0BLivePreflight {
         val config = BenchmarkLiveConfig.load(startDirectory = startDirectory, environment = environment)
         if (!Stage0BLivePilotConfig.isLiveEnabled(liveProperty, environment)) {
             return Stage0BLivePreflight(
-                shouldRunLive = false,
-                skipReason =
-                    "Stage 0B live benchmark not enabled " +
-                        "(set -D$STAGE0B_LIVE_PROPERTY=true or $STAGE0B_LIVE_ENV=true)",
-                config = config,
-            )
-        }
-        if (!config.isStage0BReady) {
-            return Stage0BLivePreflight(
-                shouldRunLive = false,
-                skipReason = config.missingKeyReasons.joinToString("; "),
+                outcome =
+                    Stage0BLivePreflightOutcome.Skip(
+                        "Stage 0B live benchmark not enabled " +
+                            "(set -D$STAGE0B_LIVE_PROPERTY=true or $STAGE0B_LIVE_ENV=true)",
+                    ),
                 config = config,
             )
         }
         val caseCount = Stage0BLivePilotConfig.resolveCaseCount(caseCountProperty, environment)
         if (caseCount == null) {
             return Stage0BLivePreflight(
-                shouldRunLive = false,
-                skipReason =
-                    "Invalid Stage 0B case count (allowed: ${Stage0BLivePilotConfig.ALLOWED_CASE_COUNTS.sorted()}; " +
-                        "set -D$STAGE0B_CASE_COUNT_PROPERTY or $STAGE0B_CASE_COUNT_ENV)",
+                outcome =
+                    Stage0BLivePreflightOutcome.InvalidConfig(
+                        "Invalid Stage 0B case count (allowed: ${Stage0BLivePilotConfig.ALLOWED_CASE_COUNTS.sorted()}; " +
+                            "set -D$STAGE0B_CASE_COUNT_PROPERTY or $STAGE0B_CASE_COUNT_ENV)",
+                    ),
                 config = config,
             )
         }
+        val caseOffset = Stage0BLivePilotConfig.resolveCaseOffset(caseOffsetProperty, environment)
+        if (caseOffset == null) {
+            return Stage0BLivePreflight(
+                outcome =
+                    Stage0BLivePreflightOutcome.InvalidConfig(
+                        "Invalid Stage 0B case offset (require offset >= 0; " +
+                            "set -D$STAGE0B_CASE_OFFSET_PROPERTY or $STAGE0B_CASE_OFFSET_ENV)",
+                    ),
+                config = config,
+            )
+        }
+        val caseWindowError = Stage0BLivePilotConfig.validateCaseWindow(caseOffset, caseCount)
+        if (caseWindowError != null) {
+            return Stage0BLivePreflight(
+                outcome = Stage0BLivePreflightOutcome.InvalidConfig(caseWindowError),
+                config = config,
+            )
+        }
+        if (!config.isStage0BReady) {
+            return Stage0BLivePreflight(
+                outcome = Stage0BLivePreflightOutcome.Skip(config.missingKeyReasons.joinToString("; ")),
+                config = config,
+                caseCount = caseCount,
+                caseOffset = caseOffset,
+            )
+        }
         return Stage0BLivePreflight(
-            shouldRunLive = true,
-            skipReason = null,
+            outcome = Stage0BLivePreflightOutcome.Ready,
             config = config,
             caseCount = caseCount,
-            selectedCases = Stage0BLivePilotConfig.selectedCases(caseCount),
+            caseOffset = caseOffset,
+            selectedCases = Stage0BLivePilotConfig.selectedCases(caseCount, caseOffset),
         )
     }
 }
@@ -156,6 +257,7 @@ internal fun resolveApiKeys(
 internal class Stage0BLiveBenchmarkHarness(
     private val liveProperty: String? = System.getProperty(STAGE0B_LIVE_PROPERTY),
     private val caseCountProperty: String? = System.getProperty(STAGE0B_CASE_COUNT_PROPERTY),
+    private val caseOffsetProperty: String? = System.getProperty(STAGE0B_CASE_OFFSET_PROPERTY),
     private val environment: Map<String, String> = System.getenv(),
     private val startDirectory: Path = Path.of("").toAbsolutePath().normalize(),
     private val httpExecutorFactory: () -> BenchmarkLiveHttpExecutor = { BenchmarkLiveHttpExecutor.stage0B() },
@@ -168,10 +270,14 @@ internal class Stage0BLiveBenchmarkHarness(
             Stage0BLiveBenchmarkGate.preflight(
                 liveProperty = liveProperty,
                 caseCountProperty = caseCountProperty,
+                caseOffsetProperty = caseOffsetProperty,
                 environment = environment,
                 startDirectory = startDirectory,
             )
         if (!preflight.shouldRunLive) {
+            if (preflight.configurationError != null) {
+                throw Stage0BLiveConfigurationException(preflight.configurationError!!)
+            }
             return Stage0BLiveBenchmarkRun(
                 preflight = preflight,
                 result = null,
@@ -186,8 +292,10 @@ internal class Stage0BLiveBenchmarkHarness(
                 ?: return Stage0BLiveBenchmarkRun(
                     preflight =
                         preflight.copy(
-                            shouldRunLive = false,
-                            skipReason = "API keys could not be resolved despite readiness check",
+                            outcome =
+                                Stage0BLivePreflightOutcome.Skip(
+                                    "API keys could not be resolved despite readiness check",
+                                ),
                         ),
                     result = null,
                     httpAttempts = 0,
@@ -568,11 +676,28 @@ class Stage0BLiveEntryGateTest {
     }
 
     @Test
-    fun preflight_invalidCaseCount_skipsBeforeProviders() {
+    fun preflight_invalidCaseCount_failsBeforeProvidersWhenLiveEnabled() {
         val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
         val httpAttempts = AtomicInteger(0)
 
-        val run =
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "5",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertTrue(preflight.configurationError!!.contains("Invalid Stage 0B case count"))
+        try {
+            enforceStage0BLivePreflight(preflight)
+            org.junit.Assert.fail("Expected configuration failure")
+        } catch (error: AssertionError) {
+            assertTrue(error.message!!.contains("Invalid Stage 0B case count"))
+        }
+
+        try {
             harness(
                 liveProperty = "true",
                 caseCountProperty = "5",
@@ -580,11 +705,10 @@ class Stage0BLiveEntryGateTest {
                 environment = bothKeyEnvironment(),
                 httpExecutorFactory = countingHttpExecutorFactory(httpAttempts),
             ).run()
+            org.junit.Assert.fail("Expected Stage0BLiveConfigurationException")
+        } catch (_: Stage0BLiveConfigurationException) {
+        }
 
-        assertFalse(run.preflight.shouldRunLive)
-        assertTrue(run.preflight.skipReason!!.contains("Invalid Stage 0B case count"))
-        assertNull(run.result)
-        assertFalse(run.providersCreated)
         assertEquals(0, httpAttempts.get())
     }
 
@@ -704,7 +828,562 @@ class Stage0BLiveEntryGateTest {
 
         assertTrue(preflight.shouldRunLive)
         assertEquals(3, preflight.caseCount)
+        assertEquals(0, preflight.caseOffset)
         assertEquals(Stage0BLiveCases.all.take(3).map { it.caseId }, preflight.selectedCases.map { it.caseId })
+    }
+
+    @Test
+    fun preflight_offsetZeroCountOne_selectsDifcMarina() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "1",
+                caseOffsetProperty = "0",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.shouldRunLive)
+        assertEquals(0, preflight.caseOffset)
+        assertEquals(1, preflight.caseCount)
+        assertEquals(listOf("live-difc-marina"), preflight.selectedCases.map { it.caseId })
+    }
+
+    @Test
+    fun preflight_offsetOneCountTwo_selectsNextTwoCasesWithoutDifcMarina() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = null,
+                caseOffsetProperty = null,
+                environment =
+                    bothKeyEnvironment() +
+                        mapOf(
+                            STAGE0B_CASE_OFFSET_ENV to "1",
+                            STAGE0B_CASE_COUNT_ENV to "2",
+                        ),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.shouldRunLive)
+        assertEquals(1, preflight.caseOffset)
+        assertEquals(2, preflight.caseCount)
+        assertEquals(
+            listOf("live-marina-airport-t3", "live-sharjah-downtown"),
+            preflight.selectedCases.map { it.caseId },
+        )
+    }
+
+    @Test
+    fun preflight_offsetZeroCountThree_selectsFirstThreeCases() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "3",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.shouldRunLive)
+        assertEquals(0, preflight.caseOffset)
+        assertEquals(
+            Stage0BLiveCases.all.take(3).map { it.caseId },
+            preflight.selectedCases.map { it.caseId },
+        )
+    }
+
+    @Test
+    fun preflight_missingCaseOffset_defaultsToZero() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "1",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.shouldRunLive)
+        assertEquals(0, preflight.caseOffset)
+        assertEquals(listOf("live-difc-marina"), preflight.selectedCases.map { it.caseId })
+    }
+
+    @Test
+    fun preflight_negativeCaseOffset_failsBeforeProvidersWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "2",
+                caseOffsetProperty = "-1",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "2",
+            caseOffsetProperty = "-1",
+        )
+    }
+
+    @Test
+    fun preflight_zeroCaseCount_failsBeforeProvidersWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "0",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "0",
+        )
+    }
+
+    @Test
+    fun preflight_caseOffsetBeyondCatalog_failsBeforeProvidersWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "1",
+                caseOffsetProperty = Stage0BLivePilotConfig.CASE_CATALOG_SIZE.toString(),
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "1",
+            caseOffsetProperty = Stage0BLivePilotConfig.CASE_CATALOG_SIZE.toString(),
+        )
+    }
+
+    @Test
+    fun preflight_caseWindowExtendsBeyondCatalog_failsBeforeProvidersWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "3",
+                caseOffsetProperty = "8",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "3",
+            caseOffsetProperty = "8",
+        )
+    }
+
+    @Test
+    fun preflight_nonNumericCaseOffset_failsBeforeProvidersWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "2",
+                caseOffsetProperty = "abc",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "2",
+            caseOffsetProperty = "abc",
+        )
+    }
+
+    @Test
+    fun preflight_nonNumericCaseCount_failsBeforeProvidersWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "two",
+                caseOffsetProperty = "1",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "two",
+            caseOffsetProperty = "1",
+        )
+    }
+
+    @Test
+    fun entryPoint_liveTrueInvalidCount_failsBeforeProviders() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+        val googleProvider = FakeRecordingProvider(BenchmarkProviderId.GOOGLE)
+        val graphHopperProvider = FakeRecordingProvider(BenchmarkProviderId.GRAPHHOPPER)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "abc",
+                caseOffsetProperty = "1",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        try {
+            enforceStage0BLivePreflight(preflight)
+            org.junit.Assert.fail("Expected configuration failure")
+        } catch (error: AssertionError) {
+            assertTrue(error.message!!.contains("Invalid Stage 0B case count"))
+        }
+
+        try {
+            harness(
+                liveProperty = "true",
+                caseCountProperty = "abc",
+                caseOffsetProperty = "1",
+                startDirectory = repo,
+                environment = bothKeyEnvironment(),
+                httpExecutorFactory = countingHttpExecutorFactory(httpAttempts),
+                googleProviderFactory = { _, _ -> googleProvider },
+                graphHopperProviderFactory = { _, _ -> graphHopperProvider },
+            ).run()
+            org.junit.Assert.fail("Expected Stage0BLiveConfigurationException")
+        } catch (_: Stage0BLiveConfigurationException) {
+        }
+
+        assertEquals(0, httpAttempts.get())
+        assertEquals(0, googleProvider.fetchCount)
+        assertEquals(0, graphHopperProvider.fetchCount)
+    }
+
+    @Test
+    fun preflight_liveFalseInvalidCount_skipsWithoutFailure() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = null,
+                caseCountProperty = "abc",
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.Skip)
+        assertFalse(preflight.shouldRunLive)
+        assertNull(preflight.configurationError)
+
+        val run =
+            harness(
+                liveProperty = null,
+                caseCountProperty = "abc",
+                startDirectory = repo,
+                environment = bothKeyEnvironment(),
+                httpExecutorFactory = countingHttpExecutorFactory(httpAttempts),
+            ).run()
+
+        assertTrue(run.preflight.outcome is Stage0BLivePreflightOutcome.Skip)
+        assertNull(run.result)
+        assertFalse(run.providersCreated)
+        assertEquals(0, httpAttempts.get())
+    }
+
+    @Test
+    fun preflight_countPrecedence_invalidConfigBeforeMissingKeySkip() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = false)
+        assertInvalidConfigPrecedenceWithMissingKeys(
+            repo = repo,
+            caseCountProperty = "abc",
+            caseOffsetProperty = "1",
+            expectedErrorFragment = "Invalid Stage 0B case count",
+        )
+    }
+
+    @Test
+    fun preflight_offsetPrecedence_invalidConfigBeforeMissingKeySkip() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = false)
+        assertInvalidConfigPrecedenceWithMissingKeys(
+            repo = repo,
+            caseCountProperty = "2",
+            caseOffsetProperty = "abc",
+            expectedErrorFragment = "Invalid Stage 0B case offset",
+        )
+    }
+
+    @Test
+    fun preflight_windowPrecedence_invalidConfigBeforeMissingKeySkip() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = false)
+        val invalidOffset = Stage0BLivePilotConfig.CASE_CATALOG_SIZE - 1
+        assertInvalidConfigPrecedenceWithMissingKeys(
+            repo = repo,
+            caseCountProperty = "2",
+            caseOffsetProperty = invalidOffset.toString(),
+            expectedErrorFragment = "Invalid Stage 0B case window",
+        )
+    }
+
+    @Test
+    fun preflight_disabledGate_invalidCountWithMissingKeys_skipsWithoutFailure() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = false)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = null,
+                caseCountProperty = "abc",
+                environment = emptyMap(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.Skip)
+        assertFalse(preflight.shouldRunLive)
+        assertNull(preflight.configurationError)
+
+        val run =
+            harness(
+                liveProperty = null,
+                caseCountProperty = "abc",
+                startDirectory = repo,
+                environment = emptyMap(),
+                httpExecutorFactory = countingHttpExecutorFactory(httpAttempts),
+            ).run()
+
+        assertTrue(run.preflight.outcome is Stage0BLivePreflightOutcome.Skip)
+        assertNull(run.result)
+        assertFalse(run.providersCreated)
+        assertEquals(0, httpAttempts.get())
+    }
+
+    @Test
+    fun preflight_validConfig_missingKeys_skipsAfterConfigValidation() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = false)
+        val httpAttempts = AtomicInteger(0)
+        val googleProvider = FakeRecordingProvider(BenchmarkProviderId.GOOGLE)
+        val graphHopperProvider = FakeRecordingProvider(BenchmarkProviderId.GRAPHHOPPER)
+        val budget = BenchmarkLiveBudget.stage0B()
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = null,
+                caseOffsetProperty = null,
+                environment =
+                    mapOf(
+                        STAGE0B_CASE_OFFSET_ENV to "1",
+                        STAGE0B_CASE_COUNT_ENV to "2",
+                    ),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.Skip)
+        assertFalse(preflight.shouldRunLive)
+        assertNull(preflight.configurationError)
+        assertTrue(preflight.skipReason!!.contains("GOOGLE_MAPS_API_KEY"))
+        assertTrue(preflight.skipReason!!.contains("GRAPHHOPPER_API_KEY"))
+        assertEquals(1, preflight.caseOffset)
+        assertEquals(2, preflight.caseCount)
+
+        val run =
+            harness(
+                liveProperty = "true",
+                caseCountProperty = null,
+                caseOffsetProperty = null,
+                startDirectory = repo,
+                environment =
+                    mapOf(
+                        STAGE0B_CASE_OFFSET_ENV to "1",
+                        STAGE0B_CASE_COUNT_ENV to "2",
+                    ),
+                httpExecutorFactory = countingHttpExecutorFactory(httpAttempts),
+                googleProviderFactory = { _, _ -> googleProvider },
+                graphHopperProviderFactory = { _, _ -> graphHopperProvider },
+            ).run()
+
+        assertTrue(run.preflight.outcome is Stage0BLivePreflightOutcome.Skip)
+        assertNull(run.result)
+        assertFalse(run.providersCreated)
+        assertEquals(0, httpAttempts.get())
+        assertEquals(0, googleProvider.fetchCount)
+        assertEquals(0, graphHopperProvider.fetchCount)
+        assertEquals(0, budget.snapshot().totalReserved)
+    }
+
+    @Test
+    fun preflight_overflowCaseWindow_failsBeforeProvidersWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+
+        val preflightMaxCount =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "10",
+                caseOffsetProperty = Int.MAX_VALUE.toString(),
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+        assertTrue(preflightMaxCount.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "10",
+            caseOffsetProperty = Int.MAX_VALUE.toString(),
+        )
+
+        val preflightMaxOffset =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "1",
+                caseOffsetProperty = Int.MAX_VALUE.toString(),
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+        assertTrue(preflightMaxOffset.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "1",
+            caseOffsetProperty = Int.MAX_VALUE.toString(),
+        )
+    }
+
+    @Test
+    fun preflight_caseWindowAtCatalogBoundary_isValid() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val lastValidOffset = Stage0BLivePilotConfig.CASE_CATALOG_SIZE - 2
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "2",
+                caseOffsetProperty = lastValidOffset.toString(),
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.shouldRunLive)
+        assertEquals(lastValidOffset, preflight.caseOffset)
+        assertEquals(2, preflight.caseCount)
+        assertEquals(2, preflight.selectedCases.size)
+    }
+
+    @Test
+    fun preflight_caseWindowOnePastCatalogBoundary_failsWhenLiveEnabled() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val httpAttempts = AtomicInteger(0)
+        val invalidOffset = Stage0BLivePilotConfig.CASE_CATALOG_SIZE - 1
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = "2",
+                caseOffsetProperty = invalidOffset.toString(),
+                environment = bothKeyEnvironment(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertInvalidConfigHarnessHasNoSideEffects(
+            repo = repo,
+            httpAttempts = httpAttempts,
+            liveProperty = "true",
+            caseCountProperty = "2",
+            caseOffsetProperty = invalidOffset.toString(),
+        )
+    }
+
+    @Test
+    fun run_offsetOneCountTwo_reservesFourProviderRequestsBeforeFetch() {
+        val repo = createBenchmarkRepositoryRoot(withBothKeys = true)
+        val googleProvider = FakeRecordingProvider(BenchmarkProviderId.GOOGLE)
+        val graphHopperProvider = FakeRecordingProvider(BenchmarkProviderId.GRAPHHOPPER)
+
+        val run =
+            harness(
+                liveProperty = "true",
+                caseCountProperty = null,
+                caseOffsetProperty = null,
+                startDirectory = repo,
+                environment =
+                    bothKeyEnvironment() +
+                        mapOf(
+                            STAGE0B_CASE_OFFSET_ENV to "1",
+                            STAGE0B_CASE_COUNT_ENV to "2",
+                        ),
+                httpExecutorFactory = { blockedHttpExecutor() },
+                googleProviderFactory = { _, _ -> googleProvider },
+                graphHopperProviderFactory = { _, _ -> graphHopperProvider },
+            ).run()
+
+        val result = requireNotNull(run.result)
+        assertEquals(1, run.preflight.caseOffset)
+        assertEquals(2, run.preflight.caseCount)
+        assertEquals(
+            listOf("live-marina-airport-t3", "live-sharjah-downtown"),
+            run.preflight.selectedCases.map { it.caseId },
+        )
+        assertEquals(2, result.requestedCases)
+        assertEquals(2, result.completedCases)
+        assertEquals(4, result.budgetSnapshot.totalReserved)
+        assertEquals(2, result.budgetSnapshot.googleReserved)
+        assertEquals(2, result.budgetSnapshot.graphHopperReserved)
+        assertEquals(2, googleProvider.fetchCount)
+        assertEquals(2, graphHopperProvider.fetchCount)
+        assertEquals(
+            listOf(
+                "live-marina-airport-t3" to BenchmarkProviderId.GOOGLE,
+                "live-marina-airport-t3" to BenchmarkProviderId.GRAPHHOPPER,
+                "live-sharjah-downtown" to BenchmarkProviderId.GOOGLE,
+                "live-sharjah-downtown" to BenchmarkProviderId.GRAPHHOPPER,
+            ),
+            result.providerOutcomes.map { it.caseId to it.providerId },
+        )
     }
 
     @Test
@@ -726,11 +1405,93 @@ class Stage0BLiveEntryGateTest {
         assertEquals(before, after)
     }
 
+    private fun assertInvalidConfigHarnessHasNoSideEffects(
+        repo: Path,
+        httpAttempts: AtomicInteger,
+        liveProperty: String?,
+        caseCountProperty: String? = null,
+        caseOffsetProperty: String? = null,
+        environment: Map<String, String> = bothKeyEnvironment(),
+    ) {
+        val googleProvider = FakeRecordingProvider(BenchmarkProviderId.GOOGLE)
+        val graphHopperProvider = FakeRecordingProvider(BenchmarkProviderId.GRAPHHOPPER)
+
+        try {
+            harness(
+                liveProperty = liveProperty,
+                caseCountProperty = caseCountProperty,
+                caseOffsetProperty = caseOffsetProperty,
+                startDirectory = repo,
+                environment = environment,
+                httpExecutorFactory = countingHttpExecutorFactory(httpAttempts),
+                googleProviderFactory = { _, _ -> googleProvider },
+                graphHopperProviderFactory = { _, _ -> graphHopperProvider },
+            ).run()
+            org.junit.Assert.fail("Expected Stage0BLiveConfigurationException")
+        } catch (_: Stage0BLiveConfigurationException) {
+        }
+
+        assertEquals(0, httpAttempts.get())
+        assertEquals(0, googleProvider.fetchCount)
+        assertEquals(0, graphHopperProvider.fetchCount)
+    }
+
+    private fun assertInvalidConfigPrecedenceWithMissingKeys(
+        repo: Path,
+        caseCountProperty: String? = null,
+        caseOffsetProperty: String? = null,
+        expectedErrorFragment: String,
+    ) {
+        val httpAttempts = AtomicInteger(0)
+        val googleProvider = FakeRecordingProvider(BenchmarkProviderId.GOOGLE)
+        val graphHopperProvider = FakeRecordingProvider(BenchmarkProviderId.GRAPHHOPPER)
+        val budget = BenchmarkLiveBudget.stage0B()
+
+        val preflight =
+            Stage0BLiveBenchmarkGate.preflight(
+                liveProperty = "true",
+                caseCountProperty = caseCountProperty,
+                caseOffsetProperty = caseOffsetProperty,
+                environment = emptyMap(),
+                startDirectory = repo,
+            )
+
+        assertTrue(preflight.outcome is Stage0BLivePreflightOutcome.InvalidConfig)
+        assertTrue(preflight.configurationError!!.contains(expectedErrorFragment))
+        try {
+            enforceStage0BLivePreflight(preflight)
+            org.junit.Assert.fail("Expected configuration failure")
+        } catch (error: AssertionError) {
+            assertTrue(error.message!!.contains(expectedErrorFragment))
+        }
+
+        try {
+            harness(
+                liveProperty = "true",
+                caseCountProperty = caseCountProperty,
+                caseOffsetProperty = caseOffsetProperty,
+                startDirectory = repo,
+                environment = emptyMap(),
+                httpExecutorFactory = countingHttpExecutorFactory(httpAttempts),
+                googleProviderFactory = { _, _ -> googleProvider },
+                graphHopperProviderFactory = { _, _ -> graphHopperProvider },
+            ).run()
+            org.junit.Assert.fail("Expected Stage0BLiveConfigurationException")
+        } catch (_: Stage0BLiveConfigurationException) {
+        }
+
+        assertEquals(0, httpAttempts.get())
+        assertEquals(0, googleProvider.fetchCount)
+        assertEquals(0, graphHopperProvider.fetchCount)
+        assertEquals(0, budget.snapshot().totalReserved)
+    }
+
     private fun harness(
         liveProperty: String?,
         startDirectory: Path,
         environment: Map<String, String> = emptyMap(),
         caseCountProperty: String? = null,
+        caseOffsetProperty: String? = null,
         httpExecutorFactory: () -> BenchmarkLiveHttpExecutor = { blockedHttpExecutor() },
         googleProviderFactory: ((String, BenchmarkLiveHttpExecutor) -> BenchmarkLiveProvider)? = null,
         graphHopperProviderFactory: ((String, BenchmarkLiveHttpExecutor) -> BenchmarkLiveProvider)? = null,
@@ -738,6 +1499,7 @@ class Stage0BLiveEntryGateTest {
         Stage0BLiveBenchmarkHarness(
             liveProperty = liveProperty,
             caseCountProperty = caseCountProperty,
+            caseOffsetProperty = caseOffsetProperty,
             environment = environment,
             startDirectory = startDirectory,
             httpExecutorFactory = httpExecutorFactory,

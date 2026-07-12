@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 
 /**
@@ -15,7 +14,8 @@ import org.junit.Test
  * 2. API keys present: GOOGLE_MAPS_API_KEY and GRAPHHOPPER_API_KEY
  *
  * Pilot size defaults to 1 case (`live-difc-marina`).
- * Override with -Dbenchmark.stage0b.caseCount=1|3|10 or BENCHMARK_STAGE0B_CASE_COUNT.
+ * Override with -Dbenchmark.stage0b.caseCount=1|2|3|10 or BENCHMARK_STAGE0B_CASE_COUNT.
+ * Optional window start: -Dbenchmark.stage0b.caseOffset=N or BENCHMARK_STAGE0B_CASE_OFFSET (default 0).
  *
  * Verified manual run (Windows PowerShell — env activation reaches test JVM):
  * ```
@@ -27,23 +27,17 @@ import org.junit.Test
  *   --tests "com.clearroad.app.benchmark.Stage0BLiveBenchmarkTest"
  * ```
  *
- * Offline gate coverage lives in [Stage0BLiveEntryGateTest].
+ * Invalid live configuration (when live is enabled) fails the entry test instead of skipping.
  */
 class Stage0BLiveBenchmarkTest {
 
     @Test
     fun runLiveBenchmark_whenExplicitlyEnabled() {
         val preflight = Stage0BLiveBenchmarkGate.preflight()
-        assumeTrue(
-            "Stage 0B live benchmark skipped: ${preflight.skipReason ?: "preflight rejected"}",
-            preflight.shouldRunLive,
-        )
+        enforceStage0BLivePreflight(preflight)
 
         val run = Stage0BLiveBenchmarkHarness().run()
-        assumeTrue(
-            "Stage 0B live benchmark skipped: ${run.preflight.skipReason ?: "harness rejected"}",
-            run.preflight.shouldRunLive,
-        )
+        enforceStage0BLivePreflight(run.preflight)
 
         val result = requireNotNull(run.result)
         val metadata = Stage0BLiveReportMetadata.forLiveRun()
