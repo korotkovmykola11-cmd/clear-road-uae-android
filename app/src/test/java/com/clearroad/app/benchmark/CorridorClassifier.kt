@@ -48,6 +48,10 @@ object CorridorClassifier {
         corridorScanText: String,
         distanceMeters: Int = 0,
     ): Result {
+        val normalizedSummary = BenchmarkCorridorTextNormalizer.normalize(routeSummary)
+        val normalizedScan = BenchmarkCorridorTextNormalizer.normalize(corridorScanText)
+        val canonSafeSummary = BenchmarkCorridorTextNormalizer.buildCanonSafeText(normalizedSummary)
+        val canonSafeScan = BenchmarkCorridorTextNormalizer.buildCanonSafeText(normalizedScan)
         val route =
             RealRouteDebugData(
                 distanceText = "",
@@ -56,11 +60,11 @@ object CorridorClassifier {
                 durationSeconds = 1,
                 tollAED = 0,
                 hasToll = false,
-                routeSummary = routeSummary,
-                corridorScanText = corridorScanText,
+                routeSummary = canonSafeSummary,
+                corridorScanText = canonSafeScan,
             )
         val spine = RouteIdentityExtractor.extractSpine(route)
-        val combined = "${routeSummary.trim()} ${corridorScanText.trim()}".trim()
+        val combined = "${canonSafeSummary.trim()} ${canonSafeScan.trim()}".trim()
         val normalized = UaeRoadCanon.normalize(combined)
 
         val allMatchedStableKeys =
@@ -83,7 +87,7 @@ object CorridorClassifier {
             allMatchedStableKeys = allMatchedStableKeys,
             matchedRoadEvidence = matchedRoadEvidence,
             secondaryConnectors = secondaryConnectors,
-            evidenceSummary = spine.summary.ifBlank { routeSummary },
+            evidenceSummary = normalizedSummary,
         )
     }
 
