@@ -46,11 +46,13 @@ class Stage0BLiveBenchmarkTest {
         )
 
         val result = requireNotNull(run.result)
-        val report = result.formatReadable()
+        val metadata = Stage0BLiveReportMetadata.forLiveRun()
+        val report = result.formatReadable(metadata)
         println(report)
 
         assertLiveRunInvariants(result, run.preflight)
         assertNoSecretsInReport(report)
+        assertReportConsistency(result)
 
         if (result.providerFailureCount > 0) {
             org.junit.Assert.fail(
@@ -105,6 +107,15 @@ class Stage0BLiveBenchmarkTest {
         assertEquals(selectedCases.map { it.caseId }, result.caseResults.map { it.caseId })
     }
 
+    private fun assertReportConsistency(result: Stage0BLiveRunResult) {
+        val failures = result.consistencyFailures()
+        if (failures.isNotEmpty()) {
+            org.junit.Assert.fail(
+                "Stage 0B live report consistency check failed: ${failures.joinToString("; ")}",
+            )
+        }
+    }
+
     private fun assertNoSecretsInReport(report: String) {
         val googleKey = System.getenv(BenchmarkLiveConfig.GOOGLE_MAPS_API_KEY_PROPERTY).orEmpty()
         val graphHopperKey = System.getenv(BenchmarkLiveConfig.GRAPHHOPPER_API_KEY_PROPERTY).orEmpty()
@@ -118,5 +129,7 @@ class Stage0BLiveBenchmarkTest {
 
         assertFalse(report.contains("api_key="))
         assertFalse(report.contains("X-Goog-Api-Key"))
+        assertFalse(report.contains("encodedPolyline"))
+        assertFalse(report.contains("LatLng"))
     }
 }
