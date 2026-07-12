@@ -11,15 +11,19 @@ import org.junit.Test
  * Stage 0B live entry benchmark — disabled by default.
  *
  * Enable only when BOTH are true:
- * 1. JVM property: -Dbenchmark.stage0b.live=true
+ * 1. Live activation: -Dbenchmark.stage0b.live=true OR BENCHMARK_STAGE0B_LIVE=true
  * 2. API keys present: GOOGLE_MAPS_API_KEY and GRAPHHOPPER_API_KEY
  *
- * Manual run (Windows PowerShell):
+ * Pilot size defaults to 1 case (`live-difc-marina`).
+ * Override with -Dbenchmark.stage0b.caseCount=1|3|10 or BENCHMARK_STAGE0B_CASE_COUNT.
+ *
+ * Verified manual run (Windows PowerShell — env activation reaches test JVM):
  * ```
- * $env:GRAPHHOPPER_API_KEY="..."
+ * $env:BENCHMARK_STAGE0B_LIVE="true"
+ * $env:BENCHMARK_STAGE0B_CASE_COUNT="1"
  * $env:GOOGLE_MAPS_API_KEY="..."
+ * $env:GRAPHHOPPER_API_KEY="..."
  * ./gradlew :app:testDebugUnitTest `
- *   -Dbenchmark.stage0b.live=true `
  *   --tests "com.clearroad.app.benchmark.Stage0BLiveBenchmarkTest"
  * ```
  *
@@ -45,7 +49,7 @@ class Stage0BLiveBenchmarkTest {
         val report = result.formatReadable()
         println(report)
 
-        assertLiveRunInvariants(result)
+        assertLiveRunInvariants(result, run.preflight)
         assertNoSecretsInReport(report)
 
         if (result.providerFailureCount > 0) {
@@ -56,15 +60,23 @@ class Stage0BLiveBenchmarkTest {
         }
     }
 
-    private fun assertLiveRunInvariants(result: Stage0BLiveRunResult) {
-        assertEquals(Stage0BLiveCases.all.size, result.requestedCases)
-        assertEquals(10, result.requestedCases)
-        assertEquals(Stage0BLiveCases.all.size, result.completedCases)
-        assertEquals(20, result.providerOutcomes.size)
+    private fun assertLiveRunInvariants(
+        result: Stage0BLiveRunResult,
+        preflight: Stage0BLivePreflight,
+    ) {
+        val selectedCases = preflight.selectedCases
+        val expectedOutcomes = selectedCases.size * 2
+
+        assertEquals(preflight.caseCount, result.requestedCases)
+        assertEquals(selectedCases.size, result.completedCases)
+        assertEquals(expectedOutcomes, result.providerOutcomes.size)
 
         assertTrue(result.budgetSnapshot.totalReserved <= BenchmarkLiveBudget.TOTAL_CAP)
         assertTrue(result.budgetSnapshot.googleReserved <= BenchmarkLiveBudget.GOOGLE_CAP)
         assertTrue(result.budgetSnapshot.graphHopperReserved <= BenchmarkLiveBudget.GRAPHHOPPER_CAP)
+        assertEquals(result.budgetSnapshot.totalReserved, expectedOutcomes)
+        assertEquals(result.budgetSnapshot.googleReserved, selectedCases.size)
+        assertEquals(result.budgetSnapshot.graphHopperReserved, selectedCases.size)
 
         val perProviderCase =
             result.providerOutcomes.groupBy { outcome -> outcome.caseId to outcome.providerId }
@@ -83,13 +95,14 @@ class Stage0BLiveBenchmarkTest {
         }
 
         val expectedOrder =
-            Stage0BLiveCases.all.flatMap { case ->
+            selectedCases.flatMap { case ->
                 listOf(
                     case.caseId to BenchmarkProviderId.GOOGLE,
                     case.caseId to BenchmarkProviderId.GRAPHHOPPER,
                 )
             }
         assertEquals(expectedOrder, result.providerOutcomes.map { it.caseId to it.providerId })
+        assertEquals(selectedCases.map { it.caseId }, result.caseResults.map { it.caseId })
     }
 
     private fun assertNoSecretsInReport(report: String) {

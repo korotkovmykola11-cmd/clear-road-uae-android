@@ -219,6 +219,58 @@ class GoogleRoutesResponseParserTest {
     }
 
     @Test
+    fun fieldMask_excludesUnsupportedStepName() {
+        assertFalse(GoogleRoutesResponseParser.PARSED_FIELD_MASK.contains("steps.name"))
+        assertEquals(
+            "routes.duration," +
+                "routes.distanceMeters," +
+                "routes.polyline.encodedPolyline," +
+                "routes.description," +
+                "routes.routeLabels," +
+                "routes.travelAdvisory.tollInfo," +
+                "routes.legs.steps.navigationInstruction.instructions",
+            GoogleRoutesResponseParser.PARSED_FIELD_MASK,
+        )
+    }
+
+    @Test
+    fun navigationInstruction_buildsCorridorScanText_withoutStepName() {
+        val result =
+            GoogleRoutesResponseParser.parse(
+                responseJson =
+                    """
+                    {
+                      "routes": [
+                        {
+                          "distanceMeters": 18000,
+                          "duration": "1200s",
+                          "description": "Sheikh Zayed Rd/E11",
+                          "polyline": { "encodedPolyline": "$encodedPolyline" },
+                          "legs": [
+                            {
+                              "steps": [
+                                {
+                                  "navigationInstruction": {
+                                    "instructions": "Merge onto Sheikh Zayed Rd / E11"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                    """.trimIndent(),
+                caseId = caseId,
+                requestId = requestId,
+            ) as GoogleRoutesResponseParser.ParseResult.Success
+
+        val corridorScanText = result.candidates.first().corridorScanText
+        assertTrue(corridorScanText.contains("Sheikh Zayed Rd/E11"))
+        assertTrue(corridorScanText.contains("Merge onto Sheikh Zayed Rd / E11"))
+    }
+
+    @Test
     fun parseResultToString_doesNotLeakRawJson() {
         val secretPayload = """{"api_key":"super-secret","routes":[]}"""
         val failure =
@@ -287,7 +339,6 @@ class GoogleRoutesResponseParserTest {
                   {
                     "steps": [
                       {
-                        "name": "Sheikh Zayed Rd",
                         "navigationInstruction": {
                           "instructions": "Merge onto Sheikh Zayed Rd / E11"
                         }

@@ -14,8 +14,7 @@ import org.json.JSONObject
  * - routes.description
  * - routes.routeLabels
  * - routes.travelAdvisory.tollInfo
- * - routes.legs.steps.navigationInstruction
- * - routes.legs.steps.name
+ * - routes.legs.steps.navigationInstruction.instructions
  */
 object GoogleRoutesResponseParser {
 
@@ -26,8 +25,7 @@ object GoogleRoutesResponseParser {
             "routes.description," +
             "routes.routeLabels," +
             "routes.travelAdvisory.tollInfo," +
-            "routes.legs.steps.navigationInstruction," +
-            "routes.legs.steps.name"
+            "routes.legs.steps.navigationInstruction.instructions"
 
     sealed class ParseResult {
         data class Success(val candidates: List<BenchmarkRouteCandidate>) : ParseResult() {
@@ -144,7 +142,6 @@ object GoogleRoutesResponseParser {
             val steps = leg.optJSONArray("steps") ?: continue
             for (stepIndex in 0 until steps.length()) {
                 val step = steps.optJSONObject(stepIndex) ?: continue
-                step.optString("name").trim().takeIf { it.isNotEmpty() }?.let { parts.add(it) }
                 step.optJSONObject("navigationInstruction")
                     ?.optString("instructions")
                     ?.trim()
