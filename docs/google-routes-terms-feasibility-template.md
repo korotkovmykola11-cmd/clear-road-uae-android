@@ -5,7 +5,7 @@
 | Item | Value |
 |------|-------|
 | Purpose | **Template only** |
-| Terms analysis | **Not started** |
+| Terms analysis | **In progress — F01 completed** |
 | Implementation authorization | **No** |
 | Last completed research stage | **Stage 0B** |
 | Next research stage | **Terms feasibility** |
@@ -49,7 +49,7 @@ This file defines the **structure** for a future Google Routes Terms feasibility
 - `Not allowed`
 - `Unknown`
 
-Every `Preliminary verdict` field in this template is `TBD` until a future audit assigns a value.
+Unreviewed Preliminary verdict fields remain TBD. Verdicts may be assigned only during an explicitly authorized Terms feasibility audit.
 
 ---
 
@@ -57,7 +57,7 @@ Every `Preliminary verdict` field in this template is `TBD` until a future audit
 
 | ID | Feature / UX | Preliminary verdict |
 |----|--------------|---------------------|
-| F01 | Multiple waypoint-constrained Google requests | TBD |
+| F01 | Multiple waypoint-constrained Google requests | Requires written confirmation |
 | F02 | Standard Google alternatives baseline request (without waypoints) | TBD |
 | F03 | Comparing multiple Google route responses | TBD |
 | F04 | Google Map presentation | TBD |
@@ -97,12 +97,12 @@ Each feature uses the same field set. All values are `TBD` until the future audi
 | Stored? | TBD |
 | Retention | TBD |
 | Google attribution | TBD |
-| Applicable Google documents | TBD |
-| Relevant Terms sections | TBD |
-| Preliminary verdict | TBD |
-| Evidence | TBD |
-| Open questions | TBD |
-| Written confirmation required | TBD |
+| Applicable Google documents | Routes API — Set intermediate waypoints (`https://developers.google.com/maps/documentation/routes/intermed_waypoints`); Routes API — Set a point for a route to pass through (`https://developers.google.com/maps/documentation/routes/pass-through`); Routes API — Method: computeRoutes (`https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRoutes`); Routes API — Usage and billing (`https://developers.google.com/maps/documentation/routes/usage-and-billing`); Routes API — Policies (`https://developers.google.com/maps/documentation/routes/policies`); Google Maps Platform Terms of Service (`https://cloud.google.com/maps-platform/terms`); Google Maps Platform Service Specific Terms (`https://cloud.google.com/maps-platform/terms/maps-service-terms`); Google Maps Platform EEA Service Specific Terms (`https://cloud.google.com/terms/maps-platform/eea/maps-service-terms`) — applicability depends on billing-account jurisdiction (TBD) |
+| Relevant Terms sections | Google Maps Platform Terms of Service — Section 3.2 License Requirements and Restrictions (including 3.2.1 General Restrictions: No Scraping; No Re-Creating Google Products or Features); Google Maps Platform Service Specific Terms — Section 19 Routes API (19.1 Use without a Google Map; 19.2 No use with a non-Google map; 19.3 Caching); Google Maps Platform EEA Service Specific Terms — Section 20 Routes API (if EEA billing applies) — cross-reference only, not analyzed in this feature |
+| Preliminary verdict | **Requires written confirmation** |
+| Evidence | **Technical API capability: Confirmed.** Google Routes API officially supports intermediate waypoints for `computeRoutes`, including stopover and pass-through (`via: true`) behavior within documented limits (up to 25 intermediate waypoints per request). **Terms permission for proposed MARSHIO use: Not established.** Written confirmation is required for the proposed systematic multi-request waypoint research pattern in the concrete MARSHIO UX. The reviewed official sources confirm the API capability, but they do not provide sufficiently specific affirmative authorization for the complete proposed MARSHIO multi-request research pattern (multiple separate waypoint-constrained requests → systematic corridor probing → comparison of returned Google routes → derived labels/explanations/scores → concrete display, attribution, and retention). Absence of an identified prohibition is not affirmative permission. **Billing and API facts (technical, not Terms verdict):** billing and API key required; documented waypoint limits apply; SKU depends on waypoint count and features used; traffic-aware or other advanced features may affect SKU; `computeAlternativeRoutes` does not return alternatives when intermediate waypoints are present — multiple corridor candidates require separate requests. **Cross-references only (not analyzed in F01):** Service Specific Terms §19.3 caching (F11); map presentation and attribution (F04, F05); route comparison (F03); derived labels/explanations/scores (F06–F08); persistence and retention (F10, F11). |
+| Open questions | Terms classification cannot be completed without a concrete proposed UX (see `Concrete proposed UX` — TBD). Which billing-account jurisdiction and controlling Terms apply? What exact multi-request research volume and frequency are proposed? Does the pattern fall within or conflict with applicable No Scraping restrictions (ToS §3.2.1(a))? Does the pattern fall within or conflict with applicable No Re-Creating restrictions (ToS §3.2.1(d))? What exact Customer Application UX will display and compare the results? Will any route content, coordinates, derived labels, fingerprints, or scores be retained? What attribution and Google Map presentation will be used? Which parts of the proposed pattern require written confirmation from Google Maps Platform support or sales? Cross-feature dependencies remain TBD: F03 (comparing route responses), F04/F05 (map presentation, attribution), F06–F08 (derived labels, explanations, scores), F09–F11 (session processing, persistence, caching), F12 (route fingerprints). |
+| Written confirmation required | **Yes** — Terms permission for the proposed systematic multi-request waypoint research pattern is not established from reviewed official sources alone. Written confirmation required for billing-account jurisdiction; multi-request research volume and pattern under License Restrictions §3.2.1(a) and §3.2.1(d); and any disputed aspects of the concrete MARSHIO UX. Escalation to Google Maps Platform support or sales if internal review cannot resolve open questions. |
 | Notes | TBD |
 
 ### F02 — Standard Google alternatives baseline request (without waypoints)
