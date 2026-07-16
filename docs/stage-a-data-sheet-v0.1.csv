@@ -1,0 +1,1 @@
+participant_id,assignment_group,trial_order,case_id,mode,condition,expected_outcome,selected_route_id,mode_consistent,decision_time_ms,timing_valid,confidence_1_7,ease_1_7,reason_code,completed,excluded,exclusion_reason,protocol_deviation,protocol_deviation_note,post_session_record,post_unclear_text,post_format_helped,researcher_note
