@@ -17,8 +17,26 @@
 local.properties
 .tmp-yuno-extract/
 
-# Lab and research (not shipped in production APK)
-app/src/debug/
+# Debug and research code is ignored by default.
+app/src/debug/*
+
+# Stage A debug prototype is intentionally version-controlled.
+!app/src/debug/AndroidManifest.xml
+!app/src/debug/java/
+
+app/src/debug/java/*
+!app/src/debug/java/com/
+
+app/src/debug/java/com/*
+!app/src/debug/java/com/clearroad/
+
+app/src/debug/java/com/clearroad/*
+!app/src/debug/java/com/clearroad/app/
+
+app/src/debug/java/com/clearroad/app/*
+!app/src/debug/java/com/clearroad/app/stagea/
+
+!app/src/debug/java/com/clearroad/app/stagea/**
 .wip-backup-*/
 .traffic-staging-*.kt
 experiments/
