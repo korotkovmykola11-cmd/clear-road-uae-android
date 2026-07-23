@@ -231,20 +231,20 @@ Do **not** infer Stage 0C parameter approval from:
 
 Those sources may establish capability or historical context. They do **not** automatically approve Stage 0C execution parameters for this probe.
 
-This revision is authorized for **document revision only**. It is **not** Product Owner approval of any technical parameter, fixture ID, factor, timeout, details list, or structural classification.
+This revision is authorized for **document revision only**. Product Owner Decision Pack 1 approves only the R1 `custom_model` state recorded as PO-0C-REQ-008. No other technical parameter, fixture, numeric factor, timeout, details list, structural classification, implementation, account access, retention policy, or live execution is approved by this revision.
 
-### 6.2 R1 `custom_model` absent versus present-empty
+### 6.2 R1 `custom_model` state (Product Owner Decision Pack 1 — PO-0C-REQ-008)
 
-R1 must use **exactly one** of the following mutually exclusive states:
+**Approved decision (R1 only):**
 
-| State | Meaning |
-|-------|---------|
-| **Absent** | No `custom_model` field in the request |
-| **Present but empty** | `custom_model` field present with no constraint rules |
+- R1 **`custom_model` state:** **absent** — the R1 baseline request **SHALL omit** `custom_model` entirely.
+- **Present-empty is not permitted for R1.** An empty inline `custom_model` **SHALL NOT** be used.
 
-Only one state may be selected for execution. They are **not** equivalent for compatibility testing.
+R1 is intended to represent provider behaviour without an inline custom model and to serve as the baseline control for comparison with requests that introduce custom-model rules.
 
-Neither state currently has explicit Product Owner approval recorded in §6.3. Until one state is approved, R1 request construction remains **unresolved**.
+This decision does **not** establish that every difference observed in R2–R4 is caused only by `custom_model`. Any other request-class differences and unresolved parameters remain subject to this specification and future Product Owner decisions.
+
+R2, R3, and R4 retain **`custom_model` present with rules** as stated in §6.3; rule contents remain **PRODUCT OWNER DECISION REQUIRED** in the applicable §6.3 rows.
 
 ### 6.3 Normative request-definition table
 
@@ -260,7 +260,7 @@ The table below is the single consolidated normative definition for R1–R4. Fix
 | point order | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | NONE — PRODUCT OWNER DECISION REQUIRED |
 | O-D fixture ID | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | NONE — PRODUCT OWNER DECISION REQUIRED |
 | `ch.disable` | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | PRODUCT OWNER DECISION REQUIRED | NONE — PRODUCT OWNER DECISION REQUIRED |
-| `custom_model` state | **Unresolved:** absent **or** present-empty (§6.2); only one may be selected | present with rules | present with rules | present with rules (same approved model as R2 when fixed) | PRODUCT OWNER DECISION REQUIRED | NONE — PRODUCT OWNER DECISION REQUIRED |
+| `custom_model` state | absent — field omitted entirely (PO-0C-REQ-008) | present with rules (rule parameters unresolved in other §6.3 rows) | present with rules (toll rule parameters unresolved in other §6.3 rows) | present with rules (same approved model as R2 when fixed; rule parameters unresolved in other §6.3 rows) | R1: FIXED per PO-0C-REQ-008; R2–R4 state as shown; rule contents: PRODUCT OWNER DECISION REQUIRED in other rows | Product Owner Decision Pack 1 — PO-0C-REQ-008: R1 SHALL omit `custom_model` entirely; present-empty not permitted for R1 |
 | candidate-area fixture ID | NOT APPLICABLE | PRODUCT OWNER DECISION REQUIRED | NOT APPLICABLE | PRODUCT OWNER DECISION REQUIRED (same approved ID as R2 when fixed) | PRODUCT OWNER DECISION REQUIRED | NONE — PRODUCT OWNER DECISION REQUIRED |
 | area-condition semantics | NOT APPLICABLE | PRODUCT OWNER DECISION REQUIRED | NOT APPLICABLE | PRODUCT OWNER DECISION REQUIRED (same approved semantics as R2 when fixed) | PRODUCT OWNER DECISION REQUIRED | NONE — PRODUCT OWNER DECISION REQUIRED |
 | exact custom-model priority condition | NOT APPLICABLE | PRODUCT OWNER DECISION REQUIRED | NOT APPLICABLE | PRODUCT OWNER DECISION REQUIRED (same approved condition as R2 when fixed) | PRODUCT OWNER DECISION REQUIRED | NONE — PRODUCT OWNER DECISION REQUIRED |
