@@ -13,6 +13,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".mock.MockRecommendationActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ClearRoad2" />
     </application>
 
 </manifest>
