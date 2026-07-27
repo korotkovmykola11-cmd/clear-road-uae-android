@@ -341,6 +341,27 @@ class RouteIntelligenceAssemblyReportTest {
     }
 
     @Test
+    fun buildRequest_selectsFirstNonSelectedAlternativeWhenMarshioMatchesGoogleDefault() {
+        val routes =
+            listOf(
+                routeWithPath(index = 0),
+                routeWithPath(index = 1),
+            )
+
+        val request =
+            RouteIntelligenceAssembly.buildRequest(
+                routes = routes,
+                identities = emptyList(),
+                recommendedIndex = 0,
+                isRecommendedRouteDetails = true,
+            )
+
+        assertNotNull(request)
+        assertEquals(0, request!!.marshioRoute.routeIndex)
+        assertEquals(1, request.alternativeRoute?.routeIndex)
+    }
+
+    @Test
     fun unavailableReason_notEnoughAlternativesForSingleRoute() {
         val routes = listOf(routeWithPath(index = 0))
 

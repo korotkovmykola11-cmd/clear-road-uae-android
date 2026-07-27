@@ -46,7 +46,12 @@ object RouteIntelligencePresentation {
 
             val comparisonAlternative =
                 alternativeProfile?.takeIf { it.osmSourceStatus == SourceStatus.OK }
-            val driverCopy = driverRouteCopy(marshioProfile, comparisonAlternative)
+            val driverCopy =
+                driverRouteCopy(
+                    marshio = marshioProfile,
+                    alternative = comparisonAlternative,
+                    alternativeRouteIndex = request.alternativeRoute?.routeIndex,
+                )
 
             RouteIntelligenceUiModel(
                 loading = false,
@@ -70,12 +75,25 @@ object RouteIntelligencePresentation {
     internal fun comparisonRouteLabel(routeIndex: Int): String =
         if (routeIndex == 0) "Google default" else "Alternative"
 
+    internal fun comparisonTargetPhrase(routeIndex: Int): String =
+        if (routeIndex == 0) {
+            "Google's default route"
+        } else {
+            "the alternative route"
+        }
+
     internal fun driverRouteCopy(
         marshio: RouteProfile,
         alternative: RouteProfile?,
+        alternativeRouteIndex: Int? = null,
     ): DriverRouteCopy {
         val headline = driverHeadline(marshio)
-        val explanation = driverExplanation(marshio, alternative)
+        val explanation =
+            driverExplanation(
+                marshio = marshio,
+                alternative = alternative,
+                alternativeRouteIndex = alternativeRouteIndex,
+            )
         return DriverRouteCopy(headline = headline, explanation = explanation)
     }
 
@@ -112,16 +130,19 @@ object RouteIntelligencePresentation {
     internal fun driverExplanation(
         marshio: RouteProfile,
         alternative: RouteProfile?,
+        alternativeRouteIndex: Int? = null,
     ): String {
         alternative?.let { alt ->
+            val comparisonTarget =
+                alternativeRouteIndex?.let(::comparisonTargetPhrase) ?: return@let
             val marshioSignals = marshio.trafficSignalsCount
             val alternativeSignals = alt.trafficSignalsCount
             if (marshioSignals != null && alternativeSignals != null) {
                 when {
                     marshioSignals >= alternativeSignals + 2 ->
-                        return "More intersections than the Google route."
+                        return "More intersections than $comparisonTarget."
                     marshioSignals + 2 <= alternativeSignals ->
-                        return "Fewer intersections than the Google route."
+                        return "Fewer intersections than $comparisonTarget."
                 }
             }
             val marshioComplexity = marshio.complexityScore
@@ -131,14 +152,14 @@ object RouteIntelligencePresentation {
                     alternativeComplexity != null &&
                     marshioComplexity >= alternativeComplexity + 0.15f
             ) {
-                return "Expect a busier drive than the Google route."
+                return "Expect a busier drive than $comparisonTarget."
             }
             if (
                 marshioComplexity != null &&
                     alternativeComplexity != null &&
                     marshioComplexity + 0.15f <= alternativeComplexity
             ) {
-                return "A calmer drive than the Google route."
+                return "A calmer drive than $comparisonTarget."
             }
         }
 

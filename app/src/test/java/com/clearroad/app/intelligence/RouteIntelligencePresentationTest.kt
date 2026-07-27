@@ -41,15 +41,94 @@ class RouteIntelligencePresentationTest {
     }
 
     @Test
-    fun driverRouteCopy_moreIntersectionsThanGoogleRoute() {
+    fun driverRouteCopy_moreIntersectionsThanAlternativeRoute() {
         val copy =
             RouteIntelligencePresentation.driverRouteCopy(
                 marshio = profile(trafficSignalsCount = 7, roundaboutsCount = 1, complexityScore = 0.4f),
                 alternative = profile(trafficSignalsCount = 3, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternativeRouteIndex = 1,
             )
 
         assertEquals("Busy city drive.", copy.headline)
-        assertEquals("More intersections than the Google route.", copy.explanation)
+        assertEquals("More intersections than the alternative route.", copy.explanation)
+    }
+
+    @Test
+    fun driverRouteCopy_comparativeWordingUsesGoogleDefaultRouteWhenComparisonIndexZero() {
+        val marshio = profile(trafficSignalsCount = 7, roundaboutsCount = 1, complexityScore = 0.55f)
+        val alternative = profile(trafficSignalsCount = 3, roundaboutsCount = 1, complexityScore = 0.35f)
+
+        assertEquals(
+            "More intersections than Google's default route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = marshio,
+                alternative = alternative,
+                alternativeRouteIndex = 0,
+            ),
+        )
+        assertEquals(
+            "Fewer intersections than Google's default route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = profile(trafficSignalsCount = 3, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternative = profile(trafficSignalsCount = 7, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternativeRouteIndex = 0,
+            ),
+        )
+        assertEquals(
+            "Expect a busier drive than Google's default route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.55f),
+                alternative = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternativeRouteIndex = 0,
+            ),
+        )
+        assertEquals(
+            "A calmer drive than Google's default route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternative = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.55f),
+                alternativeRouteIndex = 0,
+            ),
+        )
+    }
+
+    @Test
+    fun driverRouteCopy_comparativeWordingUsesAlternativeRouteWhenComparisonIndexGreaterThanZero() {
+        val marshio = profile(trafficSignalsCount = 7, roundaboutsCount = 1, complexityScore = 0.55f)
+        val alternative = profile(trafficSignalsCount = 3, roundaboutsCount = 1, complexityScore = 0.35f)
+
+        assertEquals(
+            "More intersections than the alternative route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = marshio,
+                alternative = alternative,
+                alternativeRouteIndex = 1,
+            ),
+        )
+        assertEquals(
+            "Fewer intersections than the alternative route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = profile(trafficSignalsCount = 3, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternative = profile(trafficSignalsCount = 7, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternativeRouteIndex = 1,
+            ),
+        )
+        assertEquals(
+            "Expect a busier drive than the alternative route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.55f),
+                alternative = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternativeRouteIndex = 1,
+            ),
+        )
+        assertEquals(
+            "A calmer drive than the alternative route.",
+            RouteIntelligencePresentation.driverExplanation(
+                marshio = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.35f),
+                alternative = profile(trafficSignalsCount = 4, roundaboutsCount = 1, complexityScore = 0.55f),
+                alternativeRouteIndex = 1,
+            ),
+        )
     }
 
     @Test
