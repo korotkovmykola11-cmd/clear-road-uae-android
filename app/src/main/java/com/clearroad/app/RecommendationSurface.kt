@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,7 +39,6 @@ import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
 import kotlinx.coroutines.delay
 
-private const val YUNO_CHARACTER_DRAWABLE = "yuno_character"
 private const val RecommendationSectionLabel = "MARSHIO Recommends One Route"
 
 private val HomeProductCardShape = RoundedCornerShape(14.dp)
@@ -402,29 +400,17 @@ private fun RecommendationCompareFactorList() {
 
 @Composable
 private fun RecommendationYunoOwnerBlock(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val characterDrawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                YUNO_CHARACTER_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (characterDrawableId != 0) {
-            Image(
-                painter = painterResource(characterDrawableId),
-                contentDescription = "YUNO",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(RecommendationYunoMarkSize),
-            )
-            Spacer(modifier = Modifier.width(RecommendationYunoAdvisorGap))
-        }
+        Image(
+            painter = painterResource(R.drawable.yuno_character),
+            contentDescription = "YUNO",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(RecommendationYunoMarkSize),
+        )
+        Spacer(modifier = Modifier.width(RecommendationYunoAdvisorGap))
         Text(
             text = "Your UAE Road Advisor",
             style = MaterialTheme.typography.bodyMedium.copy(

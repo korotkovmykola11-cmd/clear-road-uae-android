@@ -28,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,7 +41,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -55,13 +53,6 @@ import androidx.compose.ui.unit.sp
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
-
-private const val HOME_BRAND_ICON_DRAWABLE = "home_brand_marshio_icon"
-private const val HOME_BRAND_WORD_DRAWABLE = "home_brand_marshio_word"
-private const val YUNO_CHARACTER_DRAWABLE = "yuno_character"
-private const val HOME_MODE_FASTEST_DRAWABLE = "home_mode_fastest_lightning"
-private const val HOME_MODE_SAVE_AED_DRAWABLE = "home_mode_save_aed"
-private const val HOME_MODE_SMOOTH_DRIVE_DRAWABLE = "home_mode_smooth_drive"
 
 private val HomeSurfaceLight = Color(0xFFF5F9FF)
 private val HomeCardSurface = Color.White
@@ -121,84 +112,64 @@ private val HomeBrandBlockRaise = 48.dp
 /** MARSHIO brand header — product promise first. */
 @Composable
 internal fun HomeScreenHeader(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val iconDrawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                HOME_BRAND_ICON_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-    val wordDrawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                HOME_BRAND_WORD_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = HomeBrandHeroTopInset),
     ) {
-        if (iconDrawableId != 0 && wordDrawableId != 0) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .layout { measurable, constraints ->
+                    val raisePx = HomeBrandBlockRaise.roundToPx()
+                    val placeable = measurable.measure(constraints)
+                    layout(
+                        placeable.width,
+                        (placeable.height - raisePx).coerceAtLeast(0),
+                    ) {
+                        placeable.placeRelative(0, -raisePx)
+                    }
+                },
+        ) {
+            Image(
+                painter = painterResource(R.drawable.home_brand_marshio_icon),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.TopCenter,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .layout { measurable, constraints ->
-                        val raisePx = HomeBrandBlockRaise.roundToPx()
-                        val placeable = measurable.measure(constraints)
-                        layout(
-                            placeable.width,
-                            (placeable.height - raisePx).coerceAtLeast(0),
-                        ) {
-                            placeable.placeRelative(0, -raisePx)
-                        }
-                    },
+                    .heightIn(max = HomeBrandIconMaxHeight),
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.offset(y = -HomeBrandTextBlockLift),
             ) {
                 Image(
-                    painter = painterResource(iconDrawableId),
-                    contentDescription = null,
+                    painter = painterResource(R.drawable.home_brand_marshio_word),
+                    contentDescription = "MARSHIO",
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.TopCenter,
+                    colorFilter = ColorFilter.tint(
+                        ClearRoadColors.BrandTitleClear,
+                        BlendMode.SrcIn,
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = HomeBrandIconMaxHeight),
+                        .heightIn(max = HomeBrandWordMaxHeight),
                 )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.offset(y = -HomeBrandTextBlockLift),
-                ) {
-                    Image(
-                        painter = painterResource(wordDrawableId),
-                        contentDescription = "MARSHIO",
-                        contentScale = ContentScale.Fit,
-                        alignment = Alignment.TopCenter,
-                        colorFilter = ColorFilter.tint(
-                            ClearRoadColors.BrandTitleClear,
-                            BlendMode.SrcIn,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = HomeBrandWordMaxHeight),
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = HomeProductTagline,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp,
-                            letterSpacing = 0.15.sp,
-                            lineHeight = 19.sp,
-                        ),
-                        color = HomeProductMutedText,
-                        textAlign = TextAlign.Center,
-                    )
-                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = HomeProductTagline,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        letterSpacing = 0.15.sp,
+                        lineHeight = 19.sp,
+                    ),
+                    color = HomeProductMutedText,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }
@@ -251,16 +222,6 @@ internal fun HomePanelSectionDivider(modifier: Modifier = Modifier) {
 /** docs/index.html `.yuno-section` — real YUNO asset + advisor bubble */
 @Composable
 internal fun HomeYunoBubbleSection(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val characterDrawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                YUNO_CHARACTER_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -268,14 +229,12 @@ internal fun HomeYunoBubbleSection(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (characterDrawableId != 0) {
-            Image(
-                painter = painterResource(characterDrawableId),
-                contentDescription = "YUNO",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(YunoHomeMarkSize),
-            )
-        }
+        Image(
+            painter = painterResource(R.drawable.yuno_character),
+            contentDescription = "YUNO",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(YunoHomeMarkSize),
+        )
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "Hello! I'm YUNO",
@@ -527,11 +486,11 @@ private fun homeModeCardTitle(mode: PreferenceMode): String =
         PreferenceMode.CALM -> "SMOOTH DRIVE"
     }
 
-private fun homeModeCardDrawable(mode: PreferenceMode): String =
+private fun homeModeCardDrawable(mode: PreferenceMode): Int =
     when (mode) {
-        PreferenceMode.FASTEST -> HOME_MODE_FASTEST_DRAWABLE
-        PreferenceMode.NO_TOLLS -> HOME_MODE_SAVE_AED_DRAWABLE
-        PreferenceMode.CALM -> HOME_MODE_SMOOTH_DRIVE_DRAWABLE
+        PreferenceMode.FASTEST -> R.drawable.home_mode_fastest_lightning
+        PreferenceMode.NO_TOLLS -> R.drawable.home_mode_save_aed
+        PreferenceMode.CALM -> R.drawable.home_mode_smooth_drive
     }
 
 private fun homeModeCardIconRenderSize(mode: PreferenceMode, selected: Boolean): Dp =
@@ -552,24 +511,12 @@ private fun HomeModeCardIcon(
     selected: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val drawableId =
-        remember(context, mode) {
-            context.resources.getIdentifier(
-                homeModeCardDrawable(mode),
-                "drawable",
-                context.packageName,
-            )
-        }
-
-    if (drawableId != 0) {
-        Image(
-            painter = painterResource(drawableId),
-            contentDescription = homeModeCardTitle(mode),
-            contentScale = ContentScale.Fit,
-            modifier = modifier.size(homeModeCardIconRenderSize(mode, selected)),
-        )
-    }
+    Image(
+        painter = painterResource(homeModeCardDrawable(mode)),
+        contentDescription = homeModeCardTitle(mode),
+        contentScale = ContentScale.Fit,
+        modifier = modifier.size(homeModeCardIconRenderSize(mode, selected)),
+    )
 }
 
 @Composable

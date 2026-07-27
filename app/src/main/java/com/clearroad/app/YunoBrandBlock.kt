@@ -11,23 +11,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.clearroad.app.ui.theme.ClearRoadColors
 
-private const val YUNO_CHARACTER_DRAWABLE = "yuno_character"
-
 /**
  * Reusable YUNO brand block — Stage 29.0c / 29.1a.
- * Shows [YUNO_CHARACTER_DRAWABLE] only when the real PNG exists in drawable-nodpi.
- * Otherwise text-only: no placeholder icon.
  *
  * @param corner When true, text sits left of the mark with the character at the trailing edge
  *   (Home header placement).
@@ -38,16 +32,6 @@ internal fun YunoBrandBlock(
     compact: Boolean = false,
     corner: Boolean = false,
 ) {
-    val context = LocalContext.current
-    val characterDrawableId =
-        remember(context) {
-            context.resources.getIdentifier(
-                YUNO_CHARACTER_DRAWABLE,
-                "drawable",
-                context.packageName,
-            )
-        }
-    val hasCharacterAsset = characterDrawableId != 0
     val markSize = if (compact) 42.dp else 100.dp
     val textGap = if (compact) 8.dp else 10.dp
     val textAlign = if (corner) TextAlign.End else TextAlign.Start
@@ -80,9 +64,8 @@ internal fun YunoBrandBlock(
 
     @Composable
     fun YunoMark() {
-        if (!hasCharacterAsset) return
         Image(
-            painter = painterResource(characterDrawableId),
+            painter = painterResource(R.drawable.yuno_character),
             contentDescription = "YUNO",
             contentScale = ContentScale.Fit,
             modifier = Modifier.size(markSize),
@@ -96,15 +79,11 @@ internal fun YunoBrandBlock(
     ) {
         if (corner) {
             YunoLabels()
-            if (hasCharacterAsset) {
-                Spacer(modifier = Modifier.width(textGap))
-                YunoMark()
-            }
+            Spacer(modifier = Modifier.width(textGap))
+            YunoMark()
         } else {
             YunoMark()
-            if (hasCharacterAsset) {
-                Spacer(modifier = Modifier.width(textGap))
-            }
+            Spacer(modifier = Modifier.width(textGap))
             YunoLabels()
         }
     }
