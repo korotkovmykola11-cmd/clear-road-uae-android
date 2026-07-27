@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -321,6 +322,22 @@ class RouteIntelligenceLoadBehaviorTest {
             assertFalse(result.uiModel.loading)
             assertNull(result.uiModel.marshioRoute)
             assertNotNull(result.uiModel.alternativeRoute)
+            assertEquals(
+                RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_HEADLINE,
+                result.uiModel.summaryLine,
+            )
+            assertEquals(
+                RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_EXPLANATION,
+                result.uiModel.explanationLine,
+            )
+            assertFalse(result.uiModel.summaryLine.contains("Steady city drive"))
+            assertEquals(
+                RouteIntelligenceDiag.PresentationCardResult.CARD_PARTIAL,
+                RouteIntelligenceDiag.classifyPresentationResult(
+                    marshioStatus = SourceStatus.UNAVAILABLE,
+                    alternativeStatus = SourceStatus.OK,
+                ),
+            )
         }
 
     @Test
@@ -344,6 +361,24 @@ class RouteIntelligenceLoadBehaviorTest {
             assertTrue(result.uiModel.available)
             assertNotNull(result.uiModel.marshioRoute)
             assertNull(result.uiModel.alternativeRoute)
+            assertNotEquals(
+                RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_HEADLINE,
+                result.uiModel.summaryLine,
+            )
+            val expectedSelectedCopy =
+                RouteIntelligencePresentation.driverRouteCopy(
+                    marshio = result.marshioProfile,
+                    alternative = null,
+                )
+            assertEquals(expectedSelectedCopy.headline, result.uiModel.summaryLine)
+            assertEquals(expectedSelectedCopy.explanation, result.uiModel.explanationLine)
+            assertEquals(
+                RouteIntelligenceDiag.PresentationCardResult.CARD_PARTIAL,
+                RouteIntelligenceDiag.classifyPresentationResult(
+                    marshioStatus = SourceStatus.OK,
+                    alternativeStatus = SourceStatus.UNAVAILABLE,
+                ),
+            )
         }
 
     @Test
@@ -384,6 +419,25 @@ class RouteIntelligenceLoadBehaviorTest {
             assertTrue(result.uiModel.available)
             assertNotNull(result.uiModel.marshioRoute)
             assertNotNull(result.uiModel.alternativeRoute)
+            assertNotEquals(
+                RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_HEADLINE,
+                result.uiModel.summaryLine,
+            )
+            val expectedCopy =
+                RouteIntelligencePresentation.driverRouteCopy(
+                    marshio = result.marshioProfile,
+                    alternative = result.alternativeProfile,
+                    alternativeRouteIndex = result.alternativeRoute?.routeIndex,
+                )
+            assertEquals(expectedCopy.headline, result.uiModel.summaryLine)
+            assertEquals(expectedCopy.explanation, result.uiModel.explanationLine)
+            assertEquals(
+                RouteIntelligenceDiag.PresentationCardResult.CARD_AVAILABLE,
+                RouteIntelligenceDiag.classifyPresentationResult(
+                    marshioStatus = SourceStatus.OK,
+                    alternativeStatus = SourceStatus.OK,
+                ),
+            )
         }
 
     @Test
@@ -592,6 +646,180 @@ class RouteIntelligenceLoadBehaviorTest {
             trafficSignalsCount = null,
             roundaboutsCount = null,
             mainRoadRatio = null,
+            evidence = null,
+            metadata = null,
+        )
+
+    private fun notApplicableSourceData(): SourceData =
+        SourceData(
+            provider = OsmOverpassSource.PROVIDER,
+            status = SourceStatus.NOT_APPLICABLE,
+            trafficSignalsCount = null,
+            roundaboutsCount = null,
+            mainRoadRatio = null,
+            evidence = null,
+            metadata =
+                SourceMetadata(
+                    provider = OsmOverpassSource.PROVIDER,
+                    fetchedAt = Instant.parse("2026-01-01T00:00:00Z"),
+                    confidence = 0.0f,
+                ),
+        )
+
+    @Test
+    fun load_marshioNotApplicableAlternativeOk_producesHonestPartialCopy() =
+        runBlocking {
+            val service =
+                serviceWithSource { route ->
+                    if (route.routeIndex == 1) {
+                        notApplicableSourceData()
+                    } else {
+                        okSourceData(signals = 5)
+                    }
+                }
+
+            val result =
+                RouteIntelligencePresentation.load(
+                    request(marshioIndex = 1, alternativeIndex = 0),
+                    service = service,
+                )
+
+            assertTrue(result.uiModel.available)
+            assertNull(result.uiModel.marshioRoute)
+            assertNotNull(result.uiModel.alternativeRoute)
+            assertEquals(
+                RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_HEADLINE,
+                result.uiModel.summaryLine,
+            )
+            assertEquals(
+                RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_EXPLANATION,
+                result.uiModel.explanationLine,
+            )
+            assertEquals(
+                RouteIntelligenceDiag.PresentationCardResult.CARD_PARTIAL,
+                RouteIntelligenceDiag.classifyPresentationResult(
+                    marshioStatus = SourceStatus.NOT_APPLICABLE,
+                    alternativeStatus = SourceStatus.OK,
+                ),
+            )
+        }
+
+    @Test
+    fun load_bothNotApplicable_producesUnavailableCard() =
+        runBlocking {
+            val service =
+                serviceWithSource { _ ->
+                    notApplicableSourceData()
+                }
+
+            val result =
+                RouteIntelligencePresentation.load(
+                    request(marshioIndex = 0, alternativeIndex = 1),
+                    service = service,
+                )
+
+            assertFalse(result.uiModel.available)
+            assertEquals(
+                RouteIntelligencePresentation.UNAVAILABLE_MESSAGE,
+                result.uiModel.unavailableMessage,
+            )
+            assertEquals(
+                RouteIntelligenceDiag.PresentationCardResult.CARD_UNAVAILABLE,
+                RouteIntelligenceDiag.classifyPresentationResult(
+                    marshioStatus = SourceStatus.NOT_APPLICABLE,
+                    alternativeStatus = SourceStatus.NOT_APPLICABLE,
+                ),
+            )
+        }
+
+    @Test
+    fun classifyPresentationResult_treatsOnlyOkAsUsable() {
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_AVAILABLE,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.OK,
+                alternativeStatus = SourceStatus.OK,
+            ),
+        )
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_PARTIAL,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.PARTIAL,
+                alternativeStatus = SourceStatus.OK,
+            ),
+        )
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_PARTIAL,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.OK,
+                alternativeStatus = SourceStatus.PARTIAL,
+            ),
+        )
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_UNAVAILABLE,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.PARTIAL,
+                alternativeStatus = SourceStatus.UNAVAILABLE,
+            ),
+        )
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_UNAVAILABLE,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.NOT_APPLICABLE,
+                alternativeStatus = SourceStatus.NOT_APPLICABLE,
+            ),
+        )
+    }
+
+    @Test
+    fun buildUiModel_selectedPartialAlternativeOk_usesHonestPartialCopy() {
+        val uiModel =
+            RouteIntelligencePresentation.buildUiModel(
+                request = request(marshioIndex = 1, alternativeIndex = 0),
+                marshioProfile = osmProfile(status = SourceStatus.PARTIAL),
+                alternativeProfile = osmProfile(status = SourceStatus.OK, signals = 4),
+            )
+
+        assertTrue(uiModel.available)
+        assertNull(uiModel.marshioRoute)
+        assertNotNull(uiModel.alternativeRoute)
+        assertEquals(
+            RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_HEADLINE,
+            uiModel.summaryLine,
+        )
+        assertEquals(
+            RouteIntelligencePresentation.SELECTED_ROUTE_UNAVAILABLE_EXPLANATION,
+            uiModel.explanationLine,
+        )
+        assertFalse(uiModel.summaryLine.contains("Steady city drive"))
+    }
+
+    @Test
+    fun buildUiModel_bothNonOkProfiles_producesUnavailableCard() {
+        val uiModel =
+            RouteIntelligencePresentation.buildUiModel(
+                request = request(marshioIndex = 0, alternativeIndex = 1),
+                marshioProfile = osmProfile(status = SourceStatus.PARTIAL),
+                alternativeProfile = osmProfile(status = SourceStatus.NOT_APPLICABLE),
+            )
+
+        assertFalse(uiModel.available)
+        assertEquals(
+            RouteIntelligencePresentation.UNAVAILABLE_MESSAGE,
+            uiModel.unavailableMessage,
+        )
+    }
+
+    private fun osmProfile(
+        status: SourceStatus,
+        signals: Int? = null,
+    ): RouteProfile =
+        RouteProfile(
+            trafficSignalsCount = signals,
+            roundaboutsCount = if (status == SourceStatus.OK) 1 else null,
+            mainRoadRatio = if (status == SourceStatus.OK) 0.5f else null,
+            complexityScore = if (status == SourceStatus.OK) 0.4f else null,
+            osmSourceStatus = status,
             evidence = null,
             metadata = null,
         )

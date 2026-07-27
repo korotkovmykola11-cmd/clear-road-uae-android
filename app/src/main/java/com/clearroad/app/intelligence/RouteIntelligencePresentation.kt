@@ -20,6 +20,10 @@ object RouteIntelligencePresentation {
 
     const val UNAVAILABLE_MESSAGE = "Route Intelligence unavailable."
 
+    const val SELECTED_ROUTE_UNAVAILABLE_HEADLINE = "Selected route details unavailable."
+
+    const val SELECTED_ROUTE_UNAVAILABLE_EXPLANATION = "Alternative route details are shown below."
+
     internal data class DriverRouteCopy(
         val headline: String,
         val explanation: String,
@@ -56,25 +60,64 @@ object RouteIntelligencePresentation {
             comparisonRequest?.marshioSelectedRouteIndex ?: request.marshioRoute.routeIndex
 
         val uiModel =
-            if (
-                marshioProfile.osmSourceStatus == SourceStatus.UNAVAILABLE &&
-                    (alternativeProfile == null || alternativeProfile.osmSourceStatus == SourceStatus.UNAVAILABLE)
-            ) {
+            buildUiModel(
+                request = request,
+                marshioProfile = marshioProfile,
+                alternativeProfile = alternativeProfile,
+            )
+
+        return RouteIntelligenceLoadResult(
+            uiModel = uiModel,
+            marshioRoute = marshioRaw,
+            marshioProfile = marshioProfile,
+            alternativeRoute = alternativeRaw,
+            alternativeProfile = alternativeProfile,
+            googleDefaultRouteIndex = googleDefaultRouteIndex,
+            marshioSelectedRouteIndex = marshioSelectedRouteIndex,
+        )
+    }
+
+    internal fun buildUiModel(
+        request: RouteIntelligenceRequestUiModel,
+        marshioProfile: RouteProfile,
+        alternativeProfile: RouteProfile?,
+    ): RouteIntelligenceUiModel {
+        val selectedUsable = marshioProfile.osmSourceStatus == SourceStatus.OK
+        val alternativeUsable = alternativeProfile?.osmSourceStatus == SourceStatus.OK
+
+        return when {
+            !selectedUsable && !alternativeUsable ->
                 RouteIntelligenceUiModel(
                     loading = false,
                     available = false,
                     unavailableMessage = UNAVAILABLE_MESSAGE,
                 )
-            } else {
-                val comparisonAlternative =
-                    alternativeProfile?.takeIf { it.osmSourceStatus == SourceStatus.OK }
+            !selectedUsable && alternativeUsable ->
+                RouteIntelligenceUiModel(
+                    loading = false,
+                    available = true,
+                    summaryLine = SELECTED_ROUTE_UNAVAILABLE_HEADLINE,
+                    explanationLine = SELECTED_ROUTE_UNAVAILABLE_EXPLANATION,
+                    marshioRoute = null,
+                    alternativeRoute =
+                        request.alternativeRoute?.let { alternative ->
+                            alternativeProfile?.let { profile ->
+                                rowUiModel(
+                                    label = comparisonRouteLabel(alternative.routeIndex),
+                                    routeName = alternative.routeName,
+                                    profile = profile,
+                                )
+                            }
+                        },
+                )
+            else -> {
+                val comparisonAlternative = alternativeProfile?.takeIf { alternativeUsable }
                 val driverCopy =
                     driverRouteCopy(
                         marshio = marshioProfile,
                         alternative = comparisonAlternative,
                         alternativeRouteIndex = request.alternativeRoute?.routeIndex,
                     )
-
                 RouteIntelligenceUiModel(
                     loading = false,
                     available = true,
@@ -93,16 +136,7 @@ object RouteIntelligencePresentation {
                         },
                 )
             }
-
-        return RouteIntelligenceLoadResult(
-            uiModel = uiModel,
-            marshioRoute = marshioRaw,
-            marshioProfile = marshioProfile,
-            alternativeRoute = alternativeRaw,
-            alternativeProfile = alternativeProfile,
-            googleDefaultRouteIndex = googleDefaultRouteIndex,
-            marshioSelectedRouteIndex = marshioSelectedRouteIndex,
-        )
+        }
     }
 
     fun comparisonReportFromLoad(

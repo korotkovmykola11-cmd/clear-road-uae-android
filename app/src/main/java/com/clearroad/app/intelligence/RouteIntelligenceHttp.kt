@@ -210,17 +210,15 @@ internal object RouteIntelligenceDiag {
     internal fun classifyPresentationResult(
         marshioStatus: SourceStatus,
         alternativeStatus: SourceStatus?,
-    ): PresentationCardResult =
-        when {
-            marshioStatus == SourceStatus.UNAVAILABLE &&
-                (alternativeStatus == null || alternativeStatus == SourceStatus.UNAVAILABLE) ->
-                PresentationCardResult.CARD_UNAVAILABLE
-            marshioStatus == SourceStatus.OK &&
-                alternativeStatus == SourceStatus.OK ->
-                PresentationCardResult.CARD_AVAILABLE
-            else ->
-                PresentationCardResult.CARD_PARTIAL
+    ): PresentationCardResult {
+        val selectedUsable = marshioStatus == SourceStatus.OK
+        val alternativeUsable = alternativeStatus == SourceStatus.OK
+        return when {
+            selectedUsable && alternativeUsable -> PresentationCardResult.CARD_AVAILABLE
+            !selectedUsable && !alternativeUsable -> PresentationCardResult.CARD_UNAVAILABLE
+            else -> PresentationCardResult.CARD_PARTIAL
         }
+    }
 
     internal fun exceptionSimpleName(throwable: Throwable): String =
         throwable.javaClass.simpleName.ifBlank { throwable.javaClass.name.substringAfterLast('.') }
