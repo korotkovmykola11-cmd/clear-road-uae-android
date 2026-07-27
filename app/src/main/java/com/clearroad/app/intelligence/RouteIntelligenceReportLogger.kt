@@ -1,6 +1,7 @@
 package com.clearroad.app.intelligence
 
 import android.util.Log
+import java.util.Locale
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -41,7 +42,7 @@ object RouteIntelligenceReportLogger {
     private fun formatFloat(value: Float?): String =
         when (value) {
             null -> "?"
-            else -> String.format("%.2f", value)
+            else -> String.format(Locale.US, "%.2f", value)
         }
 }
 

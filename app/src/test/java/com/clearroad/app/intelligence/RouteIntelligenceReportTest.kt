@@ -1,6 +1,7 @@
 package com.clearroad.app.intelligence
 
 import com.google.android.gms.maps.model.LatLng
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -533,50 +534,56 @@ class RouteIntelligenceReportJsonTest {
 class RouteIntelligenceReportLoggerTest {
 
     @Test
-    fun formatRouteLine_matchesCompactSpec() {
-        val line =
-            RouteIntelligenceReportLogger.formatRouteLine(
-                RouteIntelligenceReport(
-                    routeIndex = 0,
-                    routeName = "Route 1",
-                    isGoogleDefault = true,
-                    isMarshioSelected = false,
-                    durationSeconds = 540,
-                    distanceMeters = 5000,
-                    profile =
-                        RouteProfile(
-                            trafficSignalsCount = 9,
-                            roundaboutsCount = 1,
-                            mainRoadRatio = 0.62f,
-                            complexityScore = 0.7f,
-                            osmSourceStatus = SourceStatus.OK,
-                            evidence = null,
-                            metadata = null,
-                        ),
-                    signals =
-                        RouteIntelligenceSignals(
-                            trafficSignalsCount = 9,
-                            roundaboutsCount = 1,
-                            mainRoadRatio = 0.62f,
-                            complexityScore = 0.7f,
-                            criticalManeuversCount = 3,
-                            turnsCount = 2,
-                            roundaboutsFromManeuvers = 1,
-                            rampOrExitCount = 1,
-                            restrictedRoadHintsCount = null,
-                            roadTypeBreakdown = null,
-                            osmSourceStatus = SourceStatus.OK,
-                            googleSourceStatus = SourceStatus.OK,
-                        ),
-                    confidence = 0.75f,
-                    osmEvidence = null,
-                    googleEvidence = null,
-                ),
-            )
+    fun formatRouteLine_matchesCompactSpec_underGermanLocale() {
+        val originalLocale = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.GERMANY)
+            val line =
+                RouteIntelligenceReportLogger.formatRouteLine(
+                    RouteIntelligenceReport(
+                        routeIndex = 0,
+                        routeName = "Route 1",
+                        isGoogleDefault = true,
+                        isMarshioSelected = false,
+                        durationSeconds = 540,
+                        distanceMeters = 5000,
+                        profile =
+                            RouteProfile(
+                                trafficSignalsCount = 9,
+                                roundaboutsCount = 1,
+                                mainRoadRatio = 0.62f,
+                                complexityScore = 0.7f,
+                                osmSourceStatus = SourceStatus.OK,
+                                evidence = null,
+                                metadata = null,
+                            ),
+                        signals =
+                            RouteIntelligenceSignals(
+                                trafficSignalsCount = 9,
+                                roundaboutsCount = 1,
+                                mainRoadRatio = 0.62f,
+                                complexityScore = 0.7f,
+                                criticalManeuversCount = 3,
+                                turnsCount = 2,
+                                roundaboutsFromManeuvers = 1,
+                                rampOrExitCount = 1,
+                                restrictedRoadHintsCount = null,
+                                roadTypeBreakdown = null,
+                                osmSourceStatus = SourceStatus.OK,
+                                googleSourceStatus = SourceStatus.OK,
+                            ),
+                        confidence = 0.75f,
+                        osmEvidence = null,
+                        googleEvidence = null,
+                    ),
+                )
 
-        assertEquals(
-            "route=0 googleDefault=true marshio=false eta=9min signals=9 roundabouts=1 mainRoadRatio=0.62 complexity=0.70 maneuvers=3",
-            line,
-        )
+            assertEquals(
+                "route=0 googleDefault=true marshio=false eta=9min signals=9 roundabouts=1 mainRoadRatio=0.62 complexity=0.70 maneuvers=3",
+                line,
+            )
+        } finally {
+            Locale.setDefault(originalLocale)
+        }
     }
 }
