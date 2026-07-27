@@ -59,6 +59,17 @@ object RouteProfileBuilder {
     }
 }
 
+enum class RouteIntelligenceCacheOutcome {
+    HIT,
+    MISS,
+    EXPIRED,
+}
+
+data class RouteIntelligenceCacheLookup(
+    val outcome: RouteIntelligenceCacheOutcome,
+    val profile: RouteProfile? = null,
+)
+
 class RouteIntelligenceCache(
     private val ttlMillis: Long = DEFAULT_TTL_MS,
     private val nowMillis: () -> Long = { System.currentTimeMillis() },
@@ -68,30 +79,40 @@ class RouteIntelligenceCache(
         val expiresAtMillis: Long,
     )
 
+    private val lock = Any()
     private val entries = mutableMapOf<String, CacheEntry>()
 
-    fun get(polylineHash: String): RouteProfile? {
-        val entry = entries[polylineHash] ?: return null
-        if (entry.expiresAtMillis <= nowMillis()) {
-            entries.remove(polylineHash)
-            return null
+    fun lookup(polylineHash: String): RouteIntelligenceCacheLookup =
+        synchronized(lock) {
+            val entry = entries[polylineHash]
+                ?: return RouteIntelligenceCacheLookup(RouteIntelligenceCacheOutcome.MISS)
+            if (entry.expiresAtMillis <= nowMillis()) {
+                entries.remove(polylineHash)
+                return RouteIntelligenceCacheLookup(RouteIntelligenceCacheOutcome.EXPIRED)
+            }
+            RouteIntelligenceCacheLookup(
+                outcome = RouteIntelligenceCacheOutcome.HIT,
+                profile = entry.profile,
+            )
         }
-        return entry.profile
-    }
 
     fun put(
         polylineHash: String,
         profile: RouteProfile,
     ) {
-        entries[polylineHash] =
-            CacheEntry(
-                profile = profile,
-                expiresAtMillis = nowMillis() + ttlMillis,
-            )
+        synchronized(lock) {
+            entries[polylineHash] =
+                CacheEntry(
+                    profile = profile,
+                    expiresAtMillis = nowMillis() + ttlMillis,
+                )
+        }
     }
 
     fun clear() {
-        entries.clear()
+        synchronized(lock) {
+            entries.clear()
+        }
     }
 
     companion object {
@@ -108,7 +129,32 @@ class RouteIntelligenceService(
 ) {
     suspend fun profileFor(route: RawRouteForIntelligence): RouteProfile {
         val cacheKey = RoutePolylineGeometry.stablePolylineHash(route.routePathPoints)
-        cache.get(cacheKey)?.let { return it }
+        val lookup = cache.lookup(cacheKey)
+        when (lookup.outcome) {
+            RouteIntelligenceCacheOutcome.HIT -> {
+                RouteIntelligenceDiag.logCache(
+                    routeIndex = route.routeIndex,
+                    event = RouteIntelligenceDiag.CacheEvent.CACHE_HIT,
+                )
+                return lookup.profile!!
+            }
+            RouteIntelligenceCacheOutcome.EXPIRED -> {
+                RouteIntelligenceDiag.logCache(
+                    routeIndex = route.routeIndex,
+                    event = RouteIntelligenceDiag.CacheEvent.CACHE_EXPIRED,
+                )
+            }
+            RouteIntelligenceCacheOutcome.MISS -> {
+                RouteIntelligenceDiag.logCache(
+                    routeIndex = route.routeIndex,
+                    event = RouteIntelligenceDiag.CacheEvent.CACHE_MISS,
+                )
+            }
+        }
+        RouteIntelligenceDiag.logCache(
+            routeIndex = route.routeIndex,
+            event = RouteIntelligenceDiag.CacheEvent.NETWORK_FETCH,
+        )
         val profile = RouteProfileBuilder.build(osmAggregator.enrich(route))
         if (profile.osmSourceStatus == SourceStatus.OK) {
             cache.put(cacheKey, profile)
@@ -160,7 +206,11 @@ class RouteIntelligenceService(
     }
 
     companion object {
-        fun default(): RouteIntelligenceService = RouteIntelligenceService()
+        private val defaultInstance: RouteIntelligenceService by lazy {
+            RouteIntelligenceService()
+        }
+
+        fun default(): RouteIntelligenceService = defaultInstance
     }
 
     fun reportFromLoadedProfile(

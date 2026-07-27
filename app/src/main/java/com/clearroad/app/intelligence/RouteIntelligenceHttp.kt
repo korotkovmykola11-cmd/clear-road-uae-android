@@ -127,6 +127,13 @@ internal object RouteIntelligenceDiag {
         CARD_UNAVAILABLE,
     }
 
+    enum class CacheEvent {
+        CACHE_HIT,
+        CACHE_MISS,
+        CACHE_EXPIRED,
+        NETWORK_FETCH,
+    }
+
     data class HttpAttemptContext(
         val routeIndex: Int,
         val endpoint: EndpointRole,
@@ -188,6 +195,18 @@ internal object RouteIntelligenceDiag {
     ) {
         emit("RI_OSM_RESULT route=$routeIndex status=${status.name}")
     }
+
+    fun logCache(
+        routeIndex: Int,
+        event: CacheEvent,
+    ) {
+        emit("RI_CACHE route=$routeIndex event=${event.name}")
+    }
+
+    fun formatCache(
+        routeIndex: Int,
+        event: CacheEvent,
+    ): String = "RI_CACHE route=$routeIndex event=${event.name}"
 
     fun logPresentation(
         marshioRouteIndex: Int,

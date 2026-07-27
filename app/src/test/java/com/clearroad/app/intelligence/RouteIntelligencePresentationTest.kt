@@ -283,6 +283,50 @@ class RouteIntelligenceLoadBehaviorTest {
         }
 
     @Test
+    fun load_secondSessionWithCachedProfilesSkipsSourceFetch() =
+        runBlocking {
+            var enrichCalls = 0
+            val service =
+                serviceWithSource { route ->
+                    enrichCalls++
+                    okSourceData(signals = route.routeIndex + 2)
+                }
+            val request = request(marshioIndex = 0, alternativeIndex = 1)
+
+            RouteIntelligencePresentation.load(request, service = service)
+            val callsAfterFirstLoad = enrichCalls
+
+            val secondResult = RouteIntelligencePresentation.load(request, service = service)
+
+            assertEquals(callsAfterFirstLoad, enrichCalls)
+            assertEquals(2, callsAfterFirstLoad)
+            assertTrue(secondResult.uiModel.available)
+            assertNotNull(secondResult.uiModel.marshioRoute)
+            assertNotNull(secondResult.uiModel.alternativeRoute)
+        }
+
+    @Test
+    fun load_cachedProfilesStillProduceReportWithoutRefetch() =
+        runBlocking {
+            var enrichCalls = 0
+            val service =
+                serviceWithSource { _ ->
+                    enrichCalls++
+                    okSourceData(signals = 4)
+                }
+            val request = request(marshioIndex = 0, alternativeIndex = 1)
+
+            val firstResult = RouteIntelligencePresentation.load(request, service = service)
+            RouteIntelligencePresentation.load(request, service = service)
+            val callsAfterLoads = enrichCalls
+
+            val report = RouteIntelligencePresentation.comparisonReportFromLoad(firstResult)
+
+            assertEquals(callsAfterLoads, enrichCalls)
+            assertEquals(2, report.reports.size)
+        }
+
+    @Test
     fun load_doesNotFetchUnrelatedThirdRouteForReporting() =
         runBlocking {
             val enrichedIndices = mutableSetOf<Int>()
