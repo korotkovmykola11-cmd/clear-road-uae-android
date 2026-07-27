@@ -132,6 +132,112 @@ class RouteIntelligenceReportBuilderTest {
     }
 
     @Test
+    fun reportFromLoadedProfile_withoutRoadTypeBreakdown_preservesLoadedMetrics() {
+        val route =
+            RawRouteForIntelligence(
+                routeIndex = 1,
+                routeName = "Route 2",
+                routePathPoints = routePath,
+                durationSeconds = 660,
+                distanceMeters = 5000,
+                googleSteps = emptyList(),
+                criticalManeuversCount = 3,
+            )
+        val profile =
+            RouteProfile(
+                trafficSignalsCount = 4,
+                roundaboutsCount = 2,
+                mainRoadRatio = 0.55f,
+                complexityScore = 0.42f,
+                osmSourceStatus = SourceStatus.OK,
+                evidence =
+                    RouteEvidence(
+                        trafficLights =
+                            TrafficLightEvidence(
+                                count = 4,
+                                osmNodeIds = emptyList(),
+                                nearRoutePositions = emptyList(),
+                            ),
+                        roundabouts =
+                            RoundaboutEvidence(
+                                count = 2,
+                                osmWayIds = emptyList(),
+                                nearRoutePositions = emptyList(),
+                            ),
+                        mainRoad =
+                            MainRoadEvidence(
+                                mainRoadRatio = 0.55f,
+                                mainRoadMeters = 550.0,
+                                classifiedMeters = 1000.0,
+                                roadTypeBreakdown = null,
+                            ),
+                    ),
+                metadata =
+                    SourceMetadata(
+                        provider = OsmOverpassSource.PROVIDER,
+                        fetchedAt = java.time.Instant.parse("2026-01-01T00:00:00Z"),
+                        confidence = 0.82f,
+                    ),
+            )
+
+        val report =
+            RouteIntelligenceService.default().reportFromLoadedProfile(
+                route = route,
+                profile = profile,
+                isGoogleDefault = false,
+                isMarshioSelected = true,
+            )
+
+        assertEquals(4, report.signals.trafficSignalsCount)
+        assertEquals(2, report.signals.roundaboutsCount)
+        assertEquals(0.55f, report.signals.mainRoadRatio)
+        assertEquals(0.42f, report.signals.complexityScore)
+        assertNull(report.signals.roadTypeBreakdown)
+        assertEquals(SourceStatus.OK, report.profile.osmSourceStatus)
+        assertEquals(0.885f, report.confidence, 0.001f)
+        assertEquals(profile.evidence, report.osmEvidence)
+    }
+
+    @Test
+    fun osmSourceFromLoadedProfile_withoutBreakdown_stillReconstructsSourceData() {
+        val profile =
+            RouteProfile(
+                trafficSignalsCount = 3,
+                roundaboutsCount = 1,
+                mainRoadRatio = 0.48f,
+                complexityScore = 0.35f,
+                osmSourceStatus = SourceStatus.OK,
+                evidence =
+                    RouteEvidence(
+                        trafficLights =
+                            TrafficLightEvidence(3, emptyList(), emptyList()),
+                        roundabouts = RoundaboutEvidence(1, emptyList(), emptyList()),
+                        mainRoad =
+                            MainRoadEvidence(
+                                mainRoadRatio = 0.48f,
+                                mainRoadMeters = 480.0,
+                                classifiedMeters = 1000.0,
+                            ),
+                    ),
+                metadata =
+                    SourceMetadata(
+                        provider = OsmOverpassSource.PROVIDER,
+                        fetchedAt = java.time.Instant.parse("2026-01-01T00:00:00Z"),
+                        confidence = 0.75f,
+                    ),
+            )
+
+        val osmSource = RouteIntelligenceService.default().osmSourceFromLoadedProfile(profile)
+
+        assertNotNull(osmSource)
+        assertEquals(OsmOverpassSource.PROVIDER, osmSource!!.provider)
+        assertEquals(SourceStatus.OK, osmSource.status)
+        assertEquals(3, osmSource.trafficSignalsCount)
+        assertNull(osmSource.roadTypeBreakdown)
+        assertEquals(0.75f, osmSource.metadata?.confidence)
+    }
+
+    @Test
     fun buildComparisonSummary_routeFactLines_areFactsOnly() {
         val reports =
             listOf(

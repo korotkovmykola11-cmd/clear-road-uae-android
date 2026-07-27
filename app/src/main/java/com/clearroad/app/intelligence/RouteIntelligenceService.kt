@@ -162,4 +162,78 @@ class RouteIntelligenceService(
     companion object {
         fun default(): RouteIntelligenceService = RouteIntelligenceService()
     }
+
+    fun reportFromLoadedProfile(
+        route: RawRouteForIntelligence,
+        profile: RouteProfile,
+        isGoogleDefault: Boolean,
+        isMarshioSelected: Boolean,
+    ): RouteIntelligenceReport {
+        val googleFeatures = GoogleRouteFeatureReader.read(route)
+        val profileWithGoogle =
+            profile.copy(googleSourceStatus = googleFeatures.googleSourceStatus)
+        val osmSource = osmSourceFromLoadedProfile(profile)
+        return RouteIntelligenceReportBuilder.build(
+            route = route,
+            profile = profileWithGoogle,
+            osmSource = osmSource,
+            googleFeatures = googleFeatures,
+            isGoogleDefault = isGoogleDefault,
+            isMarshioSelected = isMarshioSelected,
+        )
+    }
+
+    internal fun osmSourceFromLoadedProfile(profile: RouteProfile): SourceData? {
+        if (
+            profile.osmSourceStatus == SourceStatus.UNAVAILABLE &&
+            profile.evidence == null &&
+            profile.metadata == null &&
+            profile.trafficSignalsCount == null &&
+            profile.roundaboutsCount == null &&
+            profile.mainRoadRatio == null
+        ) {
+            return null
+        }
+        return SourceData(
+            provider = OsmOverpassSource.PROVIDER,
+            status = profile.osmSourceStatus,
+            trafficSignalsCount = profile.trafficSignalsCount,
+            roundaboutsCount = profile.roundaboutsCount,
+            mainRoadRatio = profile.mainRoadRatio,
+            evidence = profile.evidence,
+            metadata = profile.metadata,
+            roadTypeBreakdown = profile.evidence?.mainRoad?.roadTypeBreakdown,
+        )
+    }
+
+    fun comparisonReportFromLoadedRoutes(
+        marshioRoute: RawRouteForIntelligence,
+        marshioProfile: RouteProfile,
+        alternativeRoute: RawRouteForIntelligence?,
+        alternativeProfile: RouteProfile?,
+        googleDefaultRouteIndex: Int,
+        marshioSelectedRouteIndex: Int,
+    ): RouteIntelligenceComparisonReport {
+        val routeProfiles =
+            buildList {
+                add(marshioRoute to marshioProfile)
+                if (alternativeRoute != null && alternativeProfile != null) {
+                    add(alternativeRoute to alternativeProfile)
+                }
+            }.sortedBy { (route, _) -> route.routeIndex }
+        val reports =
+            routeProfiles.map { (route, profile) ->
+                reportFromLoadedProfile(
+                    route = route,
+                    profile = profile,
+                    isGoogleDefault = route.routeIndex == googleDefaultRouteIndex,
+                    isMarshioSelected = route.routeIndex == marshioSelectedRouteIndex,
+                )
+            }
+        return RouteIntelligenceReportBuilder.buildComparison(
+            reports = reports,
+            marshioSelectedRouteIndex = marshioSelectedRouteIndex,
+            googleDefaultRouteIndex = googleDefaultRouteIndex,
+        )
+    }
 }

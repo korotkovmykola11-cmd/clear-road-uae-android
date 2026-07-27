@@ -1,10 +1,20 @@
 package com.clearroad.app.intelligence
 
+import com.clearroad.app.ui.model.RouteIntelligenceComparisonRequestUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceRequestUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceRouteRowUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceUiModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+
+/** Loaded Route Intelligence session — profiles fetched once for UI and diagnostic report. */
+data class RouteIntelligenceLoadResult(
+    val uiModel: RouteIntelligenceUiModel,
+    val marshioRoute: RawRouteForIntelligence,
+    val marshioProfile: RouteProfile,
+    val alternativeRoute: RawRouteForIntelligence?,
+    val alternativeProfile: RouteProfile?,
+    val googleDefaultRouteIndex: Int,
+    val marshioSelectedRouteIndex: Int,
+)
 
 object RouteIntelligencePresentation {
 
@@ -17,60 +27,95 @@ object RouteIntelligencePresentation {
 
     suspend fun load(
         request: RouteIntelligenceRequestUiModel,
+        comparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
         service: RouteIntelligenceService = RouteIntelligenceService.default(),
-    ): RouteIntelligenceUiModel =
-        coroutineScope {
-            val marshioDeferred =
-                async {
-                    service.profileFor(RouteIntelligenceAssembly.toRawRoute(request.marshioRoute))
-                }
-            val alternativeDeferred =
-                async {
-                    request.alternativeRoute?.let { alternative ->
-                        service.profileFor(RouteIntelligenceAssembly.toRawRoute(alternative))
-                    }
-                }
-            val marshioProfile = marshioDeferred.await()
-            val alternativeProfile = alternativeDeferred.await()
+    ): RouteIntelligenceLoadResult {
+        val marshioRaw = RouteIntelligenceAssembly.toRawRoute(request.marshioRoute)
+        val marshioProfile = service.profileFor(marshioRaw)
 
+        val alternativeRaw =
+            request.alternativeRoute?.let { RouteIntelligenceAssembly.toRawRoute(it) }
+        val alternativeProfile =
+            alternativeRaw?.let { service.profileFor(it) }
+
+        val presentationResult =
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = marshioProfile.osmSourceStatus,
+                alternativeStatus = alternativeProfile?.osmSourceStatus,
+            )
+        RouteIntelligenceDiag.logPresentation(
+            marshioRouteIndex = request.marshioRoute.routeIndex,
+            marshioStatus = marshioProfile.osmSourceStatus,
+            alternativeRouteIndex = request.alternativeRoute?.routeIndex,
+            alternativeStatus = alternativeProfile?.osmSourceStatus,
+            result = presentationResult,
+        )
+
+        val googleDefaultRouteIndex = comparisonRequest?.googleDefaultRouteIndex ?: 0
+        val marshioSelectedRouteIndex =
+            comparisonRequest?.marshioSelectedRouteIndex ?: request.marshioRoute.routeIndex
+
+        val uiModel =
             if (
                 marshioProfile.osmSourceStatus == SourceStatus.UNAVAILABLE &&
                     (alternativeProfile == null || alternativeProfile.osmSourceStatus == SourceStatus.UNAVAILABLE)
             ) {
-                return@coroutineScope RouteIntelligenceUiModel(
+                RouteIntelligenceUiModel(
                     loading = false,
                     available = false,
                     unavailableMessage = UNAVAILABLE_MESSAGE,
                 )
+            } else {
+                val comparisonAlternative =
+                    alternativeProfile?.takeIf { it.osmSourceStatus == SourceStatus.OK }
+                val driverCopy =
+                    driverRouteCopy(
+                        marshio = marshioProfile,
+                        alternative = comparisonAlternative,
+                        alternativeRouteIndex = request.alternativeRoute?.routeIndex,
+                    )
+
+                RouteIntelligenceUiModel(
+                    loading = false,
+                    available = true,
+                    summaryLine = driverCopy.headline,
+                    explanationLine = driverCopy.explanation,
+                    marshioRoute = rowUiModel("MARSHIO route", request.marshioRoute.routeName, marshioProfile),
+                    alternativeRoute =
+                        request.alternativeRoute?.let { alternative ->
+                            alternativeProfile?.let { profile ->
+                                rowUiModel(
+                                    label = comparisonRouteLabel(alternative.routeIndex),
+                                    routeName = alternative.routeName,
+                                    profile = profile,
+                                )
+                            }
+                        },
+                )
             }
 
-            val comparisonAlternative =
-                alternativeProfile?.takeIf { it.osmSourceStatus == SourceStatus.OK }
-            val driverCopy =
-                driverRouteCopy(
-                    marshio = marshioProfile,
-                    alternative = comparisonAlternative,
-                    alternativeRouteIndex = request.alternativeRoute?.routeIndex,
-                )
+        return RouteIntelligenceLoadResult(
+            uiModel = uiModel,
+            marshioRoute = marshioRaw,
+            marshioProfile = marshioProfile,
+            alternativeRoute = alternativeRaw,
+            alternativeProfile = alternativeProfile,
+            googleDefaultRouteIndex = googleDefaultRouteIndex,
+            marshioSelectedRouteIndex = marshioSelectedRouteIndex,
+        )
+    }
 
-            RouteIntelligenceUiModel(
-                loading = false,
-                available = true,
-                summaryLine = driverCopy.headline,
-                explanationLine = driverCopy.explanation,
-                marshioRoute = rowUiModel("MARSHIO route", request.marshioRoute.routeName, marshioProfile),
-                alternativeRoute =
-                    request.alternativeRoute?.let { alternative ->
-                        alternativeProfile?.let { profile ->
-                            rowUiModel(
-                                label = comparisonRouteLabel(alternative.routeIndex),
-                                routeName = alternative.routeName,
-                                profile = profile,
-                            )
-                        }
-                    },
-            )
-        }
+    fun comparisonReportFromLoad(
+        loadResult: RouteIntelligenceLoadResult,
+    ): RouteIntelligenceComparisonReport =
+        RouteIntelligenceService.default().comparisonReportFromLoadedRoutes(
+            marshioRoute = loadResult.marshioRoute,
+            marshioProfile = loadResult.marshioProfile,
+            alternativeRoute = loadResult.alternativeRoute,
+            alternativeProfile = loadResult.alternativeProfile,
+            googleDefaultRouteIndex = loadResult.googleDefaultRouteIndex,
+            marshioSelectedRouteIndex = loadResult.marshioSelectedRouteIndex,
+        )
 
     internal fun comparisonRouteLabel(routeIndex: Int): String =
         if (routeIndex == 0) "Google default" else "Alternative"
@@ -96,7 +141,6 @@ object RouteIntelligencePresentation {
             )
         return DriverRouteCopy(headline = headline, explanation = explanation)
     }
-
 
     internal fun driverHeadline(marshio: RouteProfile): String {
         val signals = marshio.trafficSignalsCount ?: 0

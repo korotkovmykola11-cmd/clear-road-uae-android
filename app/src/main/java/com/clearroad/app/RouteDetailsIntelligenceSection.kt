@@ -25,8 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clearroad.app.intelligence.RouteIntelligencePresentation
 import com.clearroad.app.intelligence.RouteIntelligenceReportLogger
-import com.clearroad.app.intelligence.RouteIntelligenceService
-import com.clearroad.app.intelligence.RouteIntelligenceAssembly
 import com.clearroad.app.ui.model.RouteIntelligenceComparisonRequestUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceRequestUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceRouteRowUiModel
@@ -60,19 +58,17 @@ internal fun RouteDetailsIntelligenceSection(
 
     LaunchedEffect(request, comparisonRequest) {
         intelligence = RouteIntelligenceUiModel(loading = true)
-        intelligence =
+        val loadResult =
             withContext(Dispatchers.IO) {
-                RouteIntelligencePresentation.load(request)
-            }
-        comparisonRequest?.let { comparison ->
-            val report =
-                RouteIntelligenceService.default().comparisonReportFor(
-                    routes = RouteIntelligenceAssembly.toRawRoutes(comparison),
-                    marshioSelectedRouteIndex = comparison.marshioSelectedRouteIndex,
-                    googleDefaultRouteIndex = comparison.googleDefaultRouteIndex,
+                RouteIntelligencePresentation.load(
+                    request = request,
+                    comparisonRequest = comparisonRequest,
                 )
-            RouteIntelligenceReportLogger.log(report)
-        }
+            }
+        intelligence = loadResult.uiModel
+        RouteIntelligenceReportLogger.log(
+            RouteIntelligencePresentation.comparisonReportFromLoad(loadResult),
+        )
     }
 
     Spacer(modifier = Modifier.height(12.dp))

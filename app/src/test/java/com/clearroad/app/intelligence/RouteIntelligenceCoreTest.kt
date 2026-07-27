@@ -3,6 +3,7 @@ package com.clearroad.app.intelligence
 import com.google.android.gms.maps.model.LatLng
 import java.time.Instant
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -128,7 +129,10 @@ class OsmOverpassSourceTest {
             var callCount = 0
             val httpClient =
                 object : RouteIntelligenceHttpClient {
-                    override suspend fun get(url: String): Result<String> {
+                    override suspend fun get(
+                        url: String,
+                        attempt: RouteIntelligenceDiag.HttpAttemptContext?,
+                    ): Result<String> {
                         callCount++
                         return if (callCount == 1) {
                             Result.failure(IllegalStateException("primary down"))
@@ -139,10 +143,155 @@ class OsmOverpassSourceTest {
                 }
             val source = OsmOverpassSource(httpClient = httpClient)
 
-            val json = source.fetchOverpassJson("[out:json];node(1);out;")
+            val json = source.fetchOverpassJson("[out:json];node(1);out;", routeIndex = 0)
 
             assertEquals("""{"elements":[]}""", json)
             assertEquals(2, callCount)
+        }
+}
+
+class RouteIntelligenceDiagTest {
+
+    private val attempt =
+        RouteIntelligenceDiag.HttpAttemptContext(
+            routeIndex = 0,
+            endpoint = RouteIntelligenceDiag.EndpointRole.PRIMARY,
+        )
+
+    @Test
+    fun formatHttpOutcome_successIncludesStatusCode() {
+        val line =
+            RouteIntelligenceDiag.formatHttpOutcome(
+                attempt = attempt,
+                outcome = RouteIntelligenceDiag.HttpOutcome.SUCCESS,
+                durationMs = 842,
+                statusCode = 200,
+            )
+
+        assertEquals(
+            "RI_HTTP route=0 endpoint=PRIMARY outcome=SUCCESS status=200 durationMs=842",
+            line,
+        )
+    }
+
+    @Test
+    fun formatHttpOutcome_httpErrorIncludesStatusCode() {
+        val line =
+            RouteIntelligenceDiag.formatHttpOutcome(
+                attempt = attempt,
+                outcome = RouteIntelligenceDiag.HttpOutcome.HTTP_ERROR,
+                durationMs = 1243,
+                statusCode = 429,
+            )
+
+        assertEquals(
+            "RI_HTTP route=0 endpoint=PRIMARY outcome=HTTP_ERROR status=429 durationMs=1243",
+            line,
+        )
+    }
+
+    @Test
+    fun formatHttpOutcome_exceptionUsesClassOnlyWithoutMessage() {
+        val line =
+            RouteIntelligenceDiag.formatHttpOutcome(
+                attempt = attempt,
+                outcome = RouteIntelligenceDiag.HttpOutcome.EXCEPTION,
+                durationMs = 30012,
+                exceptionClass = "SocketTimeoutException",
+                phase = RouteIntelligenceDiag.HttpPhase.UNKNOWN,
+            )
+
+        assertEquals(
+            "RI_HTTP route=0 endpoint=PRIMARY outcome=EXCEPTION exception=SocketTimeoutException phase=UNKNOWN durationMs=30012",
+            line,
+        )
+    }
+
+    @Test
+    fun formatHttpOutcome_containsNoSensitiveFields() {
+        val line =
+            RouteIntelligenceDiag.formatHttpOutcome(
+                attempt = attempt,
+                outcome = RouteIntelligenceDiag.HttpOutcome.HTTP_ERROR,
+                durationMs = 500,
+                statusCode = 503,
+            )
+
+        val forbidden =
+            listOf(
+                "http://",
+                "https://",
+                "overpass",
+                "data=",
+                "25.",
+                "55.",
+                "bbox",
+                "Ajman",
+                "Sharjah",
+                "network down",
+            )
+        forbidden.forEach { token ->
+            assertFalse("Line must not contain '$token': $line", line.contains(token, ignoreCase = true))
+        }
+    }
+
+    @Test
+    fun classifyPresentationResult_mapsCardStates() {
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_UNAVAILABLE,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.UNAVAILABLE,
+                alternativeStatus = SourceStatus.UNAVAILABLE,
+            ),
+        )
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_PARTIAL,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.UNAVAILABLE,
+                alternativeStatus = SourceStatus.OK,
+            ),
+        )
+        assertEquals(
+            RouteIntelligenceDiag.PresentationCardResult.CARD_AVAILABLE,
+            RouteIntelligenceDiag.classifyPresentationResult(
+                marshioStatus = SourceStatus.OK,
+                alternativeStatus = SourceStatus.OK,
+            ),
+        )
+    }
+
+    @Test
+    fun fetchOverpassJson_primaryFailureAndFallbackSuccess_attemptsBothEndpoints() =
+        runBlocking {
+            val outcomes = mutableListOf<RouteIntelligenceDiag.EndpointRole>()
+            val httpClient =
+                object : RouteIntelligenceHttpClient {
+                    override suspend fun get(
+                        url: String,
+                        attempt: RouteIntelligenceDiag.HttpAttemptContext?,
+                    ): Result<String> {
+                        attempt?.let { outcomes += it.endpoint }
+                        return when (attempt?.endpoint) {
+                            RouteIntelligenceDiag.EndpointRole.PRIMARY ->
+                                Result.failure(RouteIntelligenceHttpStatusException(429))
+                            RouteIntelligenceDiag.EndpointRole.FALLBACK ->
+                                Result.success("""{"elements":[]}""")
+                            else -> Result.failure(IllegalStateException("unexpected"))
+                        }
+                    }
+                }
+            val source = OsmOverpassSource(httpClient = httpClient)
+
+            val json = source.fetchOverpassJson("[out:json];node(1);out;", routeIndex = 1)
+
+            assertEquals("""{"elements":[]}""", json)
+            assertEquals(
+                listOf(
+                    RouteIntelligenceDiag.EndpointRole.PRIMARY,
+                    RouteIntelligenceDiag.EndpointRole.FALLBACK,
+                ),
+                outcomes,
+            )
         }
 }
 

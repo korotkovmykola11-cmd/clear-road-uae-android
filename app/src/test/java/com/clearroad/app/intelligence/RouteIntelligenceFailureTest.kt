@@ -126,7 +126,10 @@ class RouteIntelligenceFailureTest {
                 OsmOverpassSource(
                     httpClient =
                         object : RouteIntelligenceHttpClient {
-                            override suspend fun get(url: String): Result<String> =
+                            override suspend fun get(
+                                url: String,
+                                attempt: RouteIntelligenceDiag.HttpAttemptContext?,
+                            ): Result<String> =
                                 Result.failure(IllegalStateException("network down"))
                         },
                 )
@@ -251,7 +254,10 @@ class RouteIntelligenceFailureTest {
 
     private fun fixedJsonClient(json: String): RouteIntelligenceHttpClient =
         object : RouteIntelligenceHttpClient {
-            override suspend fun get(url: String): Result<String> = Result.success(json)
+            override suspend fun get(
+                url: String,
+                attempt: RouteIntelligenceDiag.HttpAttemptContext?,
+            ): Result<String> = Result.success(json)
         }
 
     private class FixedRouteDataSource(
