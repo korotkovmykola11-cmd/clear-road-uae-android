@@ -61,7 +61,9 @@ internal fun buildRecommendationSurfaceUiModel(
     return RecommendationSurfaceUiModel(
         ready = true,
         routeName = routeIdentity,
-        travelTime = RecommendationTravelTimeFormatter.format(recommended.durationSeconds),
+        travelTime =
+            recommended.durationText.takeIf { it.isNotBlank() }
+                ?: RecommendationTravelTimeFormatter.format(recommended.durationSeconds),
         mode = mode,
         decisionLabel = DecisionLabelLayer.label(),
         recommendationBadge = RecommendationBadgeLayer.forMode(mode),
