@@ -44,15 +44,10 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
 private val MapPreviewHeight = 272.dp
-private val RecommendedRoutePolylineColor = Color(0xFF00E676)
-private val AlternativeRoutePolylineColor = Color(0xFF757575)
 private val SharedRoutePolylineColor = Color(0xFFBDBDBD)
-private val RecommendedRoutePolylineWidth = 22f
-private val AlternativeRoutePolylineWidth = 18f
 private val SharedRoutePolylineWidth = 14f
 private val StrategicMapBoundsPaddingPx = 112
 private val LocalMapBoundsPaddingPx = 72
@@ -63,7 +58,7 @@ internal enum class RoutePreviewCameraPolicy {
 }
 
 private const val RoutePreviewLegend =
-    "Green = MARSHIO selected route · Gray = Google alternatives"
+    "Indigo = MARSHIO selected route · Cyan dashed = Google alternatives"
 private const val ForkFallbackMessage = "Routes differ on this trip."
 
 internal const val MarshioGoogleValidationLine =
@@ -250,12 +245,8 @@ internal fun RoutePreviewMapLayers(
 ) {
     val density = LocalDensity.current.density
     alternativePaths.forEach { path ->
-        Polyline(
-            points = path,
-            color = AlternativeRoutePolylineColor,
-            width = AlternativeRoutePolylineWidth,
-            zIndex = 0f,
-        )
+        if (path.size < 2) return@forEach
+        RenderPreviewAlternativeRoutePolyline(points = path)
     }
     val segmentsToRender =
         trafficSegments.filter { it.points.size >= 2 }.ifEmpty {
@@ -273,7 +264,7 @@ internal fun RoutePreviewMapLayers(
     RenderTrafficSegments(
         segments = segmentsToRender,
         density = density,
-        zIndexBase = 1f,
+        zIndexBase = TrafficPolylineStyle.PreviewMainRouteHaloZIndex,
     )
     RenderJunctionAnnotations(annotations = junctionAnnotations)
 }
@@ -356,10 +347,10 @@ internal fun RoutePreviewMapHost(
                 mapReady = true
                 if (showStartEndMarkers) {
                     if (startIcon == null) {
-                        startIcon = MapPreviewMarkerIcons.start(context)
+                        startIcon = MapPreviewMarkerIcons.previewStart(context)
                     }
                     if (endIcon == null) {
-                        endIcon = MapPreviewMarkerIcons.end(context)
+                        endIcon = MapPreviewMarkerIcons.previewEnd(context)
                     }
                 }
                 if (splitPoint != null && splitIcon == null) {
@@ -550,29 +541,27 @@ private fun ComparisonMapCard(
 private fun renderLocalForkPolylines(
     mapEvidence: RouteMapEvidenceUiModel,
 ) {
+    val density = LocalDensity.current.density
     if (mapEvidence.sharedPath.size >= 2) {
-        Polyline(
+        RenderPreviewSecondaryPolyline(
             points = mapEvidence.sharedPath,
             color = SharedRoutePolylineColor,
             width = SharedRoutePolylineWidth,
             zIndex = 0f,
         )
     }
-    Polyline(
+    RenderPreviewAlternativeRoutePolyline(
         points = mapEvidence.googleDivergentPath,
-        color = AlternativeRoutePolylineColor,
-        width = AlternativeRoutePolylineWidth,
-        zIndex = 1f,
     )
     val marshioForkPath =
         mapEvidence.sharedPath.lastOrNull()?.let { split ->
             listOf(split) + mapEvidence.marshioDivergentPath
         } ?: mapEvidence.marshioDivergentPath
-    Polyline(
+    RenderPreviewMarshioSolidPolyline(
         points = marshioForkPath,
-        color = RecommendedRoutePolylineColor,
-        width = RecommendedRoutePolylineWidth,
-        zIndex = 2f,
+        density = density,
+        width = TrafficPolylineStyle.PreviewMainRouteCoreWidthPx,
+        zIndex = TrafficPolylineStyle.PreviewMainRouteHaloZIndex,
     )
 }
 
