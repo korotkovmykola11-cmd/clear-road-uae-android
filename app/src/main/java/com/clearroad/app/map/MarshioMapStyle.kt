@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.clearroad.app.R
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 
 @Composable
 fun rememberMarshioMapProperties(): MapProperties {
@@ -21,3 +22,13 @@ fun rememberMarshioMapProperties(): MapProperties {
         )
     }
 }
+
+/** MP-3H variant C: Google Hybrid basemap, no preview style overlay. */
+@Composable
+fun rememberRoutePreviewMapProperties(): MapProperties =
+    remember {
+        MapProperties(
+            mapType = MapType.HYBRID,
+            isMyLocationEnabled = false,
+        )
+    }
