@@ -96,7 +96,7 @@ data class RejectedAlternativeUiModel(
 data class RouteMapEvidenceUiModel(
     val enabled: Boolean,
     val strategicHeadline: String = "Route comparison",
-    val strategicCaption: String = "Full trip — gray is Google, green is MARSHIO.",
+    val strategicCaption: String = "Full trip — cyan dashed is Google, indigo is MARSHIO.",
     val localHeadline: String = "Where routes split",
     val localCaption: String = "",
     val splitPoint: LatLng? = null,

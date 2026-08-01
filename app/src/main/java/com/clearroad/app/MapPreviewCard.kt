@@ -59,6 +59,10 @@ internal enum class RoutePreviewCameraPolicy {
 
 private const val RoutePreviewLegend =
     "Indigo = MARSHIO selected route · Cyan dashed = Google alternatives"
+internal const val CompactPreviewDisagreesLegend =
+    "Indigo = MARSHIO selected route · Cyan dashed = Google default recommendation"
+private const val SplitPreviewLegend =
+    "Indigo = MARSHIO selected route · Cyan dashed = Google alternatives"
 private const val ForkFallbackMessage = "Routes differ on this trip."
 
 internal const val MarshioGoogleValidationLine =
