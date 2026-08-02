@@ -6,7 +6,6 @@ import com.clearroad.app.ui.model.RouteCardUiModel
 import com.clearroad.app.ui.model.RejectedAlternativeUiModel
 import com.clearroad.app.ui.model.RouteGoogleMarshioDecisionUiModel
 import com.clearroad.app.ui.model.RouteMapEvidenceUiModel
-import com.clearroad.app.ui.model.MarshioGuidanceGoogleStepUiModel
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceComparisonRequestUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceRequestUiModel
@@ -80,8 +79,6 @@ internal fun buildRouteDetailsUiModel(
     googleDefaultRoutePathPoints: List<LatLng> = emptyList(),
     durationSeconds: Int = 0,
     selectedRouteIndex: Int = 0,
-    showMarshioGuidanceEntry: Boolean = false,
-    marshioGuidanceGoogleSteps: List<MarshioGuidanceGoogleStepUiModel> = emptyList(),
     routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
     routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
     showRouteIntelligenceSection: Boolean = false,
@@ -124,8 +121,6 @@ internal fun buildRouteDetailsUiModel(
         googleDefaultRoutePathPoints = googleDefaultRoutePathPoints,
         durationSeconds = durationSeconds,
         selectedRouteIndex = selectedRouteIndex,
-        showMarshioGuidanceEntry = showMarshioGuidanceEntry,
-        marshioGuidanceGoogleSteps = marshioGuidanceGoogleSteps,
         routeIntelligenceRequest = routeIntelligenceRequest,
         routeIntelligenceComparisonRequest = routeIntelligenceComparisonRequest,
         showRouteIntelligenceSection = showRouteIntelligenceSection,

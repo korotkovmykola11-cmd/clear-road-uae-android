@@ -96,7 +96,7 @@ data class RejectedAlternativeUiModel(
 data class RouteMapEvidenceUiModel(
     val enabled: Boolean,
     val strategicHeadline: String = "Route comparison",
-    val strategicCaption: String = "Full trip — cyan dashed is Google, indigo is MARSHIO.",
+    val strategicCaption: String = "Full trip — white outline marks MARSHIO's route; line color shows traffic. Cyan dashed is Google.",
     val localHeadline: String = "Where routes split",
     val localCaption: String = "",
     val splitPoint: LatLng? = null,
@@ -159,13 +159,6 @@ data class RouteCardUiModel(
     val mode: PreferenceMode,
 )
 
-data class MarshioGuidanceGoogleStepUiModel(
-    val distanceMeters: Int,
-    val maneuver: String?,
-    val htmlInstructions: String? = null,
-    val startLocation: LatLng? = null,
-)
-
 data class RouteDetailsUiModel(
     val routeNumber: Int,
     val routeIdentityTitle: String,
@@ -200,8 +193,6 @@ data class RouteDetailsUiModel(
     val googleDefaultRoutePathPoints: List<LatLng> = emptyList(),
     val durationSeconds: Int = 0,
     val selectedRouteIndex: Int = 0,
-    val showMarshioGuidanceEntry: Boolean = false,
-    val marshioGuidanceGoogleSteps: List<MarshioGuidanceGoogleStepUiModel> = emptyList(),
     val routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
     val routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
     val showRouteIntelligenceSection: Boolean = false,

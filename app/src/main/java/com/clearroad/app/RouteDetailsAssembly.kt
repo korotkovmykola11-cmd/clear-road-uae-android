@@ -8,7 +8,6 @@ import com.clearroad.app.domain.RouteIdentityPresentationPolicy
 import com.clearroad.app.domain.TripAtAGlancePolicy
 import com.clearroad.app.legacy.LegacyHomePresentation
 import com.clearroad.app.intelligence.RouteIntelligenceAssembly
-import com.clearroad.app.ui.model.MarshioGuidanceGoogleStepUiModel
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
 
@@ -127,12 +126,6 @@ internal object RouteDetailsAssembly {
             } else {
                 detailItem.routePathPoints
             }
-        val guidanceRoute =
-            if (isRecommendedRouteDetails) {
-                routes.getOrNull(recIdxForConfidence) ?: detailItem
-            } else {
-                detailItem
-            }
         val driveWeather =
             DriveWeatherAssembly.build(
                 DriveWeatherAssembly.Input(
@@ -150,8 +143,16 @@ internal object RouteDetailsAssembly {
                     directionsStatus = input.directionsStatus,
                 ),
             )
-        val showMarshioGuidanceEntry =
-            isRecommendedRouteDetails && handoffRoutePathPoints.size >= 2
+        logRouteDetailsModelStage(
+            routes = routes,
+            recommendedRouteIndex = recIdxForConfidence,
+        )
+        val durationSourceRoute =
+            if (isRecommendedRouteDetails) {
+                routes.getOrNull(recIdxForConfidence) ?: detailItem
+            } else {
+                detailItem
+            }
         return buildRouteDetailsUiModel(
             routeIndex = detailIdx,
             routeNumber = detailIdx + 1,
@@ -182,22 +183,8 @@ internal object RouteDetailsAssembly {
             mapEvidence = mapEvidence,
             handoffRoutePathPoints = handoffRoutePathPoints,
             googleDefaultRoutePathPoints = routes.firstOrNull()?.routePathPoints.orEmpty(),
-            durationSeconds = guidanceRoute.durationSeconds,
+            durationSeconds = durationSourceRoute.durationSeconds,
             selectedRouteIndex = recIdxForConfidence,
-            showMarshioGuidanceEntry = showMarshioGuidanceEntry,
-            marshioGuidanceGoogleSteps =
-                if (showMarshioGuidanceEntry) {
-                    guidanceRoute.googleSteps.map { step ->
-                        MarshioGuidanceGoogleStepUiModel(
-                            distanceMeters = step.distanceMeters,
-                            maneuver = step.maneuver,
-                            htmlInstructions = step.htmlInstructions,
-                            startLocation = step.startLocation,
-                        )
-                    }
-                } else {
-                    emptyList()
-                },
             routeIntelligenceRequest =
                 RouteIntelligenceAssembly.buildRequest(
                     routes = routes,
@@ -273,5 +260,31 @@ internal object RouteDetailsAssembly {
             recommendedIndex = recommendedIndex,
             isEquivalentTrip = equivalentTrip,
         ).formattedLines
+    }
+
+    private fun logRouteDetailsModelStage(
+        routes: List<RealRouteDebugData>,
+        recommendedRouteIndex: Int,
+    ) {
+        routes.forEachIndexed { index, route ->
+            RouteGeometryDiagnostic.logStageRoute(
+                stage = RouteGeometryDiagnostic.Stage.ROUTE_DETAILS_MODEL,
+                originalRouteIndex = index,
+                collectionPosition = index,
+                semanticRole =
+                    RouteGeometryDiagnostic.semanticRoleForIndex(
+                        routeIndex = index,
+                        marshioSelectedIndex = recommendedRouteIndex,
+                        routeCount = routes.size,
+                    ),
+                marshioSelected = index == recommendedRouteIndex,
+                googleDefault = index == RouteGeometryDiagnostic.GOOGLE_DEFAULT_ROUTE_INDEX,
+                googleAlternative =
+                    index != RouteGeometryDiagnostic.GOOGLE_DEFAULT_ROUTE_INDEX &&
+                        index != recommendedRouteIndex,
+                points = route.routePathPoints,
+                listIdentity = route.routePathPoints,
+            )
+        }
     }
 }
