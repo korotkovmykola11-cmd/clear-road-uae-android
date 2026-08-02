@@ -43,7 +43,6 @@ import com.google.android.gms.maps.model.LatLng
 @Composable
 internal fun RouteDetailsScreen(
     model: RouteDetailsUiModel,
-    onExpandMap: (() -> Unit)? = null,
 ) {
     val modeAccent = model.mode.accentColor()
     val cardBorder = BorderStroke(
@@ -124,7 +123,6 @@ internal fun RouteDetailsScreen(
                 googleMarshioDecision = model.googleMarshioDecision,
                 mapEvidence = model.mapEvidence,
                 cardBorder = cardBorder,
-                onStudyRouteClick = onExpandMap,
             )
             RouteDetailsIntelligenceSection(
                 request = model.routeIntelligenceRequest,

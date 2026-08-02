@@ -107,7 +107,6 @@ internal fun MapPreviewCard(
     cardBorder: BorderStroke,
     modifier: Modifier = Modifier,
     mapPreviewHeight: Dp = MapPreviewHeight,
-    onStudyRouteClick: (() -> Unit)? = null,
 ) {
     val alternativePaths = otherRoutePathPoints.filter { it.isNotEmpty() }
     val decisionCaption = routePreviewDecisionCaption(googleMarshioDecision)
@@ -136,21 +135,6 @@ internal fun MapPreviewCard(
             cardBorder = cardBorder,
             mapPreviewHeight = mapPreviewHeight,
         )
-        if (onStudyRouteClick != null) {
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = onStudyRouteClick,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                border = cardBorder,
-            ) {
-                Text(
-                    text = "Explore route",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                    color = ClearRoadColors.RoadGrey,
-                )
-            }
-        }
         if (mapEvidence?.enabled == true && hasLocalForkMapEvidence(mapEvidence)) {
             RouteLocalForkEvidenceCard(
                 fromLatLng = fromLatLng,
