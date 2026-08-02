@@ -35,7 +35,6 @@ import com.clearroad.app.ui.model.RouteGoogleMarshioDecisionUiModel
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
-import com.google.android.gms.maps.model.LatLng
 
 /**
  * Route details panel for modal / sheet hosts. Wired from route list selection + metrics helpers.
@@ -111,19 +110,6 @@ internal fun RouteDetailsScreen(
             cardBorder = cardBorder,
         )
         if (model.fromLatLng != null && model.toLatLng != null) {
-            Spacer(modifier = Modifier.height(12.dp))
-            MapPreviewCard(
-                fromLatLng = model.fromLatLng,
-                toLatLng = model.toLatLng,
-                routePathPoints = model.routePathPoints,
-                trafficSegments = model.trafficSegments,
-                junctionAnnotations = model.junctionAnnotations,
-                otherRoutePathPoints = model.otherRoutePathPoints,
-                routeOptionsCount = model.routeOptionsCount,
-                googleMarshioDecision = model.googleMarshioDecision,
-                mapEvidence = model.mapEvidence,
-                cardBorder = cardBorder,
-            )
             RouteDetailsIntelligenceSection(
                 request = model.routeIntelligenceRequest,
                 comparisonRequest = model.routeIntelligenceComparisonRequest,

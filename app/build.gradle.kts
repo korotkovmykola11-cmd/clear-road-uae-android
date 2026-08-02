@@ -62,7 +62,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.google.places)
-    implementation(libs.google.maps.compose)
     implementation(libs.google.play.services.location)
     implementation("com.google.maps.android:android-maps-utils:3.8.2")
     implementation(libs.androidx.lifecycle.runtime.ktx)

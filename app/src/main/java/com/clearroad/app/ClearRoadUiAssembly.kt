@@ -5,7 +5,6 @@ import com.clearroad.app.ui.model.ChoiceWhyTipUiModel
 import com.clearroad.app.ui.model.RouteCardUiModel
 import com.clearroad.app.ui.model.RejectedAlternativeUiModel
 import com.clearroad.app.ui.model.RouteGoogleMarshioDecisionUiModel
-import com.clearroad.app.ui.model.RouteMapEvidenceUiModel
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceComparisonRequestUiModel
 import com.clearroad.app.ui.model.RouteIntelligenceRequestUiModel
@@ -72,13 +71,8 @@ internal fun buildRouteDetailsUiModel(
     rejectedAlternatives: List<RejectedAlternativeUiModel> = emptyList(),
     googleMarshioDecision: RouteGoogleMarshioDecisionUiModel? = null,
     showLegacyWhyCopy: Boolean = false,
-    otherRoutePathPoints: List<List<LatLng>> = emptyList(),
-    routeOptionsCount: Int = 1,
-    mapEvidence: RouteMapEvidenceUiModel? = null,
     handoffRoutePathPoints: List<LatLng> = emptyList(),
-    googleDefaultRoutePathPoints: List<LatLng> = emptyList(),
     durationSeconds: Int = 0,
-    selectedRouteIndex: Int = 0,
     routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
     routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
     showRouteIntelligenceSection: Boolean = false,
@@ -111,16 +105,8 @@ internal fun buildRouteDetailsUiModel(
         mode = selectedMode,
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
-        routePathPoints = item.routePathPoints,
-        trafficSegments = TrafficPolylineBuilder.build(item),
-        junctionAnnotations = JunctionAnnotationBuilder.build(item),
-        otherRoutePathPoints = otherRoutePathPoints,
-        routeOptionsCount = routeOptionsCount,
-        mapEvidence = mapEvidence,
         handoffRoutePathPoints = handoffRoutePathPoints,
-        googleDefaultRoutePathPoints = googleDefaultRoutePathPoints,
         durationSeconds = durationSeconds,
-        selectedRouteIndex = selectedRouteIndex,
         routeIntelligenceRequest = routeIntelligenceRequest,
         routeIntelligenceComparisonRequest = routeIntelligenceComparisonRequest,
         showRouteIntelligenceSection = showRouteIntelligenceSection,

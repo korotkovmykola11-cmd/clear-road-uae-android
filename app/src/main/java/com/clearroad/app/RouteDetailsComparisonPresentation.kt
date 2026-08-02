@@ -28,8 +28,6 @@ internal object RouteDetailsComparisonPresentation {
         val googleMarshioDecision: RouteGoogleMarshioDecisionUiModel?,
         val rejectedAlternativesIntro: String = "",
         val rejectedAlternatives: List<RejectedAlternativeUiModel>,
-        val otherRoutePathPoints: List<List<com.google.android.gms.maps.model.LatLng>>,
-        val routeOptionsCount: Int,
     )
 
     internal data class AlternativeComparisonFacts(
@@ -61,8 +59,6 @@ internal object RouteDetailsComparisonPresentation {
                 googleMarshioDecision = null,
                 rejectedAlternativesIntro = "",
                 rejectedAlternatives = emptyList(),
-                otherRoutePathPoints = emptyList(),
-                routeOptionsCount = routes.size.coerceAtLeast(0),
             )
         }
 
@@ -111,18 +107,10 @@ internal object RouteDetailsComparisonPresentation {
                 ""
             }
 
-        val otherRoutePathPoints =
-            routes.indices
-                .filter { it != detailIdx }
-                .map { routes[it].routePathPoints }
-                .filter { it.isNotEmpty() }
-
         return Result(
             googleMarshioDecision = googleMarshioDecision,
             rejectedAlternativesIntro = rejectedAlternativesIntro,
             rejectedAlternatives = rejectedAlternatives,
-            otherRoutePathPoints = otherRoutePathPoints,
-            routeOptionsCount = routes.size,
         )
     }
 

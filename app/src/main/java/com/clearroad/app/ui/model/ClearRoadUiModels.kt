@@ -1,7 +1,5 @@
 package com.clearroad.app.ui.model
 
-import com.clearroad.app.RouteJunctionAnnotation
-import com.clearroad.app.TrafficSegment
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.driveweather.DriveWeatherUiModel
 import com.google.android.gms.maps.model.LatLng
@@ -92,22 +90,6 @@ data class RejectedAlternativeUiModel(
     val verdictText: String,
 )
 
-/** Map evidence when MARSHIO disagrees with Google — presentation only. */
-data class RouteMapEvidenceUiModel(
-    val enabled: Boolean,
-    val strategicHeadline: String = "Route comparison",
-    val strategicCaption: String = "Full trip — white outline marks MARSHIO's route; line color shows traffic. Cyan dashed is Google.",
-    val localHeadline: String = "Where routes split",
-    val localCaption: String = "",
-    val splitPoint: LatLng? = null,
-    val splitLabel: String = "Routes split here",
-    val sharedPath: List<LatLng> = emptyList(),
-    val googleDivergentPath: List<LatLng> = emptyList(),
-    val marshioDivergentPath: List<LatLng> = emptyList(),
-    val googleComparisonPath: List<LatLng> = emptyList(),
-    val marshioComparisonPath: List<LatLng> = emptyList(),
-)
-
 /** Stage 31.5 recommendation surface — decision-first home model. */
 data class RecommendationSurfaceUiModel(
     val ready: Boolean,
@@ -183,16 +165,8 @@ data class RouteDetailsUiModel(
     val mode: PreferenceMode = PreferenceMode.FASTEST,
     val fromLatLng: LatLng? = null,
     val toLatLng: LatLng? = null,
-    val routePathPoints: List<LatLng> = emptyList(),
-    val trafficSegments: List<TrafficSegment> = emptyList(),
-    val junctionAnnotations: List<RouteJunctionAnnotation> = emptyList(),
-    val otherRoutePathPoints: List<List<LatLng>> = emptyList(),
-    val routeOptionsCount: Int = 1,
-    val mapEvidence: RouteMapEvidenceUiModel? = null,
     val handoffRoutePathPoints: List<LatLng> = emptyList(),
-    val googleDefaultRoutePathPoints: List<LatLng> = emptyList(),
     val durationSeconds: Int = 0,
-    val selectedRouteIndex: Int = 0,
     val routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,
     val routeIntelligenceComparisonRequest: RouteIntelligenceComparisonRequestUiModel? = null,
     val showRouteIntelligenceSection: Boolean = false,

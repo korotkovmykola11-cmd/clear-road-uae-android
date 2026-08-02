@@ -110,16 +110,6 @@ internal object RouteDetailsAssembly {
                 mode = input.mode,
                 directionsStatus = input.directionsStatus,
             )
-        val mapEvidence =
-            if (isRecommendedRouteDetails) {
-                RouteMapEvidencePresentation.build(
-                    routes = routes,
-                    recommendedIndex = recIdxForConfidence,
-                    decisionState = comparisonPresentation.googleMarshioDecision?.state,
-                )
-            } else {
-                null
-            }
         val handoffRoutePathPoints =
             if (isRecommendedRouteDetails) {
                 routes.getOrNull(recIdxForConfidence)?.routePathPoints.orEmpty()
@@ -143,10 +133,6 @@ internal object RouteDetailsAssembly {
                     directionsStatus = input.directionsStatus,
                 ),
             )
-        logRouteDetailsModelStage(
-            routes = routes,
-            recommendedRouteIndex = recIdxForConfidence,
-        )
         val durationSourceRoute =
             if (isRecommendedRouteDetails) {
                 routes.getOrNull(recIdxForConfidence) ?: detailItem
@@ -178,13 +164,8 @@ internal object RouteDetailsAssembly {
             googleMarshioDecision = comparisonPresentation.googleMarshioDecision,
             showLegacyWhyCopy =
                 comparisonPresentation.googleMarshioDecision == null && !isRecommendedRouteDetails,
-            otherRoutePathPoints = comparisonPresentation.otherRoutePathPoints,
-            routeOptionsCount = comparisonPresentation.routeOptionsCount,
-            mapEvidence = mapEvidence,
             handoffRoutePathPoints = handoffRoutePathPoints,
-            googleDefaultRoutePathPoints = routes.firstOrNull()?.routePathPoints.orEmpty(),
             durationSeconds = durationSourceRoute.durationSeconds,
-            selectedRouteIndex = recIdxForConfidence,
             routeIntelligenceRequest =
                 RouteIntelligenceAssembly.buildRequest(
                     routes = routes,
@@ -260,31 +241,5 @@ internal object RouteDetailsAssembly {
             recommendedIndex = recommendedIndex,
             isEquivalentTrip = equivalentTrip,
         ).formattedLines
-    }
-
-    private fun logRouteDetailsModelStage(
-        routes: List<RealRouteDebugData>,
-        recommendedRouteIndex: Int,
-    ) {
-        routes.forEachIndexed { index, route ->
-            RouteGeometryDiagnostic.logStageRoute(
-                stage = RouteGeometryDiagnostic.Stage.ROUTE_DETAILS_MODEL,
-                originalRouteIndex = index,
-                collectionPosition = index,
-                semanticRole =
-                    RouteGeometryDiagnostic.semanticRoleForIndex(
-                        routeIndex = index,
-                        marshioSelectedIndex = recommendedRouteIndex,
-                        routeCount = routes.size,
-                    ),
-                marshioSelected = index == recommendedRouteIndex,
-                googleDefault = index == RouteGeometryDiagnostic.GOOGLE_DEFAULT_ROUTE_INDEX,
-                googleAlternative =
-                    index != RouteGeometryDiagnostic.GOOGLE_DEFAULT_ROUTE_INDEX &&
-                        index != recommendedRouteIndex,
-                points = route.routePathPoints,
-                listIdentity = route.routePathPoints,
-            )
-        }
     }
 }
