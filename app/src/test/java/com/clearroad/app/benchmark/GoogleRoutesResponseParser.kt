@@ -1,5 +1,6 @@
 package com.clearroad.app.benchmark
 
+import com.clearroad.app.RoutesV2ResponseAdapter
 import com.clearroad.app.decodeRoutePathPoints
 import com.google.android.gms.maps.model.LatLng
 import org.json.JSONObject
@@ -9,23 +10,20 @@ import org.json.JSONObject
  *
  * Consumed JSON fields (field mask derived from this list):
  * - routes.duration
+ * - routes.staticDuration
  * - routes.distanceMeters
  * - routes.polyline.encodedPolyline
  * - routes.description
  * - routes.routeLabels
  * - routes.travelAdvisory.tollInfo
+ * - routes.travelAdvisory.speedReadingIntervals
+ * - routes.legs.steps.distanceMeters
+ * - routes.legs.steps.navigationInstruction.maneuver
  * - routes.legs.steps.navigationInstruction.instructions
  */
 object GoogleRoutesResponseParser {
 
-    const val PARSED_FIELD_MASK =
-        "routes.duration," +
-            "routes.distanceMeters," +
-            "routes.polyline.encodedPolyline," +
-            "routes.description," +
-            "routes.routeLabels," +
-            "routes.travelAdvisory.tollInfo," +
-            "routes.legs.steps.navigationInstruction.instructions"
+    const val PARSED_FIELD_MASK = RoutesV2ResponseAdapter.ADAPTER_FIELD_MASK
 
     sealed class ParseResult {
         data class Success(val candidates: List<BenchmarkRouteCandidate>) : ParseResult() {

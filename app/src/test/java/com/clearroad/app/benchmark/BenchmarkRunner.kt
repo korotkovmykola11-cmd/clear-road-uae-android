@@ -11,6 +11,8 @@ object BenchmarkRunner {
     data class BenchmarkCaseManifest(
         val case: UaeRouteBenchmarkCase,
         val fixtureFile: String,
+        /** Frozen Routes v2 computeRoutes JSON under `benchmark/routes-v2-traffic/`. */
+        val v2FixtureFile: String? = null,
     )
 
     fun loadManifests(casesJson: String): List<BenchmarkCaseManifest> {
@@ -36,6 +38,7 @@ object BenchmarkRunner {
                                 notes = entry.optString("notes", ""),
                             ),
                         fixtureFile = entry.getString("fixtureFile"),
+                        v2FixtureFile = entry.optString("v2FixtureFile", "").takeIf { it.isNotBlank() },
                     ),
                 )
             }

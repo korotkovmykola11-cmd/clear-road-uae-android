@@ -1,0 +1,81 @@
+{
+  "batch": "routes-v2-traffic-stage-a",
+  "notes": "Live Routes API v2 computeRoutes fixtures with TRAFFIC_ON_POLYLINE and HIGH_QUALITY polyline.",
+  "fieldMask": "routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.description,routes.routeLabels,routes.travelAdvisory.tollInfo,routes.travelAdvisory.speedReadingIntervals,routes.legs.steps.distanceMeters,routes.legs.steps.navigationInstruction.maneuver,routes.legs.steps.navigationInstruction.instructions",
+  "cases": [
+    {
+      "caseId": "live-difc-marina",
+      "label": "DIFC to Marina",
+      "fixtureFile": "live-difc-marina-traffic.json",
+      "capturedAtUtc": "2026-08-02T16:19:03Z",
+      "request": {
+        "routingPreference": "TRAFFIC_AWARE",
+        "polylineQuality": "HIGH_QUALITY",
+        "extraComputations": ["TOLLS", "TRAFFIC_ON_POLYLINE"],
+        "computeAlternativeRoutes": true
+      },
+      "tags": ["urban", "toll", "off-peak-ish"],
+      "defaultRoute": {
+        "duration": "1473s",
+        "distanceMeters": 24301,
+        "intervalCount": 6,
+        "speedCategories": ["NORMAL", "SLOW"],
+        "hasTrafficJam": false
+      }
+    },
+    {
+      "caseId": "live-sharjah-downtown",
+      "label": "Sharjah to Downtown",
+      "fixtureFile": "live-sharjah-downtown-traffic.json",
+      "capturedAtUtc": "2026-08-02T16:19:03Z",
+      "request": {
+        "routingPreference": "TRAFFIC_AWARE",
+        "polylineQuality": "HIGH_QUALITY",
+        "extraComputations": ["TOLLS", "TRAFFIC_ON_POLYLINE"],
+        "computeAlternativeRoutes": true
+      },
+      "tags": ["inter-emirate", "peak-traffic", "has-jam"],
+      "defaultRoute": {
+        "duration": "2289s",
+        "distanceMeters": 27703,
+        "intervalCount": 10,
+        "speedCategories": ["NORMAL", "SLOW", "TRAFFIC_JAM"],
+        "hasTrafficJam": true
+      }
+    },
+    {
+      "caseId": "live-business-bay-jlt",
+      "label": "Business Bay to JLT",
+      "fixtureFile": "live-business-bay-jlt-traffic.json",
+      "capturedAtUtc": "2026-08-02T16:19:03Z",
+      "request": {
+        "routingPreference": "TRAFFIC_AWARE",
+        "polylineQuality": "HIGH_QUALITY",
+        "extraComputations": ["TOLLS", "TRAFFIC_ON_POLYLINE"],
+        "computeAlternativeRoutes": true
+      },
+      "tags": ["urban", "short"],
+      "defaultRoute": {
+        "duration": "1154s",
+        "distanceMeters": 21825,
+        "intervalCount": 1,
+        "speedCategories": ["NORMAL"],
+        "hasTrafficJam": false
+      }
+    },
+    {
+      "caseId": "stage34-route4",
+      "label": "Ajman to DIFC (paired frozen Legacy+V2)",
+      "fixtureFile": "route4-Ajman-DIFC-traffic.json",
+      "capturedAtUtc": "2026-08-03T14:55:00Z",
+      "request": {
+        "routingPreference": "TRAFFIC_AWARE",
+        "polylineQuality": "HIGH_QUALITY",
+        "extraComputations": ["TOLLS", "TRAFFIC_ON_POLYLINE"],
+        "computeAlternativeRoutes": true
+      },
+      "tags": ["inter-emirate", "toll", "frozen-pair"],
+      "notes": "Captured together with benchmark/route4-Ajman-DIFC.json for Stage C pre-flip gate."
+    }
+  ]
+}

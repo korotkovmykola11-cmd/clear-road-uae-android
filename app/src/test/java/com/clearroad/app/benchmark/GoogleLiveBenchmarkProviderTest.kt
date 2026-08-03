@@ -219,7 +219,10 @@ class GoogleLiveBenchmarkProviderTest {
         assertTrue(lastRequestBody!!.contains("\"latitude\":${case.destinationLat}"))
         assertTrue(lastRequestBody!!.contains("\"travelMode\":\"DRIVE\""))
         assertTrue(lastRequestBody!!.contains("\"routingPreference\":\"TRAFFIC_AWARE\""))
+        assertTrue(lastRequestBody!!.contains("\"polylineQuality\":\"HIGH_QUALITY\""))
         assertTrue(lastRequestBody!!.contains("\"computeAlternativeRoutes\":true"))
+        assertTrue(lastRequestBody!!.contains("\"TRAFFIC_ON_POLYLINE\""))
+        assertTrue(lastRequestBody!!.contains("\"TOLLS\""))
     }
 
     @Test

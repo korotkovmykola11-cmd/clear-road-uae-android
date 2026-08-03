@@ -108,8 +108,12 @@ class GoogleLiveBenchmarkProvider(
                 put("destination", latLngObject(case.destinationLat, case.destinationLng))
                 put("travelMode", "DRIVE")
                 put("routingPreference", "TRAFFIC_AWARE")
+                put("polylineQuality", "HIGH_QUALITY")
                 put("computeAlternativeRoutes", true)
-                put("extraComputations", JSONArray(listOf("TOLLS")))
+                put(
+                    "extraComputations",
+                    JSONArray(listOf("TOLLS", "TRAFFIC_ON_POLYLINE")),
+                )
             }.toString()
 
     private fun latLngObject(latitude: Double, longitude: Double): JSONObject =

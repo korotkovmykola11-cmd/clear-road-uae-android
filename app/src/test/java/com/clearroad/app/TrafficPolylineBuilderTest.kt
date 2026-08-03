@@ -128,6 +128,38 @@ class TrafficPolylineBuilderTest {
     }
 
     @Test
+    fun build_usesLegDelayWhenStepsUniformFree() {
+        val route =
+            RealRouteDebugData(
+                distanceText = "10 km",
+                durationText = "18 min",
+                distanceMeters = 10_000,
+                durationSeconds = 1_080,
+                tollAED = 0,
+                hasToll = false,
+                routePathPoints = path,
+                baseDurationSeconds = 900,
+                durationInTrafficSeconds = 1_080,
+                stepTrafficRecords =
+                    listOf(
+                        DirectionsStepTrafficRecord(
+                            points = listOf(path[0], path[1], path[2]),
+                            speedCategory = SpeedCategory.FREE,
+                        ),
+                        DirectionsStepTrafficRecord(
+                            points = listOf(path[2], path[3], path[4]),
+                            speedCategory = SpeedCategory.FREE,
+                        ),
+                    ),
+            )
+
+        val segments = TrafficPolylineBuilder.build(route)
+
+        assertEquals(1, segments.size)
+        assertEquals(SpeedCategory.MODERATE, segments.single().speedCategory)
+    }
+
+    @Test
     fun mapGoogleSpeed_mapsRoutesApiValues() {
         assertEquals(SpeedCategory.FREE, TrafficSpeedParsing.mapGoogleSpeed("NORMAL"))
         assertEquals(SpeedCategory.SLOW, TrafficSpeedParsing.mapGoogleSpeed("SLOW"))

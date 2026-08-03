@@ -1,0 +1,911 @@
+{
+  "routes": [
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "distanceMeters": 8,
+              "navigationInstruction": {
+                "maneuver": "DEPART",
+                "instructions": "الاتجاه مباشرة إلى الشمال الغربي"
+              }
+            },
+            {
+              "distanceMeters": 146,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه نحو  اليسار إلى شارع حاتم الطائي"
+              }
+            },
+            {
+              "distanceMeters": 200,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه يسارًا إلى شارع حاتم الطائي"
+              }
+            },
+            {
+              "distanceMeters": 469,
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_RIGHT",
+                "instructions": "عند الدوّار، عليك الاتجاه نحو المخرج الأول "
+              }
+            },
+            {
+              "distanceMeters": 216,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه نحو  اليمين"
+              }
+            },
+            {
+              "distanceMeters": 35,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "الاتجاه نحو  اليسار قليلاً إلى شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 280,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 3415,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "المتابعة مباشرة للاستمرار في شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 837,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "الاتجاه نحو منحدر \u202aAl Ittihad Road South\u202c\u200f  إلى الشارقة"
+              }
+            },
+            {
+              "distanceMeters": 5061,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في شارع الاتحاد/إ11\nالمتابعة في إ11"
+              }
+            },
+            {
+              "distanceMeters": 482,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_RIGHT",
+                "instructions": "الاتجاه نحو  اليمين قليلاً"
+              }
+            },
+            {
+              "distanceMeters": 614,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في إ11"
+              }
+            },
+            {
+              "distanceMeters": 453,
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_RIGHT",
+                "instructions": "عند \u202aCultural Square\u202c\u200f، عليك الاتجاه نحو المخرج الثالث  والاستمرار في إ11 متجهًا إلى مركز المدينة\u200e\u200f/حي الشرق/ش113/الممزر"
+              }
+            },
+            {
+              "distanceMeters": 231,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "الاتجاه نحو الطريق المنحدرة إلى إ11"
+              }
+            },
+            {
+              "distanceMeters": 10814,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في إ11\nطريق برسوم مرور"
+              }
+            },
+            {
+              "distanceMeters": 707,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f واستمر في القيادة على الطريق\u200f إ11\nطريق برسوم مرور"
+              }
+            },
+            {
+              "distanceMeters": 1486,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f واستمر في القيادة على الطريق\u200f إ11"
+              }
+            },
+            {
+              "distanceMeters": 289,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "المتابعة مباشرة للاستمرار في إ11"
+              }
+            },
+            {
+              "distanceMeters": 1232,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f للاستمرار في\u200f شارع الشيخ راشد/إ11"
+              }
+            },
+            {
+              "distanceMeters": 5039,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f واستمر في القيادة على الطريق\u200f شارع الشيخ راشد/إ11\nطريق برسوم مرور"
+              }
+            },
+            {
+              "distanceMeters": 4021,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "عليك الاتجاه نحو مخرج \u202a56B\u202c\u200f لـ شارع السعادة"
+              }
+            },
+            {
+              "distanceMeters": 524,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 815,
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_RIGHT",
+                "instructions": "عند الدوّار، عليك الاتجاه نحو المخرج الثاني  والاستمرار في شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 42,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه نحو اليمين إلى \u202atowards DIFC Parking\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 78,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في \u202atowards DIFC Parking\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 110,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه يمينًا للبقاء على \u202atowards DIFC Parking\u202c\u200f"
+              }
+            }
+          ]
+        }
+      ],
+      "distanceMeters": 37604,
+      "duration": "2734s",
+      "staticDuration": "2375s",
+      "polyline": {
+        "encodedPolyline": "g}`zC}nyqIIJfE|Db@k@n@y@DGx@eAp@w@TYV]@@B?@@B?@?@?BA@?@ABA@CNNJFDBPHFBD@PBV@jAC`CGjCIbACj@Cp@Ap@CbCEEj@Cd@Ef@Ch@IrB?RCf@A`@?t@HXDJBJHHAP?TAfC?tGAV?lAAjCBpC?h@?D?b@@f@?T?P@fA@D?X@LBnABR@VDr@@Z@VBT?L@@?H@F?FB^BTB`@Fv@BR@PDd@Fb@?DDd@Db@LpADZl@zEHz@ZrCpA`JF`@x@pGb@nDNlAPrAPlANdA|BxPvAfLf@`E~@pGPpAf@dE^xCz@xF@HF\\r@dFr@zEl@~Dt@jFTtAtAnINx@r@jEL\\Lh@Jf@XtAh@`B^jALn@Hj@Ht@?V@l@Az@?X?L?H@P@P@DD\\BT@HBJHVBFDJDFJPLRRPPPPNPLNJTL`@TPHd@VbAd@\\Hf@ZhAv@v@l@LLPJNHRFZ`@vDpDv@r@JHRR`@^jBbBjBdBtAtAdCbC`A|@bA~@ZXhC~BDB`@^RRXTDFFDrChCXXj@h@f@`@h@`@|AnAdCtBDDhAdAnD|C`B|Ab@\\dBzA~AtAnAjAv@r@pDhDdCxBDDbCxBlBdBfC|BnGdGlCfCb@`@fBdBzAbA|AvAn@h@jBfBjDzCjBdB~@z@`BzAfA`AfC~B~@x@PPFFXXd@`@f@d@VTVVh@d@j@f@TR~BvBvCjCh@f@f@h@dEtDVRr@l@hA`Ax@p@tBdBDB~ApALH\\Vn@b@f@^fAt@xCrB\\TjAr@xHvEh@Zj@ZtD|BXNBBTVRR^ZNN`@f@RXPZJTRb@Pj@Nh@Hf@@LD^DZ@X@^@Z?TA^CR?JCNALCLABANGXK^Sf@GNGPCLEPA@oAtBe@~@i@~@Ub@_@j@EFADQZo@z@eArAW\\ORINKNwAfCa@n@u@rAMVEFEDEDEDEBEBEBE@CBYHCAGAOCO?O@OBMBOFMFIHKHA@GFGLGJGLENCLALAN?L?N@LBLBLBLDHBFDHDFDFDDFFFDDBDBDBDBDBF@D@FBLTBB@D@B@D@DBXD\\Df@LxAN~ABXHbAHx@Hx@J~@J~@BVJbAFVFTLfCNhE@f@JrAJv@^nDRbBv@fMVpERpBTpCDh@Dr@LhB@PB`@Fh@DXF^J^FRDL\\|@HTJRJNV^NRNRVXLJNLf@^JHZPh@Z\\RPJb@VvEnCTN`Ah@^TnAr@~ClB\\R`Al@f@\\t@`@hAj@`@RbB~@TLXPhB`A|@f@HD`@T\\PhAl@FDLFPH\\RXPbAh@lAp@f@Z\\R\\RzA~@nAp@j@\\\\P@@\\P\\T`@RnAr@fB`ANHbAj@\\RZPZPVLB@PJHDHF@@XNXNn@^bB`ANJj@\\l@\\`@V|@f@\\RbAl@tAv@rAv@fAj@^RRJHF^Pp@\\rAr@tAp@JDvAx@r@^`@T^T^Pl@`@r@b@XNdEfCpBjA\\PXPh@\\`BdAdAn@vBzAHFPN\\V|AfAnAhABB|G~FdAz@BBnBbBjCdCxClCvFdFpBhB\\\\z@x@b@^p@j@lAhAv@v@nAfAnEbEzCpCb@`@h@f@VVd@`@j@h@b@`@XVd@`@h@d@lBdBbC`C~DjDd@b@^`@zAnATRZ^nAhA~EtEjCdCLL`Az@j@f@rEbEfB`BzBnBbB`BdB~An@t@tA~An@v@l@|@T`@dAzAj@dANX`@~@f@xAzBpFx@xBXt@Nb@`DdJjCvHHVt@dB\\r@JXNXh@fAt@pAh@x@TZX`@@@LPf@j@j@p@RVn@n@fA|@PL|@r@j@b@JJ~@r@h@ZdAd@jAf@dBn@tAVtDr@nC^dAJNBz@HdCVvBTt@H`@DrCXvEh@dCV~Gt@p@HrD^hALXD|@HJB\\Dd@FjCb@lCl@tA`@B?dBp@hAb@lAp@~@h@t@f@j@d@l@h@`BjB`BhB`AfA~@dAnBvB~@dAPRtAxAFH|@`Ah@n@|@bAv@~@VXbAhAn@t@dBrBx@|@vBfCNNHJDDnAvAz@|@v@~@x@z@|BnCVZr@x@\\^RVb@j@xApBlB~BtC~C^^d@f@|A`BZ\\tBbCpC|C|BlC~AhBrB~BtA~ArA|A\\b@Z^\\b@f@j@d@j@X^XXPTZ`@RTLNRTHLLJLPLNJLJJHHFFNJl@b@XRXLPHFBXJTFf@LVF|@HJ@X@P@P?LAFA`@CXA\\Cv@InAQbH{@lAQ|@KhBUf@CjACv@?n@Bb@Db@DVBJ@VBJ@J@TDZDh@H`BRTDtAR|BZ`@H|GbAJ@x@DnAJlCJf@?`A?dACz@EdAE`AIhAKd@Gh@IxBi@|@WfA]|Ai@dAa@nBq@vAi@vAi@tBu@rAk@pBw@pC}@PG^Mp@SrAe@bA]|Ag@x@Yj@QrBc@pB[~@IhACvA?dA@jAHTBb@DzATd@JrA^hA\\z@Xz@`@rAz@TPf@d@~EhEvE~DzD~ChAdARVXZX\\RTXb@^\\HHr@n@xAbBRTDDRTDDd@j@tA`BbAnAZd@RXBBNT@BhCvDl@bAbAlBn@vALXVr@X`ALf@h@vB@HJ`@H^^rBTrBHfAJ|ABjB@`CA^Cr@GxAGp@Gr@S|A[zBi@`Cc@`B[hAc@jAWHo@rAo@|A_CzFi@dAMVg@t@_@d@Wd@W`@MTiCbG{@tBaAfCQl@[|@q@hBQ`@a@dAYt@ENGZAD{CjHOb@e@pAc@nAAFIRWz@IXCHGTENGTKb@Sp@Md@ELc@~AAFK^IZABGRKl@Kp@C`@Ez@?V?V@Z@VBTDd@F`@BRFVRr@N`@JTLXJRHLT\\NZHLLTR^HNDJj@dATd@Tb@DF@BLTDFDJJTR`@Pl@L`@Jf@Jn@D^@RBd@@T@\\Bt@BbABp@DdABn@Dn@Bp@@VBRDl@Bd@BXHp@TpBHr@Nz@N`A@JJr@Nx@Nz@BN?BHb@Np@H`@F^FVH^J^Jb@Ld@L^NZFLLT\\h@NRLLPRPPNLNJNJPJZPNHPHNFPDTFp@Ld@D`@D~BFlC?V?n@@T@V@H@d@DPBLBPDb@JB@XJFBNHLHNHZT^XdAt@JHzAbAzAbAh@\\JHvBvADD`@^\\Xh@`@bAx@f@\\LH\\T\\THDx@f@v@h@pAt@t@d@h@ZVNr@b@lAt@HFFDFHDFDFBFDLDN?F?D@F?F@F@FBH@DBDDJFHDFFFFFFDJDHDLDJBNBL@D?H?H?HAJAJCLCNAH@H?F@F@FBFBrAn@BBRJVLn@^PJZRh@ZdCzAB@ZLRLbAh@@@XPHFDBHDVP@?XPFFHDDDRL@BB@NHNLLHLLNNNR@@VZHJNN@BT`@JNLPDJPXEH?JBN?JAFCFGJA?OJmAv@KFGDWMEAaAg@WMGCUMECAAOG"
+      },
+      "description": "إ11",
+      "travelAdvisory": {
+        "tollInfo": {},
+        "speedReadingIntervals": [
+          {
+            "startPolylinePointIndex": 0,
+            "endPolylinePointIndex": 195,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 195,
+            "endPolylinePointIndex": 206,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 206,
+            "endPolylinePointIndex": 245,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 245,
+            "endPolylinePointIndex": 260,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 260,
+            "endPolylinePointIndex": 302,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 302,
+            "endPolylinePointIndex": 324,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 324,
+            "endPolylinePointIndex": 521,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 521,
+            "endPolylinePointIndex": 524,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 524,
+            "endPolylinePointIndex": 881,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 881,
+            "endPolylinePointIndex": 886,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 886,
+            "endPolylinePointIndex": 1092,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 1092,
+            "endPolylinePointIndex": 1100,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 1100,
+            "endPolylinePointIndex": 1117,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 1117,
+            "endPolylinePointIndex": 1141,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 1141,
+            "endPolylinePointIndex": 1154,
+            "speed": "NORMAL"
+          }
+        ]
+      },
+      "routeLabels": [
+        "DEFAULT_ROUTE"
+      ]
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "distanceMeters": 8,
+              "navigationInstruction": {
+                "maneuver": "DEPART",
+                "instructions": "الاتجاه مباشرة إلى الشمال الغربي"
+              }
+            },
+            {
+              "distanceMeters": 146,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه نحو  اليسار إلى شارع حاتم الطائي"
+              }
+            },
+            {
+              "distanceMeters": 200,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه يسارًا إلى شارع حاتم الطائي"
+              }
+            },
+            {
+              "distanceMeters": 469,
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_RIGHT",
+                "instructions": "عند الدوّار، عليك الاتجاه نحو المخرج الأول "
+              }
+            },
+            {
+              "distanceMeters": 216,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه نحو  اليمين"
+              }
+            },
+            {
+              "distanceMeters": 35,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "الاتجاه نحو  اليسار قليلاً إلى شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 280,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 70,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "المتابعة مباشرة للاستمرار في شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 291,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "الاتجاه نحو الطريق المنحدرة إلى الجرف/الحميدية"
+              }
+            },
+            {
+              "distanceMeters": 56,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة اليسار لمواصلة الاتجاه نحو Sh Ammar Bin Humaid St\u200f"
+              }
+            },
+            {
+              "distanceMeters": 100,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه يسارًا إلى Sh Ammar Bin Humaid St\u200f (إشارات لـ شارع الشيخ محمد بن زايد/Sh Mohammed Bin Zayed Rd\u200f/الشارقة/دبي)"
+              }
+            },
+            {
+              "distanceMeters": 2655,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في شارع الشيخ عمار بن حميد"
+              }
+            },
+            {
+              "distanceMeters": 1702,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في شارع الشيخ عمار بن حميد (إشارات لـ شارع الشيخ محمد بن زايد/إ311/التلة/الشارقة/دبي)"
+              }
+            },
+            {
+              "distanceMeters": 21136,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "الاتجاه نحو  اليمين للدخول في شارع الشيخ محمد بن زايد/إ311"
+              }
+            },
+            {
+              "distanceMeters": 1684,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "عليك الاتجاه نحو مخرج \u202a55\u202c\u200f لـ د83 إلى القرهود/مركز المدينة/ديره"
+              }
+            },
+            {
+              "distanceMeters": 2812,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في شارع الرباط"
+              }
+            },
+            {
+              "distanceMeters": 2153,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "الاتجاه نحو  اليسار قليلاً (إشارات لـ معبر الخليج التجاري/71د/مركز المدينة/بر دبي)"
+              }
+            },
+            {
+              "distanceMeters": 3784,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في جسر الخليج التجاري/شارع الخيل\nالمتابعة في شارع الخيل\nطريق برسوم مرور"
+              }
+            },
+            {
+              "distanceMeters": 26,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه نحو  اليمين (إشارات لـ شارع زعبيل الثاني/73د/شارع عود ميثاء/إ66/حديقة زعبيل/حي دبي التصميم)"
+              }
+            },
+            {
+              "distanceMeters": 151,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة اليسار"
+              }
+            },
+            {
+              "distanceMeters": 506,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة اليسار، واتبع إشارات د73/مركز دبي التجاري العالمي/شارع زعبيل الثاني/زعبيل/شارع عود ميثاء/إ66/العين"
+              }
+            },
+            {
+              "distanceMeters": 248,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "الاتجاه نحو الطريق المنحدرة إلى شارع قصر زعبيل"
+              }
+            },
+            {
+              "distanceMeters": 477,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في شارع قصر زعبيل"
+              }
+            },
+            {
+              "distanceMeters": 1848,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "المتابعة مباشرة للاستمرار في شارع قصر زعبيل"
+              }
+            },
+            {
+              "distanceMeters": 97,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه نحو  اليسار إلى شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 341,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه يسارًا إلى شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 690,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f واستمر في القيادة على الطريق\u200f شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 815,
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_RIGHT",
+                "instructions": "عند الدوّار، عليك الاتجاه نحو المخرج الثاني  والاستمرار في شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 42,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه نحو اليمين إلى \u202atowards DIFC Parking\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 78,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في \u202atowards DIFC Parking\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 110,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه يمينًا للبقاء على \u202atowards DIFC Parking\u202c\u200f"
+              }
+            }
+          ]
+        }
+      ],
+      "distanceMeters": 43222,
+      "duration": "3106s",
+      "staticDuration": "2596s",
+      "polyline": {
+        "encodedPolyline": "g}`zC}nyqIIJfE|Db@k@n@y@DGx@eAp@w@TYV]@@B?@@B?@?@?BA@?@ABA@CNNJFDBPHFBD@PBV@jAC`CGjCIbACj@Cp@Ap@CbCEEj@Cd@Ef@Ch@IrB?RCf@A`@?t@HXDJBJHHAP?TAfC?tGAV?lAAjCIZAHCPC`A@z@?v@@tAAN@f@B|@BdC@R@NDjABZVAPAPAb@CFAH?d@Cj@Gn@GNArAIdAKXC@?l@EpAI~AMtAKnAKXClAIhBMVCbBMTCb@EB?^CdAKb@Cb@ED?p@CrDYvBSF?ZARCB?NCjAKJ?n@GPA~CWZAj@GJA\\C\\Cj@EzGk@b@EDAPA`Gc@n@EnAGrBSF?^CRCx@IPCn@IvEi@x@KjC]j@I|Ce@\\Et@M|AQrCa@TClAOfAOlBQvBUhAMNCNCt@Sj@M^KbF_BlA_@xAg@ZIlA]hAYrBk@v@UfEkAd@MXK\\IjD_ArA_@f@MzC{@~@Ul@QxBo@HCjBi@@A^K`@MzAc@nFyAfIwBhBi@HA|@OZCL?\\Bp@V\\PZRVVPXTb@TlA^pCb@fDZrCl@lFBHDJLP?DNdBZbDJv@b@nD\\nCBZVdCPfBLrAJ~A@`@B`@HjFKtDMzB[rEa@~EShC?DC\\Eb@c@`HS`CIx@YxC_@fEEp@EpA]vEIfAUtC[rEShCGv@IlAAx@?D?jB@hADpAHjADd@Hp@Hp@XhBNr@Pr@X`ARl@t@pBR`@rApCNTPVb@h@h@n@BBVXr@v@n@j@n@h@vAdAhDrBvA|@rA|@DBn@`@hAt@jCxA^T\\TjC|AnF`DxDbCxEvCpFnD`FdDxHhFfCdBVPrD~BrEpCvExCjBjAnHrEbAn@vD~BHFlBfAdAp@\\R\\TXP~@n@pExC`@V@BTNb@VnCjB|AfAnBrAJHx@f@pD`C\\V\\T\\T\\T\\T\\TtBvA\\TvBxA\\T`BbA|BzAtA`AdCfBfA|@zE~CvNnJZTZX`C~A`BfAnAx@`@\\vI~G|@r@rBzAtA`A|@l@vA~@jAx@DBDBBBB@HF@@rEzCjBnAhBhAhElCZRlH~EzAfAPN`BfAx@h@pA~@dAt@jBnAd@Z~A`A~AdAzA`AFBnAx@`FfDxGpEdBnA^TVPl@`@TJxPdLnAv@d@ZZR`@V\\Tv@d@`BdArCpBZRRLn@b@d@`@HHZTPLnAhAhAdAJJLJ@@BBfChCTTDDPRlAnAt@r@ZZTVHHDJFDv@t@h@f@hAbA\\ZXVn@j@t@n@tCfCDBHDTPf@b@^\\|@z@lBhB|BvBzAxAv@r@hExDrCbCLJfDjClA~@bAr@v@j@dCvAbErBfB|@`FlC~Av@|BjAr@\\lB`ApDrBTLHBnDzBzAbAnBnAnCnBzBhB~FzE~BjBHLLLj@j@ZZVVtAtAhAfAr@p@rAlAzBpBRP|H|GtBpBtBlBz@t@`@^XNbAbAvBlBTRvAdAfBjA`Ap@~@h@v@^|Az@nCrA~Ar@rBx@pBr@B@pA`@lBh@`@LjCj@|KzB|A\\VFh@JD@@?XFD@^HlB^XFdB^bF`AxBb@F@XFF@dARz@PhARhARj@HdC\\nD\\~G^vJp@H?nKd@r@Dn@DrMp@XF~EZnFb@tCZlGf@~@Dj@DzADvBBrADfCBnDAz@?bBGdEM|CQzBO`COlAIpBM|BQvAIb@CdDUlIi@z@Gv@GjBKLAvBM@AlDS`@A`G]\\?XAH?XAfAA`BBl@@D?~BLd@ZNDfALdC^h@Lr@N`@L\\JfA`@r@Xd@Pl@^p@^XPRPB@^\\XVZ^HNT^FNHPh@fAP`@b@`Af@dABBXl@`@t@`@n@hA|Ab@t@Tb@LZLd@Lp@DXB\\Db@?^?^?H?f@ApA?j@?RAH?`@?h@@ND\\IzBEdAElAEzAEbBGxBCfBCp@AfBArACpAWvJ?\\IhDAf@AL?TEhBM|ECfBKbGCvAIhCIfCGdAEj@?BIn@QhAKh@Ml@GRENWv@M`@]x@Q`@Q\\S\\S\\Y^MP]`@w@x@_@`@a@b@cAlAsA~Ae@l@]XGHmBxCOT[f@GPIPS^}@|AmA|Bq@dA{@rAU`@k@bAILKRSb@S`@Sd@Q`@QVO\\Ob@Q`@GPGPQb@Ob@Ob@oAfDa@hA?@ABMZAFMZAD_@~@oAhDGNc@lAIPeBnEEZEXGTADK\\ENGTQf@K^ELK^ABAFCJAJAJsF~O[x@ABmA`DkArCs@fBSd@yBlF_DpH]x@k@zAWj@AB_@dAWn@[z@Sh@Wp@u@pBYv@M\\IVKZK^Qx@UjAMdAGr@Eb@Eh@EdAA`A@~@@f@@ZBl@BTB^Fj@Hn@Lx@F\\Jd@J\\Ld@FRDNDNXt@NZR`@HPDRDTd@nAx@`BXl@^z@Vf@BFb@~@~@xB|@nBTh@Td@NXVh@P\\Xr@Zp@Zp@Vd@R^P\\NVPX`@n@T^RVPVJR|@rApAlBx@hAl@x@j@v@|@lAv@fAt@~@`AnAv@dAfA~ALRBDNXDFDFj@hAv@hBb@lAb@tAFTVdAXlADR@FBHDRPx@N|@d@hCR|@?B^nBf@`C^lBFXt@vDTnAj@rC\\bBNp@BLb@fBPn@X~@fAtCf@dAj@bAVb@V\\b@l@|@jAj@r@`A~@|@x@lA`AvAjApB`BdBzAhCxBjBbBj@j@rAnAxElEpBpBlClC@\\?D?@@@@BBBV\\|@fA~AvBPPDFZd@HJFNFRDLBLDT@JBZ@D?P?N?B?JANCZCRERGRIPGNINMR_@p@KPKPm@|@mApB]j@SZKRMR[h@Yf@gAbBEHGHiBnC]j@OTIPIJMTwDtF}@rAuGlJi@l@MP[\\}@dAk@n@WZYZa@d@WZeBpB{AfBMLe@l@gBtBMPq@p@SV]d@aDtDUXq@v@{AfBsB`CUVc@j@oCzC_@b@OPEBQRABYZUXWZA?o@x@q@v@CB{AbBMNMPo@t@OPeApA[\\q@v@YZUTu@x@i@n@a@f@_@`@UV}AdBQT?NALOVeAlAKPENAHGZNT`@l@\\`@Zd@ZVx@p@j@d@x@j@XTDBjAn@ZPbGbD\\Xh@`@bAx@f@\\LH\\T\\THDx@f@v@h@pAt@t@d@h@ZVNr@b@lAt@HFFDFHDFDFBFDLDN?F?D@F?F@F@FBH@DBDDJFHDFFFFFFDJDHDLDJBNBL@D?H?H?HAJAJCLCNAH@H?F@F@FBFBrAn@LHHDVLn@^PJZRh@ZdCzALDPHRLbAh@@@XPHFDBHDVP@?XPFFHDDDRL@BBBHBDBNLLHLLNNNR@@VZHJNN@BT`@JNLPDJPXEH?JBN?JAFCFGJIFGBmAv@KFGDWMEAaAg@WMGCUMECAAOG"
+      },
+      "description": "شارع الشيخ محمد بن زايد/إ311",
+      "travelAdvisory": {
+        "tollInfo": {},
+        "speedReadingIntervals": [
+          {
+            "startPolylinePointIndex": 0,
+            "endPolylinePointIndex": 125,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 125,
+            "endPolylinePointIndex": 131,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 131,
+            "endPolylinePointIndex": 204,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 204,
+            "endPolylinePointIndex": 223,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 223,
+            "endPolylinePointIndex": 241,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 241,
+            "endPolylinePointIndex": 261,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 261,
+            "endPolylinePointIndex": 270,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 270,
+            "endPolylinePointIndex": 363,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 363,
+            "endPolylinePointIndex": 396,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 396,
+            "endPolylinePointIndex": 404,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 404,
+            "endPolylinePointIndex": 413,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 413,
+            "endPolylinePointIndex": 1057,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 1057,
+            "endPolylinePointIndex": 1065,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 1065,
+            "endPolylinePointIndex": 1083,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 1083,
+            "endPolylinePointIndex": 1107,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 1107,
+            "endPolylinePointIndex": 1120,
+            "speed": "NORMAL"
+          }
+        ]
+      },
+      "routeLabels": [
+        "DEFAULT_ROUTE_ALTERNATE"
+      ]
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "distanceMeters": 8,
+              "navigationInstruction": {
+                "maneuver": "DEPART",
+                "instructions": "الاتجاه مباشرة إلى الشمال الغربي"
+              }
+            },
+            {
+              "distanceMeters": 146,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه نحو  اليسار إلى شارع حاتم الطائي"
+              }
+            },
+            {
+              "distanceMeters": 200,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه يسارًا إلى شارع حاتم الطائي"
+              }
+            },
+            {
+              "distanceMeters": 469,
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_RIGHT",
+                "instructions": "عند الدوّار، عليك الاتجاه نحو المخرج الأول "
+              }
+            },
+            {
+              "distanceMeters": 216,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه نحو  اليمين"
+              }
+            },
+            {
+              "distanceMeters": 35,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "الاتجاه نحو  اليسار قليلاً إلى شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 280,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 70,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "المتابعة مباشرة للاستمرار في شارع الشيخ زايد/شارع الشيخ مكتوم بن راشد"
+              }
+            },
+            {
+              "distanceMeters": 291,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "الاتجاه نحو الطريق المنحدرة إلى الجرف/الحميدية"
+              }
+            },
+            {
+              "distanceMeters": 56,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة اليسار لمواصلة الاتجاه نحو Sh Ammar Bin Humaid St\u200f"
+              }
+            },
+            {
+              "distanceMeters": 100,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "الاتجاه يسارًا إلى Sh Ammar Bin Humaid St\u200f (إشارات لـ شارع الشيخ محمد بن زايد/Sh Mohammed Bin Zayed Rd\u200f/الشارقة/دبي)"
+              }
+            },
+            {
+              "distanceMeters": 2655,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في شارع الشيخ عمار بن حميد"
+              }
+            },
+            {
+              "distanceMeters": 1702,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في شارع الشيخ عمار بن حميد (إشارات لـ شارع الشيخ محمد بن زايد/إ311/التلة/الشارقة/دبي)"
+              }
+            },
+            {
+              "distanceMeters": 5311,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "الاتجاه نحو  اليمين للدخول في شارع الشيخ محمد بن زايد/إ311"
+              }
+            },
+            {
+              "distanceMeters": 5799,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "الاتجاه نحو مخرج \u202a69\u202c\u200f للدخول إلى إ88 إلى الشارقة"
+              }
+            },
+            {
+              "distanceMeters": 10814,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "تابع السير في إ11\nطريق برسوم مرور"
+              }
+            },
+            {
+              "distanceMeters": 707,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f واستمر في القيادة على الطريق\u200f إ11\nطريق برسوم مرور"
+              }
+            },
+            {
+              "distanceMeters": 1486,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f واستمر في القيادة على الطريق\u200f إ11"
+              }
+            },
+            {
+              "distanceMeters": 289,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "المتابعة مباشرة للاستمرار في إ11"
+              }
+            },
+            {
+              "distanceMeters": 1232,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f للاستمرار في\u200f شارع الشيخ راشد/إ11"
+              }
+            },
+            {
+              "distanceMeters": 5039,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "تابع جهة\u200f \u200fاليسار\u200f\u200f واستمر في القيادة على الطريق\u200f شارع الشيخ راشد/إ11\nطريق برسوم مرور"
+              }
+            },
+            {
+              "distanceMeters": 4021,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "عليك الاتجاه نحو مخرج \u202a56B\u202c\u200f لـ شارع السعادة"
+              }
+            },
+            {
+              "distanceMeters": 524,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 815,
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_RIGHT",
+                "instructions": "عند الدوّار، عليك الاتجاه نحو المخرج الثاني  والاستمرار في شارع المستقبل"
+              }
+            },
+            {
+              "distanceMeters": 42,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه نحو اليمين إلى \u202atowards DIFC Parking\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 78,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "الدخول في \u202atowards DIFC Parking\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 110,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "الاتجاه يمينًا للبقاء على \u202atowards DIFC Parking\u202c\u200f"
+              }
+            }
+          ]
+        }
+      ],
+      "distanceMeters": 42494,
+      "duration": "3482s",
+      "staticDuration": "2719s",
+      "polyline": {
+        "encodedPolyline": "g}`zC}nyqIIJfE|Db@k@n@y@DGx@eAp@w@TYV]@@B?@@B?@?@?BA@?@ABA@CNNJFDBPHFBD@PBV@jAC`CGjCIbACj@Cp@Ap@CbCEEj@Cd@Ef@Ch@IrB?RCf@A`@?t@HXDJBJHHAP?TAfC?tGAV?lAAjCIZAHCPC`A@z@?v@@tAAN@f@B|@BdC@R@NDjABZVAPAPAb@CFAH?d@Cj@Gn@GNArAIdAKXC@?l@EpAI~AMtAKnAKXClAIhBMVCbBMTCb@EB?^CdAKb@Cb@ED?p@CrDYvBSF?ZARCB?NCjAKJ?n@GPA~CWZAj@GJA\\C\\Cj@EzGk@b@EDAPA`Gc@n@EnAGrBSF?^CRCx@IPCn@IvEi@x@KjC]j@I|Ce@\\Et@M|AQrCa@TClAOfAOlBQvBUhAMNCNCt@Sj@M^KbF_BlA_@xAg@ZIlA]hAYrBk@v@UfEkAd@MXK\\IjD_ArA_@f@MzC{@~@Ul@QxBo@HCjBi@@A^K`@MzAc@nFyAfIwBhBi@HA|@OZCL?\\Bp@V\\PZRVVPXTb@TlA^pCb@fDZrCl@lFBHDJLP?DNdBZbDJv@b@nD\\nCBZVdCPfBLrAJ~A@`@B`@HjFKtDMzB[rEa@~EShC?DC\\Eb@c@`HS`CIx@YxC_@fEEp@EpA]vEIfAUtC[rEShCGv@IlAAx@?F?hB@hADpAHjADd@Hp@Hp@XhBNr@Pr@X`ARl@t@pBR`@rApCNTPVb@h@h@n@DDTVr@v@n@j@n@h@vAdAhDrBvA|@rA|@DBn@`@hAt@jCxA^T\\TjC|AnF`DxDbCxEvCpFnD`FdDxHhFfCdBVPrD~BPXLPRV^XlAbAnLlHJTFJVT|@r@|@n@f@X\\TlAv@fAr@n@b@f@`@ZVVTVZLPNTP^HTFR@DDTBNBLBVBPFh@Hl@Ln@Ld@Jd@@DJ`@BRDVBN@P?T?L@HAVCTCP?BEREPADYp@a@r@Wj@[p@KTIVEP[l@g@~@e@tAeAbBCDcE|GGJqBhDa@v@aE~GkBvCsArBEJa@p@cAhBoAlCeAhCITeB~EcC`HcB|Ei@vAgA|CGPADIRaBnEq@jBCF}HvTCDOb@qAzDy@xBwBbGcEhLADM^Qd@a@hA_@bA_@`A[~@KTEHCFCJ]t@]r@[l@_@p@Yj@[f@gC~D{BhD}@vAc@p@gA~AQXCB]j@uArBk@|@a@r@g@dAILQ\\Qh@Mf@Id@M~@I|@Et@?P?`@@j@@\\Bb@Df@Hv@Df@NzA?BDb@V`DX~DLfCNhE@f@JrAJv@^nDRbBv@fMVpERpBTpCDh@Dr@LhB@PB`@Fh@DXF^J^FRDL\\|@HTJRJNV^NRNRVXLJNLf@^JHZPh@Z\\RPJb@VvEnCTN`Ah@^TnAr@~ClB\\R`Al@f@\\t@`@hAj@`@RbB~@TLXPhB`A|@f@HD`@T\\PhAl@FDLFPH\\RXPbAh@lAp@f@Z\\R\\RzA~@nAp@j@\\\\P@@\\P\\T`@RnAr@fB`ANHbAj@\\RZPZPVLB@PJHDHF@@XNXNn@^bB`ANJj@\\l@\\`@V|@f@\\RbAl@tAv@rAv@fAj@^RRJHF^Pp@\\rAr@tAp@JDvAx@r@^`@T^T^Pl@`@r@b@XNdEfCpBjA\\PXPh@\\`BdAdAn@vBzAHFPN\\V|AfAnAhADBzG~FdAz@BBnBbBjCdCxClCvFdFpBhB\\\\z@x@b@^p@j@lAhAv@v@nAfAnEbEzCpCb@`@h@f@VVd@`@j@h@b@`@XVd@`@h@d@lBdBbC`C~DjDd@b@^`@zAnATRZ^nAhA~EtEjCdCLL`Az@j@f@rEbEfB`BzBnBbB`BdB~An@t@tA~An@v@l@|@T`@dAzAj@dANX`@~@f@xAzBpFx@xBXt@Nb@`DdJjCvHHVt@dB\\r@JXNXh@fAt@pAh@x@TZX`@@@LPf@j@j@p@RVn@n@fA|@PL|@r@j@b@JJ~@r@h@ZdAd@jAf@dBn@tAVtDr@nC^dAJNBz@HdCVvBTt@H`@DrCXvEh@dCV~Gt@p@HrD^hALXD|@HJB\\Dd@FjCb@lCl@tA`@B?dBp@hAb@lAp@~@h@t@f@j@d@l@h@`BjB`BhB`AfA~@dAnBvB~@dAPRtAxAFH|@`Ah@n@|@bAv@~@VXbAhAn@t@dBrBx@|@vBfCNNHJDDnAvAz@|@v@~@x@z@|BnCVZr@x@\\^RVb@j@xApBlB~BtC~C^^d@f@|A`BZ\\tBbCpC|C|BlC~AhBrB~BtA~ArA|A\\b@Z^\\b@f@j@d@j@X^XXPTZ`@RTLNRTHLLJLPLNJLJJHHFFNJl@b@XRXLPHFBXJTFf@LVF|@HJ@X@P@P?LAFA`@CXA\\Cv@InAQbH{@lAQ|@KhBUf@CjACv@?n@Bb@Db@DVBJ@VBJ@J@TDZDh@H`BRTDtAR|BZ`@H|GbAJ@x@DnAJlCJf@?`A?dACz@EdAE`AIhAKd@Gh@IxBi@|@WfA]|Ai@dAa@nBq@vAi@vAi@tBu@rAk@pBw@pC}@PG^Mp@SrAe@bA]|Ag@x@Yj@QrBc@pB[~@IhACvA?dA@jAHTBb@DzATd@JrA^hA\\z@Xz@`@rAz@TPf@d@~EhEvE~DzD~ChAdARVXZX\\RTXb@^\\HHr@n@xAbBRTDDRTDDd@j@tA`BbAnAZd@RXBBNT@BhCvDl@bAbAlBn@vALXVr@X`ALf@h@vB@HJ`@H^^rBTrBHfAJ|ABjB@`CA^Cr@GxAGp@Gr@S|A[zBi@`Cc@`B[hAc@jAWHo@rAo@|A_CzFi@dAMVg@t@_@d@Wd@W`@MTiCbG{@tBaAfCQl@[|@q@hBQ`@a@dAYt@ENGZAB{ClHOb@e@pAc@nAADITWz@IXCHGTENGTKb@Sp@Md@ELc@~AAFK^IZABGRKl@Kp@C`@Ez@?V?V@Z@VBTDd@F`@BRFVRr@N`@JTLXJRHLT\\NZHLLTR^HNDJj@dATd@Tb@DF@BLTDFDJJTR`@Pl@L`@Jf@Jn@D^@RBd@@T@\\Bt@BbABp@DdABn@Dn@Bp@@VBRDl@Bd@BXHp@TpBHr@Nz@N`A@JJr@Nx@Nz@BN?BHb@Np@H`@F^FVH^J^Jb@Ld@L^NZFLLT\\h@NRLLPRPPNLNJNJPJZPNHPHNFPDTFp@Ld@D`@D~BFlC?V?n@@T@V@H@d@DPBLBPDb@JB@XJFBNHLHNHZT^XdAt@JHzAbAzAbAh@\\JHvBvADD`@^\\Xh@`@bAx@f@\\LH\\T\\THDx@f@v@h@pAt@t@d@h@ZVNr@b@lAt@HFFDFHDFDFBFDLDN?F?D@F?F@F@FBH@DBDDJFHDFFFFFFDJDHDLDJBNBL@D?H?H?HAJAJCLCNAH@H?F@F@FBFBrAn@@@TLVLn@^PJZRh@ZdCzA@?\\NRLbAh@@@XPHFDBHDVP@?XPFFHDDDRL@B@@@@NFNLLHLLNNNR@@VZHJNN@BT`@JNLPDJPXEH?JBN?JAFCFGJQJmAv@KFGDWMEAaAg@WMGCUMECAAOG"
+      },
+      "description": "شارع الشيخ محمد بن زايد/إ311 وإ11",
+      "travelAdvisory": {
+        "tollInfo": {},
+        "speedReadingIntervals": [
+          {
+            "startPolylinePointIndex": 0,
+            "endPolylinePointIndex": 125,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 125,
+            "endPolylinePointIndex": 131,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 131,
+            "endPolylinePointIndex": 204,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 204,
+            "endPolylinePointIndex": 223,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 223,
+            "endPolylinePointIndex": 241,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 241,
+            "endPolylinePointIndex": 261,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 261,
+            "endPolylinePointIndex": 270,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 270,
+            "endPolylinePointIndex": 349,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 349,
+            "endPolylinePointIndex": 373,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 373,
+            "endPolylinePointIndex": 381,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 381,
+            "endPolylinePointIndex": 565,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 565,
+            "endPolylinePointIndex": 568,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 568,
+            "endPolylinePointIndex": 925,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 925,
+            "endPolylinePointIndex": 930,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 930,
+            "endPolylinePointIndex": 1136,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 1136,
+            "endPolylinePointIndex": 1144,
+            "speed": "TRAFFIC_JAM"
+          },
+          {
+            "startPolylinePointIndex": 1144,
+            "endPolylinePointIndex": 1161,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 1161,
+            "endPolylinePointIndex": 1185,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 1185,
+            "endPolylinePointIndex": 1198,
+            "speed": "NORMAL"
+          }
+        ]
+      },
+      "routeLabels": [
+        "DEFAULT_ROUTE_ALTERNATE"
+      ]
+    }
+  ]
+}

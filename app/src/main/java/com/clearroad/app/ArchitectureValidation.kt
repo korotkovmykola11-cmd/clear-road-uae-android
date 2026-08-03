@@ -19,6 +19,13 @@ internal object ArchitectureValidation {
     const val RECOMMENDATION_ONLY_HOME = true
 
     /**
+     * Stage C flip — prod uses Routes API v2 `computeRoutes` + [RoutesV2ResponseAdapter]
+     * when true. Bundled with Policy B v2 ([RoutesV2ManeuverPolicy]) and Path B SmoothDrive weights.
+     * Override per device: SharedPreferences `debug_fetch_provider=legacy` (no rebuild).
+     */
+    const val USE_ROUTES_V2_FETCH = true
+
+    /**
      * Stage 31.5 — when true, [SalikDetection] augments scoring only if Google tollAED is 0.
      * UI still shows Google tollAED. Flip to false to disable heuristic ranking.
      */

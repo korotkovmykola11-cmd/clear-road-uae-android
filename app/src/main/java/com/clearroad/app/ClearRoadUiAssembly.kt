@@ -105,6 +105,7 @@ internal fun buildRouteDetailsUiModel(
         mode = selectedMode,
         fromLatLng = fromLatLng,
         toLatLng = toLatLng,
+        trafficSegments = TrafficPolylineBuilder.build(item),
         handoffRoutePathPoints = handoffRoutePathPoints,
         durationSeconds = durationSeconds,
         routeIntelligenceRequest = routeIntelligenceRequest,

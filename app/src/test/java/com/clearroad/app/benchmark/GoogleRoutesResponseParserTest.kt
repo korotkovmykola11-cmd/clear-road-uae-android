@@ -1,5 +1,6 @@
 package com.clearroad.app.benchmark
 
+import com.clearroad.app.RoutesV2ResponseAdapter
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.PolyUtil
 import org.junit.Assert.assertEquals
@@ -222,13 +223,7 @@ class GoogleRoutesResponseParserTest {
     fun fieldMask_excludesUnsupportedStepName() {
         assertFalse(GoogleRoutesResponseParser.PARSED_FIELD_MASK.contains("steps.name"))
         assertEquals(
-            "routes.duration," +
-                "routes.distanceMeters," +
-                "routes.polyline.encodedPolyline," +
-                "routes.description," +
-                "routes.routeLabels," +
-                "routes.travelAdvisory.tollInfo," +
-                "routes.legs.steps.navigationInstruction.instructions",
+            RoutesV2ResponseAdapter.ADAPTER_FIELD_MASK,
             GoogleRoutesResponseParser.PARSED_FIELD_MASK,
         )
     }

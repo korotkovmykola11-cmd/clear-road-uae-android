@@ -50,6 +50,9 @@ android {
         compose = true
         buildConfig = true
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -64,6 +67,7 @@ dependencies {
     implementation(libs.google.places)
     implementation(libs.google.play.services.location)
     implementation("com.google.maps.android:android-maps-utils:3.8.2")
+    implementation("io.coil-kt:coil-compose:2.7.0")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     testImplementation(libs.junit)
     testImplementation("org.json:json:20240303")

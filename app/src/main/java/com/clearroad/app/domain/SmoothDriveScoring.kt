@@ -12,11 +12,17 @@ import kotlin.math.pow
  *
  * Stage 35.8 — when traffic delay signal is inactive on all routes, corridor weight is
  * guarded so SMOOTH does not pick purely on motorway bonus.
+ *
+ * Stage C.1 Path B — weights recalibrated for Routes v2 TRAFFIC_AWARE inputs where delay
+ * signal is almost always active and absolute delays run higher than Legacy
+ * `duration_in_traffic` (see Stage C.1 research report). Ratio remains primary; absolute
+ * delay weight reduced so E311 alternatives are penalized by congestion spread, not scale
+ * artifact.
  */
 object SmoothDriveScoring {
 
-    const val DELAY_RATIO_WEIGHT = 120.0
-    const val DELAY_MIN_WEIGHT = 1.5
+    const val DELAY_RATIO_WEIGHT = 95.0
+    const val DELAY_MIN_WEIGHT = 0.65
     const val TIME_BUDGET_MIN_MINUTES = 5.0
     const val TIME_BUDGET_MAX_MINUTES = 12.0
     const val TIME_BUDGET_RATIO = 0.15

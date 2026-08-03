@@ -1,5 +1,6 @@
 package com.clearroad.app.ui.model
 
+import com.clearroad.app.TrafficSegment
 import com.clearroad.app.domain.PreferenceMode
 import com.clearroad.app.ui.driveweather.DriveWeatherUiModel
 import com.google.android.gms.maps.model.LatLng
@@ -165,6 +166,8 @@ data class RouteDetailsUiModel(
     val mode: PreferenceMode = PreferenceMode.FASTEST,
     val fromLatLng: LatLng? = null,
     val toLatLng: LatLng? = null,
+    /** MARSHIO selected route — traffic-colored segments for Static Maps preview. */
+    val trafficSegments: List<TrafficSegment> = emptyList(),
     val handoffRoutePathPoints: List<LatLng> = emptyList(),
     val durationSeconds: Int = 0,
     val routeIntelligenceRequest: RouteIntelligenceRequestUiModel? = null,

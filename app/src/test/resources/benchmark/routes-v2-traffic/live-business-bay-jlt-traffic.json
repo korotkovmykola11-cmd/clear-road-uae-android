@@ -1,0 +1,384 @@
+{
+  "routes": [
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "distanceMeters": 66,
+              "navigationInstruction": {
+                "maneuver": "DEPART",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„Ø¬Ù†ÙˆØ¨ Ù…Ø¨Ø§Ø´Ø±Ø© ØµÙˆØ¨ Ù…Ø±Ø§Ø³ÙŠ Ø¯Ø±Ø§ÙŠÙ"
+              }
+            },
+            {
+              "distanceMeters": 206,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ ÙŠÙ…ÙŠÙ†Ù‹Ø§ Ø¥Ù„Ù‰ Ù…Ø±Ø§Ø³ÙŠ Ø¯Ø±Ø§ÙŠÙ"
+              }
+            },
+            {
+              "distanceMeters": 78,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "Ø§Ù„Ø¯Ø®ÙˆÙ„ ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 342,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø¬Ù‡Ø©\u200f \u200fØ§Ù„ÙŠØ³Ø§Ø±\u200f\u200f ÙˆØ§Ø³ØªÙ…Ø± ÙÙŠ Ø§Ù„Ù‚ÙŠØ§Ø¯Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø·Ø±ÙŠÙ‚\u200f Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 292,
+              "navigationInstruction": {
+                "maneuver": "UTURN_LEFT",
+                "instructions": "Ù…Ù†Ø¹Ø·Ù"
+              }
+            },
+            {
+              "distanceMeters": 1413,
+              "navigationInstruction": {
+                "maneuver": "RAMP_LEFT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠØ³Ø§Ø± Ù‚Ù„ÙŠÙ„Ø§Ù‹ Ù„Ù„Ø¯Ø®ÙˆÙ„ ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 79,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø§Ù„Ù…Ø®Ø±Ø¬ Ø¥Ù„Ù‰ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 178,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø§Ù„Ø³ÙŠØ± ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 346,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø¬Ù‡Ø© Ø§Ù„ÙŠÙ…ÙŠÙ†"
+              }
+            },
+            {
+              "distanceMeters": 334,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø§Ù„Ø·Ø±ÙŠÙ‚ Ø§Ù„Ù…Ù†Ø­Ø¯Ø±Ø© Ø¥Ù„Ù‰ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø´ÙŠØ® Ø²Ø§ÙŠØ¯/Ø¥11"
+              }
+            },
+            {
+              "distanceMeters": 777,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ù…Ù†Ø­Ø¯Ø±  Ø´Ø§Ø±Ø¹ Ø§Ù„Ø´ÙŠØ® Ø²Ø§ÙŠØ¯"
+              }
+            },
+            {
+              "distanceMeters": 958,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø§Ù„Ø·Ø±ÙŠÙ‚ Ø§Ù„Ù…Ù†Ø­Ø¯Ø±Ø© Ø¥Ù„Ù‰ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø´ÙŠØ® Ø²Ø§ÙŠØ¯/Ø¥11\nØ·Ø±ÙŠÙ‚ Ø¨Ø±Ø³ÙˆÙ… Ù…Ø±ÙˆØ±"
+              }
+            },
+            {
+              "distanceMeters": 9944,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø© Ù…Ø¨Ø§Ø´Ø±Ø© Ù„Ù„Ø§Ø³ØªÙ…Ø±Ø§Ø± ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø´ÙŠØ® Ø²Ø§ÙŠØ¯/Ø¥11\nØ·Ø±ÙŠÙ‚ Ø¨Ø±Ø³ÙˆÙ… Ù…Ø±ÙˆØ±"
+              }
+            },
+            {
+              "distanceMeters": 2027,
+              "navigationInstruction": {
+                "maneuver": "TURN_SHARP_LEFT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø§Ù„ÙŠØ³Ø§Ø± Ù…Ø¨Ø§Ø´Ø±Ø© Ù„Ù„Ø§Ø³ØªÙ…Ø±Ø§Ø± ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø´ÙŠØ® Ø²Ø§ÙŠØ¯/Ø¥11"
+              }
+            },
+            {
+              "distanceMeters": 217,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø§Ù„Ù…Ø®Ø±Ø¬ Ø¥Ù„Ù‰ \u202aInterchange No 5\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 1157,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ù…Ù†Ø­Ø¯Ø±  Ø´Ø§Ø±Ø¹ Ø§Ù„Ù†Ø³ÙŠÙ…"
+              }
+            },
+            {
+              "distanceMeters": 306,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø§Ù„Ø³ÙŠØ± ÙÙŠ \u202aInterchange No 5\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 593,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ ÙŠØ³Ø§Ø±Ù‹Ø§ Ù„Ù„Ø¨Ù‚Ø§Ø¡ Ø¹Ù„Ù‰ \u202aInterchange No 5\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 237,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø§Ù„Ø³ÙŠØ± ÙÙŠ \u202aAl Naseem St\u202c\u200f/\u202aD 61\u202c\u200f"
+              }
+            },
+            {
+              "distanceMeters": 592,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠÙ…ÙŠÙ† (Ø¥Ø´Ø§Ø±Ø§Øª Ù„Ù€ Ø¯86/Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„ Ø§Ù„Ø£ÙˆÙ„\u200e\u200e\u200f/Ø§Ù„ÙˆØ§Ø¬Ù‡Ø© Ø§Ù„Ø¨Ø­Ø±ÙŠØ©\u200e\u200f)"
+              }
+            },
+            {
+              "distanceMeters": 535,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "Ø§Ù„Ø¯Ø®ÙˆÙ„ ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„ Ø§Ù„Ø£ÙˆÙ„"
+              }
+            },
+            {
+              "distanceMeters": 785,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ ÙŠØ³Ø§Ø±Ù‹Ø§ Ù„Ù„Ø¨Ù‚Ø§Ø¡ Ø¹Ù„Ù‰ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„ Ø§Ù„Ø£ÙˆÙ„"
+              }
+            },
+            {
+              "distanceMeters": 169,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠÙ…ÙŠÙ† Ù‚Ù„ÙŠÙ„Ø§Ù‹"
+              }
+            },
+            {
+              "distanceMeters": 106,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø¬Ù‡Ø© Ø§Ù„ÙŠÙ…ÙŠÙ†"
+              }
+            },
+            {
+              "distanceMeters": 88,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠÙ…ÙŠÙ†\nØ³ØªÙƒÙˆÙ† Ø§Ù„ÙˆØ¬Ù‡Ø© Ø¥Ù„Ù‰ ÙŠÙ…ÙŠÙ† Ø§Ù„Ø·Ø±ÙŠÙ‚"
+              }
+            }
+          ]
+        }
+      ],
+      "distanceMeters": 21825,
+      "duration": "1168s",
+      "staticDuration": "1217s",
+      "polyline": {
+        "encodedPolyline": "g}uxC}bhpIHB^ND@|@ZGNAB?@ITCFABM\\M\\MZADEHCHMVGJKTEHQZO\\OJGDG@E?E?C?IAQQwAsAa@a@}CoCe@a@qCsByAwAIKUGa@SQOS^QXLJp@d@bBtApAhAp@l@NBHBHF`Ax@@@XT|@r@ZLRPXX^\\VTXZPPd@^RV@@TXLJRNZV^Pl@R`@JB@H@XBH@ZBF?H?^A\\AVEXERGVKFCb@SNI@ALI`@]TUJOFK@A^q@z@aBn@mA\\k@T_@b@u@PSRQVUDCZSXMh@Mv@M^EZ?z@Dv@RNBdAj@dBhAvAdAf@h@fAtA`@x@h@hA@@Zh@LP@DX`@f@d@rBlB^j@JR@L?HAFIZADqApCMVwBnDeAxAUb@]j@gAnBg@r@ADu@hAY`@GHkAnB_@n@yA|BOVQTIJUTKHOHQHCB{B`ACBONUPUZO^K\\Qh@AN?JAVAN?V@N@R@PBPDTDPHTHTFNHLJLLLNJPHXPXDRBT?JAPCZEd@AP?N?P?`@HZHJDPJXNf@\\rCpBt@h@lAj@zDlDfFrEjD|C`IbHnBfBj@d@tEbEvRhQx@v@vBjBzEfE\\ZhC|BZXlBdB`Ax@rApAvIzHNLVRz@t@l@d@xC~BPNRNPNRLPNPNRNJHFBPNRLRLDBFDTNPL\\TBBXP\\T\\T^TJFNHJHTL^TZP`@TVNj@`@NHnBfA~ElCPBNFLHbDbBXN|BnA\\PlP~IjBdAz@b@tAt@FBVNFBvEhC~F~CvGlDlM`HpCxA~Az@j@\\zBnAhObI^R`HrDpGhD`D`BxGvDfDtBXR~BdB|CnC`CbCvAzA`BnBxBvCFJT\\T^T\\T^T^LPFJT^T\\T^T\\T^T\\T^T^T\\T^T\\T^T\\T^T^T\\T^LPFJV\\T^T\\T^V\\LRFHT^R^T\\T^NVDFT\\T^T^T\\T^T\\NVDFT^T\\T^T\\T^JRHJT\\T^T\\T\\LPFLT^T\\T^T^T\\T^R^T\\zBlDzA`CVb@zDjGtBdDNV`A|AdC|DRZv@pABDJLJPdAdBZl@xBhDpDvFT^j@|@jBtCzDhG\\j@l@bAT\\T^l@~@tAxBb@n@~@|Ar@rALHFDFJ@BJRPX|AfC\\h@jBvCl@`Ax@pA\\j@PR`@n@l@bAf@x@dBlCz@vAf@x@pDxFp@fAjAfBbAtAIEXZ`@j@j@~@NRBDjA~At@~@nB`CvBhClDnE~CzDx@dAbFnGbCzCz@`AvBlCnGbIfAtAnDvDzEfGxBlCfArAlBbCX^@f@@BBF\\n@BFJT@F@F?DP`@Rn@d@`ARXb@d@pAzAnBxBTVnBxBxDrEjDvDjA~AVd@bGrHx@lAJRLZFRDT@N?J@R?RAN?LEb@C\\AVAR@`@@RBRBJ@B?@DPFTHPHRHh@`@ZTNPJb@PZLVD^DX?T?\\G^MVILELGDEJGd@a@h@g@ZYJQRYTSBE`@c@Z[j@k@r@w@|@}@hAoAx@}@XYFILKBE|AaBhAkAf@g@h@e@`@YRKRKv@c@b@UlB{@v@c@f@]~@y@HBB?TQNINITER@TFLFFDDFFHBDBD?@@@JFb@tBh@vBH`@Pr@FXLd@X~AT`AFPDRd@hBx@zC@@?@JFd@zBd@nBh@lBb@hAb@z@LR\\d@h@l@z@x@n@l@bC`CZ\\J@HDNJh@d@d@d@VVHHPNt@r@`A|@ZX^\\ZT`@XRLVLv@^RJpAz@p@h@r@l@VT^^VZz@`ALRLLlAlALJx@x@|@x@?B@B@DHJHJDJDJ@NCNCNINKLW^i@t@_@`@GFIDGHINEHEJENAHAJ?T?@?RFZFP@DkAJYl@Q\\"
+      },
+      "description": "Ø´Ø§Ø±Ø¹ Ø§Ù„Ø´ÙŠØ® Ø²Ø§ÙŠØ¯/Ø¥11",
+      "travelAdvisory": {
+        "tollInfo": {},
+        "speedReadingIntervals": [
+          {
+            "startPolylinePointIndex": 0,
+            "endPolylinePointIndex": 123,
+            "speed": "NORMAL"
+          },
+          {
+            "startPolylinePointIndex": 123,
+            "endPolylinePointIndex": 133,
+            "speed": "SLOW"
+          },
+          {
+            "startPolylinePointIndex": 133,
+            "endPolylinePointIndex": 648,
+            "speed": "NORMAL"
+          }
+        ]
+      },
+      "routeLabels": [
+        "DEFAULT_ROUTE"
+      ]
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "distanceMeters": 66,
+              "navigationInstruction": {
+                "maneuver": "DEPART",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„Ø¬Ù†ÙˆØ¨ Ù…Ø¨Ø§Ø´Ø±Ø© ØµÙˆØ¨ Ù…Ø±Ø§Ø³ÙŠ Ø¯Ø±Ø§ÙŠÙ"
+              }
+            },
+            {
+              "distanceMeters": 206,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ ÙŠÙ…ÙŠÙ†Ù‹Ø§ Ø¥Ù„Ù‰ Ù…Ø±Ø§Ø³ÙŠ Ø¯Ø±Ø§ÙŠÙ"
+              }
+            },
+            {
+              "distanceMeters": 78,
+              "navigationInstruction": {
+                "maneuver": "MERGE",
+                "instructions": "Ø§Ù„Ø¯Ø®ÙˆÙ„ ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 342,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø¬Ù‡Ø©\u200f \u200fØ§Ù„ÙŠØ³Ø§Ø±\u200f\u200f ÙˆØ§Ø³ØªÙ…Ø± ÙÙŠ Ø§Ù„Ù‚ÙŠØ§Ø¯Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø·Ø±ÙŠÙ‚\u200f Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 292,
+              "navigationInstruction": {
+                "maneuver": "UTURN_LEFT",
+                "instructions": "Ù…Ù†Ø¹Ø·Ù"
+              }
+            },
+            {
+              "distanceMeters": 1413,
+              "navigationInstruction": {
+                "maneuver": "RAMP_LEFT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠØ³Ø§Ø± Ù‚Ù„ÙŠÙ„Ø§Ù‹ Ù„Ù„Ø¯Ø®ÙˆÙ„ ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ø³ØªÙ‚Ø¨Ù„"
+              }
+            },
+            {
+              "distanceMeters": 989,
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø¬Ù‡Ø© Ø§Ù„ÙŠØ³Ø§Ø±"
+              }
+            },
+            {
+              "distanceMeters": 189,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ù…Ù†Ø­Ø¯Ø± 44Ø¥  Ø¥Ù„Ù‰ Ø¬Ø¨Ù„ Ø¹Ù„ÙŠ/Ø§Ø¨Ùˆ Ø¸Ø¨ÙŠ"
+              }
+            },
+            {
+              "distanceMeters": 420,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø¬Ù‡Ø© Ø§Ù„ÙŠÙ…ÙŠÙ† Ù„Ù…ÙˆØ§ØµÙ„Ø© Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„/Ø¥44"
+              }
+            },
+            {
+              "distanceMeters": 13384,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠÙ…ÙŠÙ† Ù„Ù„Ø¯Ø®ÙˆÙ„ ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„/Ø¥44"
+              }
+            },
+            {
+              "distanceMeters": 221,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "Ø¹Ù„ÙŠÙƒ Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ù…Ø®Ø±Ø¬ \u202a10\u202c\u200f Ù„Ù€ Ø´Ø§Ø±Ø¹ Ø¥Ù„Ù‡Ø§Ù…ÙŠ"
+              }
+            },
+            {
+              "distanceMeters": 419,
+              "navigationInstruction": {
+                "maneuver": "STRAIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø§Ù„Ø·Ø±ÙŠÙ‚ Ø§Ù„Ù…Ù†Ø­Ø¯Ø±Ø©"
+              }
+            },
+            {
+              "distanceMeters": 945,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠØ³Ø§Ø± Ù‚Ù„ÙŠÙ„Ø§Ù‹"
+              }
+            },
+            {
+              "distanceMeters": 882,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø§Ù„Ø³ÙŠØ± ÙÙŠ Al Khamila St\u200f"
+              }
+            },
+            {
+              "distanceMeters": 559,
+              "navigationInstruction": {
+                "maneuver": "RAMP_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ Ø§Ù„ÙŠÙ…ÙŠÙ† Ù‚Ù„ÙŠÙ„Ø§Ù‹ Ø¥Ù„Ù‰ 86Ø¯ ÙÙŠ Ø§Ù„Ø·Ø±ÙŠÙ‚ Ø§Ù„Ù…Ù†Ø­Ø¯Ø±Ø© Ø¥Ù„Ù‰ Ø§Ù„ÙˆØ§Ø¬Ù‡Ø© Ø§Ù„Ø¨Ø­Ø±ÙŠØ©"
+              }
+            },
+            {
+              "distanceMeters": 3385,
+              "navigationInstruction": {
+                "maneuver": "NAME_CHANGE",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø§Ù„Ø³ÙŠØ± ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„ Ø§Ù„Ø£ÙˆÙ„"
+              }
+            },
+            {
+              "distanceMeters": 785,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_LEFT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ ÙŠØ³Ø§Ø±Ù‹Ø§ Ù„Ù„Ø¨Ù‚Ø§Ø¡ Ø¹Ù„Ù‰ Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„ Ø§Ù„Ø£ÙˆÙ„"
+              }
+            },
+            {
+              "distanceMeters": 169,
+              "navigationInstruction": {
+                "maneuver": "TURN_SLIGHT_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠÙ…ÙŠÙ† Ù‚Ù„ÙŠÙ„Ø§Ù‹"
+              }
+            },
+            {
+              "distanceMeters": 106,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "ØªØ§Ø¨Ø¹ Ø¬Ù‡Ø© Ø§Ù„ÙŠÙ…ÙŠÙ†"
+              }
+            },
+            {
+              "distanceMeters": 88,
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "Ø§Ù„Ø§ØªØ¬Ø§Ù‡ Ù†Ø­Ùˆ  Ø§Ù„ÙŠÙ…ÙŠÙ†\nØ³ØªÙƒÙˆÙ† Ø§Ù„ÙˆØ¬Ù‡Ø© Ø¥Ù„Ù‰ ÙŠÙ…ÙŠÙ† Ø§Ù„Ø·Ø±ÙŠÙ‚"
+              }
+            }
+          ]
+        }
+      ],
+      "distanceMeters": 24937,
+      "duration": "1410s",
+      "staticDuration": "1475s",
+      "polyline": {
+        "encodedPolyline": "g}uxC}bhpIHB^ND@|@ZGNAB?@ITCFABM\\M\\MZADEHCHMVA@EHKTA@CFQZO\\OJGDG@E?E?C?IAQQwAsAa@a@}CoCe@a@qCsByAwAIKUGa@SQOS^QXLJp@d@bBtApAhAp@l@NBHBHF`Ax@@@XT|@r@ZLRPXX^\\VTXZPPd@^RV@@TXLJRNZV^Pl@R`@JB@H@XBH@@@X@F?H?^A\\AVEXERGVKFCb@SNI@ALI`@]TUJOFK@A^q@|@aBl@mA\\k@T_@b@u@PSRQVUDCZSXMh@Mv@M^EZ?z@Dv@PNDdAj@dBhAvAdAf@h@fAtAh@r@^b@h@r@V\\RXz@bATP~@x@PNl@b@TJXDL@B?RGFEVMFEd@WTSVUt@{@@?j@cAf@{@rBmDx@yAp@q@NYbFeJHOL[BCxAaDLU@E@CLY@EXw@BGH?BABADGBGLWDGVe@d@{@FM^g@FEt@}@nAgAn@_@n@Uz@Mf@Ap@DL@j@L@@LNPLBBpAjALLLJh@h@|AvAt@r@ZZPPVRPNNHHDVNDBLDHDFD@?p@ZVLTLPHJHVNDB`@Rz@b@HDj@Vl@Vh@Tf@PLFRFLDNDXJf@LZH`@HLBf@H\\DD@B?BADANKBCtARrBXxCT\\BhAF|BHzABbDL`BD|ADjDDtEFnC?jBBfBB`D?bDBbHDb@@b@@f@@rBBdCB`A@tCFb@@j@?bCDvDB@?jCFhBF|AF`ADpAHxBLjCVtAPjEj@F@ZD`@H~AVrATvCf@~EnARDpCp@tA`@RFl@PdBj@@?^LlA^fBn@vAj@pBv@rMfGv@`@zEfCfGxDhGlEl@^RLlAbA~BnBLJTP`EjDlEvDfBzAfA~@bDrCj@f@v@n@nEvDDD@?PNfBxAbA|@dA|@n@h@JJj@f@BBjB|AvBhBZX\\XFFRPZXZXBBr@n@@?ZX\\XZX\\VZXNLJJZX\\Zv@r@LJDDFFLJBBHHZX\\XZXPPHHLJLLZXZXZX\\XZZLLVRtGjFnIlHxBfBrFrE|ArAzBtBv@l@fB~AlC|BfA~@vCdCxBjBdBxAb@^p@h@bAx@zBpBfBzA`BtAbDrCjC|BxCnCnAhAh@f@hDtCbBxANLZVZXpD|CnGlFlAbA~F`FzDhD`J|HZX@@rExDxIrHfBzAtJhI|BjB~ChC~ArA~ExD`CjBtAlAZVZXDBDDrAhA~AtA^\\ZVz@v@jErDZXlEtDPPZVNLDBDDtCdCbBvAnD|CrBjBh@d@tAlA|DjDRR~DjDjGnFzDbD?NBLFLHJPP@@Z\\h@h@bD|C\\\\@@HJXZTVPPDFJNJTHTBd@A^GRCNCJCFGNIPGZSZMNo@~@c@p@eBjCMZKRWZu@`A_C|C_GnHQT]b@[b@QTU\\W\\SZq@v@ABW\\o@z@KNiBdC{@fAONUVgAvAa@j@ON[TS\\{@dAaCbDqCtDqE`GmBfC}@jA}BxC_@f@uBtCe@p@SJEBKNONMLEDCBA@KPEDCDU\\ORGHILCDGHU\\U^W\\QVCDW\\UZW\\KNILW\\WZILwApB]`@Ul@GR?JAT@P?JH\\j@f@bAXLBlA`@^PNJNLZRTRVVBBV\\V`@BBXj@Tl@BFP`@P`@P^`@`A`@bAHP?@Vv@Nl@Lp@Fj@Df@@f@@`@A^A`@ADAZCTCd@Cl@?d@@P@ZBPD`@XnB\\bCH`@ZxBJz@Fv@FtA@X@R@x@?RAf@AfA?XA^ApACzACfA@x@B~@F`ANnAPt@TtAHf@@T@X?@Aj@AZAXATANCPEPCPENELKZQb@INGNc@t@QXINg@|@W\\]j@KPMTMPKRS^KVGNGNKVMZKVM`@Qf@IXGREREPCLCNCNCVEZARAR?N?N?J?H?T?B@H?PBRBXDVBL@JXlAvAzGxAzGp@`DR~@Rv@F\\d@zBd@nBh@lBb@hAb@z@LR\\d@h@l@z@x@n@l@bC`CZ\\J@HDNJh@d@d@d@VVHHPNt@r@`A|@ZX^\\ZT`@X@?PLVLv@^RJpAz@p@h@r@l@@?TT^^VZz@`ALRLLlAlALJx@x@|@x@?B@B@DHJHJDJDJ@NCNCNINKLW^i@t@_@`@GFIDGHINEHEJENAHAJ?T?@?R@?DZFP@DkAJYl@Q\\"
+      },
+      "description": "Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®ÙŠÙ„/Ø¥44",
+      "travelAdvisory": {
+        "speedReadingIntervals": [
+          {
+            "startPolylinePointIndex": 0,
+            "endPolylinePointIndex": 762,
+            "speed": "NORMAL"
+          }
+        ]
+      },
+      "routeLabels": [
+        "DEFAULT_ROUTE_ALTERNATE"
+      ]
+    }
+  ]
+}

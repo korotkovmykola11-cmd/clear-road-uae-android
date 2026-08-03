@@ -50,6 +50,7 @@
       "destinationLat": 25.2138142,
       "destinationLng": 55.2820336,
       "fixtureFile": "route4-Ajman-DIFC.json",
+      "v2FixtureFile": "route4-Ajman-DIFC-traffic.json",
       "expectedMajorCorridors": ["E11", "E311", "E44"],
       "tags": ["inter-emirate", "toll"],
       "notes": "North emirates into DIFC; three major corridor alternatives."

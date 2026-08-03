@@ -1,5 +1,6 @@
 package com.clearroad.app
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -49,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.clearroad.app.ui.theme.ClearRoadColors
 import com.clearroad.app.ui.theme.accentColor
 import com.clearroad.app.domain.PreferenceMode
@@ -197,43 +198,51 @@ private fun buildRealRouteDebugData(
 
 private const val DIRECTIONS_FETCH_TAG = "DirectionsFetch"
 
-private data class DirectionsFetchResult(
-    val raw: String?,
-    val status: String?,
-    val distanceDuration: Pair<String, String>?,
-    val distanceDurationValues: Pair<Int, Int>?,
-    val singleRoute: RealRouteDebugData?,
-    val routes: List<RealRouteDebugData>,
-)
-
 private suspend fun fetchDirectionsForRoute(
     from: LatLng,
     to: LatLng,
+    context: Context,
 ): DirectionsFetchResult {
+    val provider = RouteFetchProvider.activeProviderLabel(context)
     Log.d(
         DIRECTIONS_FETCH_TAG,
-        "Fetching directions ${from.latitude},${from.longitude} -> ${to.latitude},${to.longitude}",
+        "Fetching directions provider=$provider ${from.latitude},${from.longitude} -> ${to.latitude},${to.longitude}",
     )
+    val result =
+        if (RouteFetchProvider.useRoutesV2Fetch(context)) {
+            buildDirectionsFetchResultFromV2(fetchRoutesV2Raw(from, to))
+        } else {
+            fetchLegacyDirectionsForRoute(from, to)
+        }
+    logDirectionsAuditRoutes(result.status, result.routes, rawJson = result.raw)
+    if (result.status == "OK" && result.routes.isNotEmpty()) {
+        logHonestyAuditRoutes(result.routes)
+        logRouteComplexityAudit(result.routes, rawJson = result.raw)
+        logSaveAedAuditRoutes(result.routes)
+    }
+    StageCFlipMonitoring.logRouteFetch(provider, result.status, result.routes)
+    Log.d(
+        DIRECTIONS_FETCH_TAG,
+        "Directions fetch complete provider=$provider status=${result.status} routes=${result.routes.size}",
+    )
+    return result
+}
+
+private suspend fun fetchLegacyDirectionsForRoute(
+    from: LatLng,
+    to: LatLng,
+): DirectionsFetchResult {
     val raw = fetchDirectionsRaw(buildDirectionsUrl(from, to))
     val distanceDuration = raw?.let { extractFirstLegDistanceDuration(it) }
     val distanceDurationValues = raw?.let { extractFirstLegDistanceDurationValues(it) }
-    val singleRoute = buildRealRouteDebugData(
-        distanceDuration,
-        distanceDurationValues,
-        raw?.let(::firstRouteObjectJson),
-    )
+    val singleRoute =
+        buildRealRouteDebugData(
+            distanceDuration,
+            distanceDurationValues,
+            raw?.let(::firstRouteObjectJson),
+        )
     val routes = raw?.let { extractRouteLegsDebugData(it) } ?: emptyList()
     val status = raw?.let { extractDirectionsStatus(it) }
-    logDirectionsAuditRoutes(status, routes, rawJson = raw)
-    if (status == "OK" && routes.isNotEmpty()) {
-        logHonestyAuditRoutes(routes)
-        logRouteComplexityAudit(routes, rawJson = raw)
-        logSaveAedAuditRoutes(routes)
-    }
-    Log.d(
-        DIRECTIONS_FETCH_TAG,
-        "Directions fetch complete status=$status routes=${routes.size}",
-    )
     return DirectionsFetchResult(
         raw = raw,
         status = status,
@@ -285,6 +294,7 @@ fun ClearRoadScreen(
     var directionsLoading by remember { mutableStateOf(false) }
     var detailsRouteIndex by remember { mutableStateOf<Int?>(null) }
     var showRouteInputs by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     fun applyDirectionsFetchResult(result: DirectionsFetchResult) {
@@ -299,7 +309,7 @@ fun ClearRoadScreen(
     suspend fun loadDirections(from: LatLng, to: LatLng) {
         directionsLoading = true
         try {
-            applyDirectionsFetchResult(fetchDirectionsForRoute(from, to))
+            applyDirectionsFetchResult(fetchDirectionsForRoute(from, to, context))
         } finally {
             directionsLoading = false
         }
@@ -344,6 +354,9 @@ fun ClearRoadScreen(
             mode = selectedMode,
             currentWinnerIndex = recommendedRouteIndex,
         )
+        if (selectedMode == PreferenceMode.CALM) {
+            StageCFlipMonitoring.logCalmSelection(realRouteDebugDataList, recommendedRouteIndex)
+        }
     }
     val routeCardSelectionIndex =
         if (showRouteCardOverrides) {

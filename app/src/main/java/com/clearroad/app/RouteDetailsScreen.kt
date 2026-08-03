@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,6 +69,11 @@ internal fun RouteDetailsScreen(
             maxLines = 2,
         )
         Spacer(modifier = Modifier.height(16.dp))
+
+        RouteDetailsStaticMapPreview(
+            model = model,
+            cardBorder = cardBorder,
+        )
 
         if (model.driveWeather != null) {
             DriveMoodBackground(
@@ -124,6 +130,35 @@ internal fun RouteDetailsScreen(
             )
         }
     }
+}
+
+@Composable
+private fun RouteDetailsStaticMapPreview(
+    model: RouteDetailsUiModel,
+    cardBorder: BorderStroke,
+) {
+    val from = model.fromLatLng ?: return
+    val to = model.toLatLng ?: return
+    if (model.trafficSegments.isEmpty()) return
+
+    val apiKey = BuildConfig.PLACES_API_KEY
+    if (apiKey.isBlank()) return
+
+    val staticMapUrl =
+        remember(model.trafficSegments, from, to, apiKey) {
+            buildStaticMapUrl(
+                trafficSegments = model.trafficSegments,
+                from = from,
+                to = to,
+                apiKey = apiKey,
+            )
+        }
+
+    StaticMapPreview(
+        url = staticMapUrl,
+        cardBorder = cardBorder,
+    )
+    Spacer(modifier = Modifier.height(12.dp))
 }
 
 @Composable
