@@ -15,27 +15,26 @@ internal fun latLngParam(latLng: LatLng): String =
     "${latLng.latitude},${latLng.longitude}"
 
 /**
- * Builds a Google Maps directions URL using the documented Maps URLs query format.
- * Intermediate [waypoints] are pipe-separated (`%7C`); omit the param when empty.
+ * Google Maps navigation handoff — explicit origin and destination, no waypoints.
+ *
+ * Waypoints are omitted so Maps does not open a multi-stop route preview. With
+ * `dir_action=navigate`, navigation starts when origin matches the device location.
  */
 internal fun googleMapsDirectionsUrl(
     origin: LatLng,
     destination: LatLng,
-    waypoints: List<LatLng> = emptyList(),
-): String {
-    val url =
-        buildString {
-            append("https://www.google.com/maps/dir/?api=1")
-            append("&origin=").append(latLngParam(origin))
-            append("&destination=").append(latLngParam(destination))
-            if (waypoints.isNotEmpty()) {
-                append("&waypoints=")
-                append(waypoints.joinToString("%7C") { latLngParam(it) })
-            }
-            append("&travelmode=driving")
-        }
-    return url
-}
+): String =
+    buildString {
+        append("https://www.google.com/maps/dir/?api=1")
+        append("&origin=").append(latLngParam(origin))
+        append("&destination=").append(latLngParam(destination))
+        append("&travelmode=driving")
+        append("&dir_action=navigate")
+    }
+
+/** Waze deep link — destination only; no waypoint parameter in this handoff format. */
+internal fun wazeNavigateUrl(destination: LatLng): String =
+    "https://waze.com/ul?ll=${latLngParam(destination)}&navigate=yes"
 
 internal fun sampleNavigationWaypoints(
     path: List<LatLng>,

@@ -28,8 +28,6 @@ internal fun RouteDetailsHandoffFooter(
     val context = LocalContext.current
     val fromLatLng = model.fromLatLng ?: return
     val toLatLng = model.toLatLng ?: return
-    val marshioRoutePath = model.handoffRoutePathPoints
-    val hasMarshioPath = marshioRoutePath.size >= 2
     Column(modifier = modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = {
@@ -37,7 +35,6 @@ internal fun RouteDetailsHandoffFooter(
                     context = context,
                     origin = fromLatLng,
                     destination = toLatLng,
-                    marshioRoutePath = marshioRoutePath,
                 )
             },
             modifier = Modifier.fillMaxWidth(),
@@ -66,12 +63,7 @@ internal fun RouteDetailsHandoffFooter(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text =
-                    if (hasMarshioPath) {
-                        "Opens Google Maps on MARSHIO's chosen route. Google may still adjust slightly for live traffic."
-                    } else {
-                        "Opens your trip in Google Maps or Waze. Route may differ slightly."
-                    },
+                text = "Opens navigation to your destination in Google Maps or Waze. Route may differ slightly.",
                 style = MaterialTheme.typography.bodySmall,
                 color = ClearRoadColors.RoadGreyMuted,
             )
