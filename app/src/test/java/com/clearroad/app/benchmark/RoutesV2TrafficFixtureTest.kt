@@ -19,11 +19,11 @@ import java.nio.charset.StandardCharsets
 class RoutesV2TrafficFixtureTest {
 
     @Test
-    fun manifest_listsThreeLiveFixtures() {
+    fun manifest_listsLiveFixtures() {
         val manifest = readResource("$FIXTURE_ROOT/$MANIFEST_FILE")
         val root = JSONObject(manifest)
         val cases = root.getJSONArray("cases")
-        assertEquals(3, cases.length())
+        assertEquals(4, cases.length())
         assertTrue(root.getString("fieldMask").contains("speedReadingIntervals"))
     }
 
