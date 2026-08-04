@@ -28,6 +28,7 @@ internal object RouteDetailsAssembly {
         val fromLatLng: LatLng?,
         val toLatLng: LatLng?,
         val useLegacyHomeFallback: Boolean,
+        val tripHistoryInsight: com.clearroad.app.ui.model.TripHistoryInsightUiModel? = null,
     )
 
     fun buildUiModel(input: Input): RouteDetailsUiModel {
@@ -190,6 +191,7 @@ internal object RouteDetailsAssembly {
             fromLatLng = input.fromLatLng,
             toLatLng = input.toLatLng,
             driveWeather = driveWeather,
+            tripHistoryInsight = input.tripHistoryInsight,
         )
     }
 

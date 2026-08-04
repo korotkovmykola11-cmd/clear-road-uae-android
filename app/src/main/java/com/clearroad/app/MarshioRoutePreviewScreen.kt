@@ -10,11 +10,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.clearroad.app.triphistory.TripHistoryRecorder
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 
@@ -26,11 +28,23 @@ internal fun RouteDetailsHandoffFooter(
     showWazeHandoff: Boolean = true,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val fromLatLng = model.fromLatLng ?: return
     val toLatLng = model.toLatLng ?: return
+    val hasSalik = model.tollAed > 0
     Column(modifier = modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = {
+                TripHistoryRecorder.recordHandoffAsync(
+                    scope = scope,
+                    context = context,
+                    origin = fromLatLng,
+                    destination = toLatLng,
+                    durationSeconds = model.durationSeconds,
+                    mode = model.mode,
+                    hasSalik = hasSalik,
+                    tollAed = model.tollAed.takeIf { it > 0 }?.toDouble(),
+                )
                 openGoogleMapsHandoff(
                     context = context,
                     origin = fromLatLng,
@@ -50,7 +64,19 @@ internal fun RouteDetailsHandoffFooter(
         if (showWazeHandoff) {
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedButton(
-                onClick = { openWazeHandoff(context, toLatLng) },
+                onClick = {
+                    TripHistoryRecorder.recordHandoffAsync(
+                        scope = scope,
+                        context = context,
+                        origin = fromLatLng,
+                        destination = toLatLng,
+                        durationSeconds = model.durationSeconds,
+                        mode = model.mode,
+                        hasSalik = hasSalik,
+                        tollAed = model.tollAed.takeIf { it > 0 }?.toDouble(),
+                    )
+                    openWazeHandoff(context, toLatLng)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(1.dp, modeAccent.copy(alpha = 0.35f)),

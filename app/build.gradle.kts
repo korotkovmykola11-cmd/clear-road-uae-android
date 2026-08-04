@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 // Places API key: add PLACES_API_KEY=<your_key> to local.properties (not committed).
@@ -69,6 +70,9 @@ dependencies {
     implementation("com.google.maps.android:android-maps-utils:3.8.2")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     testImplementation("org.json:json:20240303")
     androidTestImplementation(platform(libs.androidx.compose.bom))

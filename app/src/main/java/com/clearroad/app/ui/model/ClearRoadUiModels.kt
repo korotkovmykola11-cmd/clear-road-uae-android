@@ -175,4 +175,17 @@ data class RouteDetailsUiModel(
     val showRouteIntelligenceSection: Boolean = false,
     val routeIntelligenceUnavailableReason: String? = null,
     val driveWeather: DriveWeatherUiModel? = null,
+    /** Local on-device pattern insight; hidden when null (< 3 prior trips). */
+    val tripHistoryInsight: TripHistoryInsightUiModel? = null,
 )
+
+data class TripHistoryInsightUiModel(
+    val durationLine: String?,
+    val salikLine: String?,
+) {
+    val lines: List<String> =
+        buildList {
+            durationLine?.takeIf { it.isNotBlank() }?.let(::add)
+            salikLine?.takeIf { it.isNotBlank() }?.let(::add)
+        }
+}

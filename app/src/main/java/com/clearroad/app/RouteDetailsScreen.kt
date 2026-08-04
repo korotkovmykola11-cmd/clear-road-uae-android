@@ -115,6 +115,13 @@ internal fun RouteDetailsScreen(
             model = model,
             cardBorder = cardBorder,
         )
+        model.tripHistoryInsight?.lines?.takeIf { it.isNotEmpty() }?.let { lines ->
+            Spacer(modifier = Modifier.height(12.dp))
+            RouteDetailsTripHistoryCard(
+                lines = lines,
+                cardBorder = cardBorder,
+            )
+        }
         if (model.fromLatLng != null && model.toLatLng != null) {
             RouteDetailsIntelligenceSection(
                 request = model.routeIntelligenceRequest,
@@ -597,6 +604,39 @@ private fun RouteDetailsTripCard(
                     text = model.costSummarySecondary,
                     style = MaterialTheme.typography.bodyMedium,
                     color = ClearRoadColors.RoadGreyMuted,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RouteDetailsTripHistoryCard(
+    lines: List<String>,
+    cardBorder: BorderStroke,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = ClearRoadColors.RouteCardSurfaceMuted,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = cardBorder,
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Text(
+                text = "Your usual pattern for this trip",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = ClearRoadColors.RoadGreyMuted,
+            )
+            lines.forEachIndexed { index, line ->
+                if (index > 0) Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = line,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ClearRoadColors.RoadGrey,
                 )
             }
         }
