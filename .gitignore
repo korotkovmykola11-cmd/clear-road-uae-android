@@ -43,3 +43,6 @@ app/src/debug/java/com/clearroad/app/*
 .traffic-staging-*.kt
 experiments/
 docs/screenshots/
+
+# Accidental nested module cwd artifacts (test mis-run with wrong working directory)
+/app/app/
