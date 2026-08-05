@@ -9,7 +9,8 @@ import kotlinx.coroutines.launch
 /**
  * Records a trip when the user explicitly starts navigation (Google Maps / Waze handoff).
  *
- * Not recorded on passive route fetches — handoff means the user intends to drive.
+ * Persists v1 legacy summary and optional v2 decision snapshot via [TripHandoffRepository]
+ * (single dedup gate + Room transaction).
  */
 object TripHistoryRecorder {
 
@@ -22,9 +23,10 @@ object TripHistoryRecorder {
         mode: PreferenceMode,
         hasSalik: Boolean,
         tollAed: Double?,
+        snapshot: TripHandoffSnapshotUiModel? = null,
     ) {
         scope.launch {
-            TripHistoryRepository.get(context).recordHandoffTrip(
+            val v1Entry =
                 buildTripHistoryEntry(
                     origin = origin,
                     destination = destination,
@@ -32,7 +34,11 @@ object TripHistoryRecorder {
                     mode = mode,
                     hasSalik = hasSalik,
                     tollAed = tollAed,
-                ),
+                    timestamp = snapshot?.timestamp ?: System.currentTimeMillis(),
+                )
+            TripHandoffRepository.get(context).recordHandoff(
+                v1Entry = v1Entry,
+                snapshot = snapshot,
             )
         }
     }

@@ -6,12 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [TripHistoryEntity::class],
-    version = 1,
-    exportSchema = false,
+    entities = [
+        TripHistoryEntity::class,
+        TripDecisionSnapshotEntity::class,
+        TripDecisionAlternativeEntity::class,
+    ],
+    version = 2,
+    exportSchema = true,
 )
 internal abstract class TripHistoryDatabase : RoomDatabase() {
     abstract fun tripHistoryDao(): TripHistoryDao
+
+    abstract fun tripDecisionSnapshotDao(): TripDecisionSnapshotDao
 
     companion object {
         private const val DB_NAME = "marshio_trip_history.db"
@@ -19,7 +25,6 @@ internal abstract class TripHistoryDatabase : RoomDatabase() {
         @Volatile
         private var instance: TripHistoryDatabase? = null
 
-        /** Initial schema v1 — no migrations yet; avoid destructive fallback in production. */
         fun get(context: Context): TripHistoryDatabase =
             instance
                 ?: synchronized(this) {
@@ -28,7 +33,17 @@ internal abstract class TripHistoryDatabase : RoomDatabase() {
                             context.applicationContext,
                             TripHistoryDatabase::class.java,
                             DB_NAME,
-                        ).build().also { instance = it }
+                        )
+                            .addMigrations(MIGRATION_1_2)
+                            .build()
+                            .also { instance = it }
                 }
+
+        /** Test-only in-memory database (v2 schema). */
+        internal fun createInMemoryForTest(context: Context): TripHistoryDatabase =
+            Room.inMemoryDatabaseBuilder(context, TripHistoryDatabase::class.java)
+                .allowMainThreadQueries()
+                .addMigrations(MIGRATION_1_2)
+                .build()
     }
 }

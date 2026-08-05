@@ -8,7 +8,7 @@
 | This is **not** legal advice | No compliance, violation, allowed, or prohibited conclusions |
 | Code changes | **None** — audit only |
 | Basis document | Prior research template: `docs/google-routes-terms-feasibility-template.md` (F01–F05 partial; F06–F21 TBD there) |
-| Audit date (document) | 2026-08-03 (Room trip history follow-up **2026-08-04**; retention alignment **2026-08-04**) |
+| Audit date (document) | 2026-08-03 (Room trip history follow-up **2026-08-04**; retention alignment **2026-08-04**; Trip Decision Memory v2 **2026-08-05**) |
 | Prod fetch path (repository) | `ArchitectureValidation.USE_ROUTES_V2_FETCH = true` → Routes API v2 `computeRoutes` via `RoutesV2Fetch.kt` |
 
 > **Legal interpretation:** Every topic below ends with **Requires legal review** where ToS relevance is identified. Status labels in the summary table use only: `No apparent issue from repository facts` | `Needs legal review` | `Insufficient evidence`.
@@ -50,7 +50,7 @@ Legend for **Storage lifetime**:
 | `StaticMapPreviewUrlBuilder.kt` + `RouteDetailsScreen.kt` | Re-encodes Google route segments (`PolyUtil.encode`) into Static Maps URL `path=enc:...`; O/D **markers** as lat/lng | URL built **in memory** per composition | URL string | Traffic colors from `speedReadingIntervals` / step traffic |
 | `StaticMapPreview.kt` (Coil) | Static Maps **image** fetched from `maps.googleapis.com/maps/api/staticmap` (URL embeds Google-derived encoded paths) | **Persisted across sessions** (Coil default **disk + memory** image cache; **no app-level TTL configured**) | PNG/JPEG bytes on device | Comment: "Coil-backed (memory + disk cache)" |
 | `SharedPreferences` (`RouteFetchProvider.kt`) | `debug_fetch_provider=legacy` override only | **Persisted across sessions** | String pref | **Not** Google route data |
-| Room / SQLite — `marshio_trip_history.db` (`com.clearroad.app.triphistory`, schema **v1**, no migrations) | On **navigation handoff** only: grid-snapped **originKey** + **destinationKey** (~500 m; rounded coordinate-derived keys from user **Places** lat/lng per `TripHistoryKey.kt`), **PreferenceMode**, **durationSeconds** + Salik flags from Google route metrics at handoff. Not on passive fetch. **30 consecutive calendar days** retention (`RETENTION_DAYS = 30`; cutoff `now − 30 days`; rows with `timestamp >= cutoff` kept), **max 50**/O-D+mode as additional count cap, **5 h** handoff dedup. History reads filter `timestamp >= cutoff` so stale rows do not feed median/Salik insight before physical purge on next handoff | **Persisted across sessions** (device-local) | SQLite via Room | Same **O-D pair + mode**, not physical corridor. Coordinate keys from Places API; duration/toll from Routes/Directions |
+| Room / SQLite — `marshio_trip_history.db` (`com.clearroad.app.triphistory`, schema **v2**, migration **1→2** additive) | On **navigation handoff** only: grid-snapped **originKey** + **destinationKey** (~500 m; rounded coordinate-derived keys from user **Places** lat/lng per `TripHistoryKey.kt`), **PreferenceMode**, **durationSeconds** + Salik flags from Google route metrics at handoff. **v2** adds `trip_decision_snapshots` + `trip_decision_alternatives` (normalized corridor **identity keys**, numeric decision metrics, role flags — see §J). Not on passive fetch. **30 consecutive calendar days** retention (`RETENTION_DAYS = 30`; cutoff `now − 30 days`; rows with `timestamp >= cutoff` kept), **max 50**/O-D+mode as additional count cap, **5 h** handoff dedup (shared v1+v2 gate). History reads filter `timestamp >= cutoff` so stale rows do not feed median/Salik insight before physical purge on next handoff | **Persisted across sessions** (device-local) | SQLite via Room | Same **O-D pair + mode**, not physical corridor. Coordinate keys from Places API; duration/toll from Routes/Directions. **No polylines, raw JSON, route summaries, steps, or Google prose stored** in Room |
 | Logcat — `DirectionsAuditLogging.kt` | Logs route **index**, durations, distance, toll **counts**, `routeSummary`, **4-byte polyline hash**, corridor **classification**, route labels (when parseable from raw JSON); **not** full polyline or full raw JSON | Transient (log buffer / exported logs if developer captures) | Text | Tag `DirectionsAudit` |
 | Logcat — `RouteRecommendationSelection` / `SmoothDriveScoring` | Logs corridor snippets, duration/traffic fields, score breakdowns | Transient | Text | Tag `SmoothDriveScoring` |
 | Logcat — `RouteIntelligenceReportLogger` | Logs OSM/Google signal aggregates, ETAs, route indices | Transient | Text | Tag `MARSHIO_INTELLIGENCE_REPORT` |
@@ -97,7 +97,7 @@ Caching — 30-day rule, coordinates, route geometry, frozen fixtures, git histo
 4. **RouteIntelligenceCache:** In-memory cache keyed by hash of Google polyline coordinates; stores **OSM** profiles; TTL **30 minutes** (Repository evidence: `RouteIntelligenceService.kt`, `RouteIntelligenceCache.DEFAULT_TTL_MS`).
 5. **Static Maps / Coil:** Static map URLs embed Google-derived encoded polylines; Coil caches rendered **images** on device disk with **no custom eviction policy** in app code (Repository evidence: `StaticMapPreview.kt`, `StaticMapPreviewUrlBuilder.kt`).
 6. **SharedPreferences:** Only debug provider flag — no Google route payload (Repository evidence: `RouteFetchProvider.kt`).
-7. **No Room/SQLite** persistence for Google Maps content found in `app/src/main`.
+7. **Room/SQLite** persistence for Google-derived **metrics and coordinate-derived keys** on navigation handoff only (`com.clearroad.app.triphistory`; schema v2). See §J for v2 tables. No polylines, raw API JSON, route summaries, steps, or Google prose in Room.
 8. **Benchmark gate reports:** `StageCPreFlipGateTest` writes `build/reports/stage-c-preflip-gate-report.txt` locally (derived comparisons, not full Google JSON).
 
 #### Relevant Google documentation / ToS
@@ -361,6 +361,63 @@ Static Maps preview may satisfy map-attribution via embedded image; textual rout
 
 ---
 
+### J. Trip Decision Memory v2 (Room schema v2)
+
+#### Topic
+Additive local persistence of per-handoff decision snapshots alongside legacy `trip_history` (v1).
+
+#### Repository facts
+
+**New tables** (migration **1→2**, purely additive — `trip_history` unchanged):
+
+| Table | Purpose |
+|-------|---------|
+| `trip_decision_snapshots` | One row per handoff: chosen route (what was displayed on Route Details at handoff) vs baseline counterfactual (Google default, index 0); materialized duration/toll deltas and Salik counterfactual metrics at write time |
+| `trip_decision_alternatives` | Complete alternative set at handoff (1:N, FK cascade delete on snapshot); role flags for chosen route, Google default, and MARSHIO recommendation |
+
+**What is stored** (Repository evidence: `TripDecisionSnapshotEntity.kt`, `TripDecisionAlternativeEntity.kt`, `TripHandoffSnapshotUiModel.kt`):
+
+- Normalized corridor **identity keys** (`stableKey` from `RouteIdentity`; `primaryName` / disambiguator **not** persisted)
+- Numeric decision metrics: `durationSeconds`, `tollAed`, `hasSalik`, `timeDeltaVsBaselineSeconds`, `bestNoSalikDurationSeconds`, `salikTimeDeltaSeconds`
+- Route **index** and **role flags** per alternative at handoff
+- Chosen vs baseline relationship (viewed route index, Google default index 0, MARSHIO recommended index)
+- Grid-snapped **originKey** + **destinationKey** (same ~500 m coordinate-derived keys as v1)
+- **PreferenceMode**, handoff **timestamp**
+
+**What is NOT stored** (explicitly excluded in builder and entities):
+
+- Polylines / encoded geometry
+- Raw Routes API JSON or raw Directions JSON
+- Google navigation instructions / steps
+- Google route summaries (`description` / `routeSummary`)
+- Google-generated prose or HTML/text instructions
+- `primaryName` (deferred; MVP uses `stableKey` + disambiguator at assembly time only)
+
+**Write path:** `RouteDetailsHandoffFooter` → `TripHistoryRecorder` → `TripHandoffRepository.recordHandoff()` — v1 + v2 dual-write in one Room transaction; shared **5 h** dedup gate (checks latest v1 row; suppresses both v1 and v2). Retention: **30 days** + max **50**/O-D+mode on both v1 and v2 tables.
+
+**Insight logic:** Historical Alternative Preference and Salik v2 recommendation UI are **not implemented** in this schema commit — persistence only.
+
+#### Relevant Google documentation / ToS
+
+- Service Specific Terms §19.3 Routes API — Caching (lat/lng up to 30 consecutive calendar days).
+- Service Specific Terms §4.3 Directions API — Caching (same lat/lng rule).
+- Service Specific Terms §14.3 Places API — lat/lng cache 30 days.
+- Platform Terms §3.2.3(b) No Caching.
+
+#### Potential relevance
+
+- v2 stores Google-derived **durations and toll metrics** and coordinate-derived O-D keys beyond bare lat/lng pairs.
+- Identity keys are **normalized corridor fingerprints** derived from Google route data at assembly time, not raw Google text fields.
+- Same **30-day** retention window and handoff-only trigger as v1 `trip_history`.
+- Whether the cited **30-day lat/lng caching clause** applies identically to client-side Room storage of such **normalized coordinate-derived keys and numeric metrics** is **not stated** in the fetched Service Specific Terms text.
+
+#### Legal interpretation
+
+**Requires legal review.**  
+**Open question (unchanged from v1):** Does the 30-day caching rule apply the same way to local storage of normalized coordinate-derived keys and numeric Google-derived metrics as it does to raw lat/lng caching? **No assumption made.**
+
+---
+
 ## 3. Source index (by evidence type)
 
 | Evidence type | Examples in this document |
@@ -386,7 +443,8 @@ Static Maps preview may satisfy map-attribution via embedded image; textual rout
 | RouteIntelligenceCache | 30-min in-memory; OSM values keyed by Google polyline hash | §19.3 (lat/lng) | **Needs legal review** (key derived from Google coordinates) |
 | Coil Static Maps cache | Image disk cache of map containing encoded Google paths; no TTL in app | §3.2.3(b); §19.3 | **Needs legal review** |
 | SharedPreferences | Debug provider flag only | — | **No apparent issue from repository facts** |
-| Room trip history (`trip_history`) | Handoff-only; rounded coordinate-derived O-D keys (Places lat/lng); Google duration/toll; **30-day** time retention + max **50** count cap; insight reads exclude rows below cutoff | §19.3; §4.3; §14.3 Places lat/lng | **Needs legal review** |
+| Room trip history v1 (`trip_history`) | Handoff-only; rounded coordinate-derived O-D keys (Places lat/lng); Google duration/toll; **30-day** time retention + max **50** count cap; insight reads exclude rows below cutoff | §19.3; §4.3; §14.3 Places lat/lng | **Needs legal review** |
+| Room trip history v2 (`trip_decision_snapshots`, `trip_decision_alternatives`) | Handoff-only; identity keys + numeric metrics + alternative metadata; no polylines/raw JSON/Google prose; same 30-day + 50 cap + 5 h dedup as v1 | §19.3; §4.3; §3.2.3(b) | **Needs legal review** |
 | Static Maps route preview | Google-derived polylines on Google Static Maps | §19.2; §4.2 | **Needs legal review** (Static Maps vs "Google Map" classification) |
 | OSM intelligence | Google polyline used for Overpass queries; no OSM map UI in prod main | §19.2 | **No apparent issue from repository facts** (no non-Google map display found in `app/src/main`) |
 | Waze handoff | Destination lat/lng only | §19.2 | **No apparent issue from repository facts** (no Google geometry passed) |
@@ -405,7 +463,6 @@ Static Maps preview may satisfy map-attribution via embedded image; textual rout
 ### No apparent issue from repository facts
 
 - Google route data in prod is held **in memory** for the active O/D session and cleared when origin/destination changes (`MainActivity.kt`).
-- **No Room/SQLite** persistence of Google Maps responses in `app/src/main`.
 - SharedPreferences stores only **`debug_fetch_provider`**, not Google content.
 - **`app/src/main` does not render** Google route geometry on an OSM/third-party interactive map (no `GoogleMap` / OSM map composable found).
 - **Waze handoff** passes destination coordinates only, not Google polylines or steps.
@@ -417,8 +474,9 @@ Static Maps preview may satisfy map-attribution via embedded image; textual rout
 - **Git-stored** Legacy and V2 benchmark fixtures and `docs/stage-*` captures — full responses, polylines, place_id, durations, traffic intervals, instruction text; retention **unbounded** in git history.
 - **30-day caching rules** (§19.3, §4.3) vs types of data stored (full JSON, polylines, tollInfo, durations, scans, fingerprints, analysis.json).
 - **Platform Terms §3.2.3(b) No Caching** vs permitted lat/lng caching and place_id caching rules.
-- **Room trip history** — rounded coordinate-derived origin/destination keys (Places lat/lng) + Google duration/toll retained on device for **30 consecutive calendar days** (time cutoff); max **50** rows per O-D+mode is an additional count cap; rows below the cutoff are excluded from insight calculations even before physical purge.
-- Whether the cited **30-day lat/lng caching clause** (§19.3 / §4.3 / §14.3) applies identically to client-side Room storage of rounded coordinate-derived keys **requires legal review**.
+- **Room trip history v1** — rounded coordinate-derived origin/destination keys (Places lat/lng) + Google duration/toll retained on device for **30 consecutive calendar days** (time cutoff); max **50** rows per O-D+mode is an additional count cap; rows below the cutoff are excluded from insight calculations even before physical purge.
+- **Room trip history v2** — normalized identity keys, numeric decision metrics, and alternative metadata at handoff; **no** polylines, raw API JSON, route summaries, steps, or Google prose; same retention/dedup as v1 (see §J).
+- Whether the cited **30-day lat/lng caching clause** (§19.3 / §4.3 / §14.3) applies identically to client-side Room storage of rounded coordinate-derived keys and numeric Google-derived metrics **requires legal review**.
 - **Coil disk cache** of Static Maps images whose URLs embed Google-encoded route geometry — duration and whether URL parameters constitute stored Google Maps Content.
 - **Static Maps + custom traffic-colored polylines** — whether this satisfies "Google Map" context under §19.2 / Routes policies.
 - **MARSHIO DecisionEngine** — alternative route ranking, CALM/FASTEST/NO_TOLLS scoring, and UI comparing **index 0** to MARSHIO pick (including when that differs from `DEFAULT_ROUTE` labels).
@@ -439,7 +497,7 @@ Static Maps preview may satisfy map-attribution via embedded image; textual rout
 - **Stage C gate** live API usage in CI (`StageCPreFlipGateTest`) — frequency, stored reports, and billing/ToS implications.
 - **Logcat audit verbosity** — corridor text and Google metrics in production builds.
 - **Attribution placement** audit on Route Details screen (map + text blocks).
-- **Trip history on device** — retention/dedup policy vs lat/lng caching rules; coordinate key provenance (Places API).
+- **Trip history on device (v1 + v2)** — retention/dedup policy vs lat/lng caching rules; coordinate key provenance (Places API); v2 identity keys and numeric metrics scope (§J).
 - Written Google confirmation topics flagged in prior template **F01** (multi-request waypoint research) if that pattern is revived.
 
 ---
@@ -460,7 +518,8 @@ Cross-reference:
 | F18 Traffic intervals | V2 fixtures + `TrafficPolylineBuilder` |
 | F19/F20 ETA/toll comparison | DecisionEngine + Route Details UI |
 | F21 Handoff | Topic H |
+| Trip Decision Memory v2 | Topic J |
 
 ---
 
-*End of audit document. No repository changes were made.*
+*End of audit document. Updated 2026-08-05 for Trip Decision Memory v2 schema (§J).*

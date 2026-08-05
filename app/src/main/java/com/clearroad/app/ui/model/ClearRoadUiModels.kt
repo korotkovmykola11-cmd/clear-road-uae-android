@@ -177,6 +177,8 @@ data class RouteDetailsUiModel(
     val driveWeather: DriveWeatherUiModel? = null,
     /** Local on-device pattern insight; hidden when null (< 3 prior trips). */
     val tripHistoryInsight: TripHistoryInsightUiModel? = null,
+    /** Compact v2 decision snapshot for handoff persistence; built at assembly time. */
+    val handoffSnapshot: com.clearroad.app.triphistory.TripHandoffSnapshotUiModel? = null,
 )
 
 data class TripHistoryInsightUiModel(

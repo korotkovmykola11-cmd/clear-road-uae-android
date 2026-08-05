@@ -1,0 +1,330 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "b8fd06e287feb65bcf3cdcd653737fed",
+    "entities": [
+      {
+        "tableName": "trip_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestamp` INTEGER NOT NULL, `originKey` TEXT NOT NULL, `destinationKey` TEXT NOT NULL, `durationSeconds` INTEGER NOT NULL, `mode` TEXT NOT NULL, `hasSalik` INTEGER NOT NULL, `tollAed` REAL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originKey",
+            "columnName": "originKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "destinationKey",
+            "columnName": "destinationKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationSeconds",
+            "columnName": "durationSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mode",
+            "columnName": "mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasSalik",
+            "columnName": "hasSalik",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tollAed",
+            "columnName": "tollAed",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_trip_history_originKey_destinationKey_mode",
+            "unique": false,
+            "columnNames": [
+              "originKey",
+              "destinationKey",
+              "mode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_history_originKey_destinationKey_mode` ON `${TABLE_NAME}` (`originKey`, `destinationKey`, `mode`)"
+          },
+          {
+            "name": "index_trip_history_timestamp",
+            "unique": false,
+            "columnNames": [
+              "timestamp"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_history_timestamp` ON `${TABLE_NAME}` (`timestamp`)"
+          }
+        ]
+      },
+      {
+        "tableName": "trip_decision_snapshots",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestamp` INTEGER NOT NULL, `originKey` TEXT NOT NULL, `destinationKey` TEXT NOT NULL, `mode` TEXT NOT NULL, `viewedRouteIndex` INTEGER NOT NULL, `chosenRouteIdentityKey` TEXT NOT NULL, `chosenDurationSeconds` INTEGER NOT NULL, `chosenHasSalik` INTEGER NOT NULL, `chosenTollAed` REAL, `marshioRecommendedRouteIndex` INTEGER NOT NULL, `googleDefaultRouteIndex` INTEGER NOT NULL, `baselineRouteIdentityKey` TEXT NOT NULL, `baselineDurationSeconds` INTEGER NOT NULL, `baselineHasSalik` INTEGER NOT NULL, `baselineTollAed` REAL, `timeDeltaVsBaselineSeconds` INTEGER NOT NULL, `bestNoSalikDurationSeconds` INTEGER, `salikTimeDeltaSeconds` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originKey",
+            "columnName": "originKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "destinationKey",
+            "columnName": "destinationKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mode",
+            "columnName": "mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "viewedRouteIndex",
+            "columnName": "viewedRouteIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chosenRouteIdentityKey",
+            "columnName": "chosenRouteIdentityKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chosenDurationSeconds",
+            "columnName": "chosenDurationSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chosenHasSalik",
+            "columnName": "chosenHasSalik",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chosenTollAed",
+            "columnName": "chosenTollAed",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "marshioRecommendedRouteIndex",
+            "columnName": "marshioRecommendedRouteIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "googleDefaultRouteIndex",
+            "columnName": "googleDefaultRouteIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baselineRouteIdentityKey",
+            "columnName": "baselineRouteIdentityKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baselineDurationSeconds",
+            "columnName": "baselineDurationSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baselineHasSalik",
+            "columnName": "baselineHasSalik",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baselineTollAed",
+            "columnName": "baselineTollAed",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "timeDeltaVsBaselineSeconds",
+            "columnName": "timeDeltaVsBaselineSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bestNoSalikDurationSeconds",
+            "columnName": "bestNoSalikDurationSeconds",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "salikTimeDeltaSeconds",
+            "columnName": "salikTimeDeltaSeconds",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_trip_decision_snapshots_originKey_destinationKey_mode",
+            "unique": false,
+            "columnNames": [
+              "originKey",
+              "destinationKey",
+              "mode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_decision_snapshots_originKey_destinationKey_mode` ON `${TABLE_NAME}` (`originKey`, `destinationKey`, `mode`)"
+          },
+          {
+            "name": "index_trip_decision_snapshots_timestamp",
+            "unique": false,
+            "columnNames": [
+              "timestamp"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_decision_snapshots_timestamp` ON `${TABLE_NAME}` (`timestamp`)"
+          },
+          {
+            "name": "index_trip_decision_snapshots_chosenRouteIdentityKey",
+            "unique": false,
+            "columnNames": [
+              "chosenRouteIdentityKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_decision_snapshots_chosenRouteIdentityKey` ON `${TABLE_NAME}` (`chosenRouteIdentityKey`)"
+          }
+        ]
+      },
+      {
+        "tableName": "trip_decision_alternatives",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `snapshotId` INTEGER NOT NULL, `routeIndex` INTEGER NOT NULL, `routeIdentityKey` TEXT NOT NULL, `durationSeconds` INTEGER NOT NULL, `hasSalik` INTEGER NOT NULL, `tollAed` REAL, `roleFlags` INTEGER NOT NULL, FOREIGN KEY(`snapshotId`) REFERENCES `trip_decision_snapshots`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "snapshotId",
+            "columnName": "snapshotId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "routeIndex",
+            "columnName": "routeIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "routeIdentityKey",
+            "columnName": "routeIdentityKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationSeconds",
+            "columnName": "durationSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasSalik",
+            "columnName": "hasSalik",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tollAed",
+            "columnName": "tollAed",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "roleFlags",
+            "columnName": "roleFlags",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_trip_decision_alternatives_snapshotId",
+            "unique": false,
+            "columnNames": [
+              "snapshotId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_decision_alternatives_snapshotId` ON `${TABLE_NAME}` (`snapshotId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "trip_decision_snapshots",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "snapshotId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8fd06e287feb65bcf3cdcd653737fed')"
+    ]
+  }
+}

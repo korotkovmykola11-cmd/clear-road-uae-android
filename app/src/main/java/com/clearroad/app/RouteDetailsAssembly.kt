@@ -8,6 +8,7 @@ import com.clearroad.app.domain.RouteIdentityPresentationPolicy
 import com.clearroad.app.domain.TripAtAGlancePolicy
 import com.clearroad.app.legacy.LegacyHomePresentation
 import com.clearroad.app.intelligence.RouteIntelligenceAssembly
+import com.clearroad.app.triphistory.TripDecisionSnapshotBuilder
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.google.android.gms.maps.model.LatLng
 
@@ -140,6 +141,7 @@ internal object RouteDetailsAssembly {
             } else {
                 detailItem
             }
+        val handoffSnapshot = TripDecisionSnapshotBuilder.build(input)
         return buildRouteDetailsUiModel(
             routeIndex = detailIdx,
             routeNumber = detailIdx + 1,
@@ -192,6 +194,7 @@ internal object RouteDetailsAssembly {
             toLatLng = input.toLatLng,
             driveWeather = driveWeather,
             tripHistoryInsight = input.tripHistoryInsight,
+            handoffSnapshot = handoffSnapshot,
         )
     }
 

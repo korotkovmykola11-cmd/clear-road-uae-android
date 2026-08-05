@@ -44,6 +44,7 @@ internal fun RouteDetailsHandoffFooter(
                     mode = model.mode,
                     hasSalik = hasSalik,
                     tollAed = model.tollAed.takeIf { it > 0 }?.toDouble(),
+                    snapshot = model.handoffSnapshot,
                 )
                 openGoogleMapsHandoff(
                     context = context,
@@ -74,6 +75,7 @@ internal fun RouteDetailsHandoffFooter(
                         mode = model.mode,
                         hasSalik = hasSalik,
                         tollAed = model.tollAed.takeIf { it > 0 }?.toDouble(),
+                        snapshot = model.handoffSnapshot,
                     )
                     openWazeHandoff(context, toLatLng)
                 },
