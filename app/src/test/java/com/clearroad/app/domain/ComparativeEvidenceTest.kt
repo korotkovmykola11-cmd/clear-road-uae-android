@@ -252,7 +252,7 @@ class ComparativeEvidenceTest {
         assertTrue(result.isVisible)
         assertEquals(1, result.lines.size)
         assertEquals(
-            "${identities[1].primaryName}: +8 min · saves 12 AED Salik",
+            "${identities[1].primaryName}: +8 min · estimated to save 12 AED in Salik",
             result.lines[0].formatted,
         )
     }

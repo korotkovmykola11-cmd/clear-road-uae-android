@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "b8fd06e287feb65bcf3cdcd653737fed",
+    "identityHash": "e5425cd16d9d08f8c781dd872a835a33",
     "entities": [
       {
         "tableName": "trip_history",
@@ -87,7 +87,7 @@
       },
       {
         "tableName": "trip_decision_snapshots",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestamp` INTEGER NOT NULL, `originKey` TEXT NOT NULL, `destinationKey` TEXT NOT NULL, `mode` TEXT NOT NULL, `viewedRouteIndex` INTEGER NOT NULL, `chosenRouteIdentityKey` TEXT NOT NULL, `chosenDurationSeconds` INTEGER NOT NULL, `chosenHasSalik` INTEGER NOT NULL, `chosenTollAed` REAL, `marshioRecommendedRouteIndex` INTEGER NOT NULL, `googleDefaultRouteIndex` INTEGER NOT NULL, `baselineRouteIdentityKey` TEXT NOT NULL, `baselineDurationSeconds` INTEGER NOT NULL, `baselineHasSalik` INTEGER NOT NULL, `baselineTollAed` REAL, `timeDeltaVsBaselineSeconds` INTEGER NOT NULL, `bestNoSalikDurationSeconds` INTEGER, `salikTimeDeltaSeconds` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestamp` INTEGER NOT NULL, `originKey` TEXT NOT NULL, `destinationKey` TEXT NOT NULL, `mode` TEXT NOT NULL, `handoffCandidateRouteIndex` INTEGER NOT NULL, `handoffCandidateRouteIdentityKey` TEXT NOT NULL, `handoffCandidateDurationSeconds` INTEGER NOT NULL, `handoffCandidateHasSalik` INTEGER NOT NULL, `handoffCandidateTollAed` REAL, `marshioRecommendedRouteIndex` INTEGER NOT NULL, `googleDefaultRouteIndex` INTEGER NOT NULL, `baselineRouteIdentityKey` TEXT NOT NULL, `baselineDurationSeconds` INTEGER NOT NULL, `baselineHasSalik` INTEGER NOT NULL, `baselineTollAed` REAL, `timeDeltaVsBaselineSeconds` INTEGER NOT NULL, `bestNoSalikDurationSeconds` INTEGER, `salikTimeDeltaSeconds` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -120,32 +120,32 @@
             "notNull": true
           },
           {
-            "fieldPath": "viewedRouteIndex",
-            "columnName": "viewedRouteIndex",
+            "fieldPath": "handoffCandidateRouteIndex",
+            "columnName": "handoffCandidateRouteIndex",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "chosenRouteIdentityKey",
-            "columnName": "chosenRouteIdentityKey",
+            "fieldPath": "handoffCandidateRouteIdentityKey",
+            "columnName": "handoffCandidateRouteIdentityKey",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "chosenDurationSeconds",
-            "columnName": "chosenDurationSeconds",
+            "fieldPath": "handoffCandidateDurationSeconds",
+            "columnName": "handoffCandidateDurationSeconds",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "chosenHasSalik",
-            "columnName": "chosenHasSalik",
+            "fieldPath": "handoffCandidateHasSalik",
+            "columnName": "handoffCandidateHasSalik",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "chosenTollAed",
-            "columnName": "chosenTollAed",
+            "fieldPath": "handoffCandidateTollAed",
+            "columnName": "handoffCandidateTollAed",
             "affinity": "REAL"
           },
           {
@@ -228,13 +228,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_decision_snapshots_timestamp` ON `${TABLE_NAME}` (`timestamp`)"
           },
           {
-            "name": "index_trip_decision_snapshots_chosenRouteIdentityKey",
+            "name": "index_trip_decision_snapshots_handoffCandidateRouteIdentityKey",
             "unique": false,
             "columnNames": [
-              "chosenRouteIdentityKey"
+              "handoffCandidateRouteIdentityKey"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_decision_snapshots_chosenRouteIdentityKey` ON `${TABLE_NAME}` (`chosenRouteIdentityKey`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_trip_decision_snapshots_handoffCandidateRouteIdentityKey` ON `${TABLE_NAME}` (`handoffCandidateRouteIdentityKey`)"
           }
         ]
       },
@@ -324,7 +324,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8fd06e287feb65bcf3cdcd653737fed')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e5425cd16d9d08f8c781dd872a835a33')"
     ]
   }
 }

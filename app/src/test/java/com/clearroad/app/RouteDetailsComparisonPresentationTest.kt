@@ -79,11 +79,11 @@ class RouteDetailsComparisonPresentationTest {
         assertEquals("MARSHIO disagrees with Google", decision?.headline)
         assertEquals("Google says", decision?.googleRoute?.cardTitle)
         assertEquals("MARSHIO says", decision?.marshioRoute?.cardTitle)
-        assertTrue(decision?.disagreementReasons?.contains("2 min faster than Google's default") == true)
-        assertTrue(decision?.disagreementReasons?.any { it.contains("Saves") } == true)
-        assertTrue(decision?.disagreementReasons?.contains("1 min less traffic delay") == true)
+        assertTrue(decision?.disagreementReasons?.contains("Would be ~2 min faster than Google's default") == true)
+        assertTrue(decision?.disagreementReasons?.any { it.contains("Would save ~") } == true)
+        assertTrue(decision?.disagreementReasons?.contains("~1 min less predicted traffic delay") == true)
         assertEquals(
-            "MARSHIO recommends this route because it is 2 min faster than Google's default.",
+            "MARSHIO recommends this route because it would be ~2 min faster than Google's default on current estimates.",
             decision?.whyOneLiner,
         )
         assertEquals(decision?.whyOneLiner, decision?.verdictText)
@@ -118,10 +118,10 @@ class RouteDetailsComparisonPresentationTest {
         assertNotNull(decision)
         assertEquals(GoogleMarshioDecisionState.DISAGREES, decision?.state)
         assertEquals(
-            "Google's route is 1 min faster. MARSHIO selected the shorter route (1.1 km less). Decide which trade-off you prefer.",
+            "Google's route is 1 min faster. MARSHIO's pick would be ~1.1 km shorter. Decide which trade-off you prefer.",
             decision?.whyOneLiner,
         )
-        assertTrue(decision?.disagreementReasons?.contains("Saves 1.1 km") == true)
+        assertTrue(decision?.disagreementReasons?.contains("Would save ~1.1 km vs Google's default") == true)
         assertTrue(decision?.disagreementReasons?.contains("No meaningful time difference") == true)
     }
 
@@ -153,7 +153,7 @@ class RouteDetailsComparisonPresentationTest {
         val decision = result.googleMarshioDecision
         assertNotNull(decision)
         assertEquals(
-            "Google's route is 1 min faster. MARSHIO selected the shorter route (261 m less). Decide which trade-off you prefer.",
+            "Google's route is 1 min faster. MARSHIO's pick would be ~261 m shorter. Decide which trade-off you prefer.",
             decision?.whyOneLiner,
         )
     }
@@ -190,10 +190,10 @@ class RouteDetailsComparisonPresentationTest {
         val decision = result.googleMarshioDecision
         assertNotNull(decision)
         assertEquals(
-            "Google's route is 1 min faster. MARSHIO avoids 4 AED Salik. Matches your No tolls preference. Decide which trade-off you prefer.",
+            "Google's route is 1 min faster. MARSHIO's pick would avoid ~4 AED Salik. Matches your No tolls preference. Decide which trade-off you prefer.",
             decision?.whyOneLiner,
         )
-        assertTrue(decision?.disagreementReasons?.contains("4 AED less Salik") == true)
+        assertTrue(decision?.disagreementReasons?.contains("~4 AED less Salik vs Google's default") == true)
         assertTrue(decision?.disagreementReasons?.contains("Matches your No tolls preference") == true)
     }
 
@@ -225,7 +225,7 @@ class RouteDetailsComparisonPresentationTest {
         val decision = result.googleMarshioDecision
         assertNotNull(decision)
         assertEquals(
-            "Google's default is 5 min faster — MARSHIO picked a different route; compare both before you drive.",
+            "Google's default would be ~5 min faster on current estimates — MARSHIO picked a different route; compare both before you drive.",
             decision?.whyOneLiner,
         )
     }

@@ -3,7 +3,7 @@ package com.clearroad.app.triphistory
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-data class TripHistoryInsightResult(
+data class DecisionHistoryInsightResult(
     val durationLine: String?,
     val salikLine: String?,
 ) {
@@ -12,10 +12,13 @@ data class TripHistoryInsightResult(
 }
 
 /**
- * Compares the current calculation against prior **same O-D pair + mode** handoff history.
+ * Compares the current route option against prior **same O-D pair + mode** handoff decisions
+ * stored in `trip_history` (v1). Product term: Decision History.
+ *
  * Does not compare physical corridors (E11 vs E311) — only grid-matched origin/destination keys.
+ * Lines describe predicted patterns at handoff time, not confirmed driven trips.
  */
-object TripHistoryInsight {
+object DecisionHistoryInsight {
 
     const val MIN_PRIOR_TRIPS = 3
     const val DURATION_DEVIATION_RATIO = 0.15
@@ -23,12 +26,12 @@ object TripHistoryInsight {
     fun compute(
         priorTrips: List<TripHistoryEntry>,
         today: TripHistoryEntry,
-    ): TripHistoryInsightResult? {
+    ): DecisionHistoryInsightResult? {
         if (priorTrips.size < MIN_PRIOR_TRIPS) return null
 
         val durationLine = buildDurationLine(priorTrips, today.durationSeconds)
         val salikLine = buildSalikLine(priorTrips, today.hasSalik)
-        val result = TripHistoryInsightResult(durationLine, salikLine)
+        val result = DecisionHistoryInsightResult(durationLine, salikLine)
         return result.takeIf { it.hasContent }
     }
 
@@ -48,17 +51,17 @@ object TripHistoryInsight {
         todayDurationSeconds: Int,
     ): String {
         val median = medianDurationSeconds(priorTrips)
-        if (median <= 0) return "Typical time for this trip"
+        if (median <= 0) return "Typical handoff pattern for this trip"
         val deltaRatio = abs(todayDurationSeconds - median).toDouble() / median.toDouble()
         if (deltaRatio <= DURATION_DEVIATION_RATIO) {
-            return "Typical time for this trip"
+            return "Typical handoff pattern for this trip"
         }
         val deltaMinutes = abs(todayDurationSeconds - median) / 60.0
         val minutesLabel = formatMinutes(deltaMinutes)
         return if (todayDurationSeconds > median) {
-            "Today is $minutesLabel slower than usual for this trip"
+            "This option looks ~$minutesLabel slower than your usual handoff pattern"
         } else {
-            "Today is $minutesLabel faster than usual for this trip"
+            "This option looks ~$minutesLabel faster than your usual handoff pattern"
         }
     }
 
@@ -72,9 +75,9 @@ object TripHistoryInsight {
         val usualNoSalik = withoutSalik > withSalik
         return when {
             usualNoSalik && todayHasSalik ->
-                "Usually no Salik on this trip, but today's option includes it"
+                "Your usual handoff pattern skips Salik; this option would include it"
             usualHasSalik && !todayHasSalik ->
-                "Usually includes Salik on this trip, but today's option has none"
+                "Your usual handoff pattern includes Salik; this option would skip it"
             else -> null
         }
     }

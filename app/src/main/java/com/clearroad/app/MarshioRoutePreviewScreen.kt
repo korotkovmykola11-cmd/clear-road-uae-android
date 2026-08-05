@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.clearroad.app.triphistory.TripHistoryRecorder
+import com.clearroad.app.triphistory.HandoffDecisionRecorder
 import com.clearroad.app.ui.model.RouteDetailsUiModel
 import com.clearroad.app.ui.theme.ClearRoadColors
 
@@ -35,7 +35,7 @@ internal fun RouteDetailsHandoffFooter(
     Column(modifier = modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = {
-                TripHistoryRecorder.recordHandoffAsync(
+                HandoffDecisionRecorder.recordHandoffAsync(
                     scope = scope,
                     context = context,
                     origin = fromLatLng,
@@ -66,7 +66,7 @@ internal fun RouteDetailsHandoffFooter(
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedButton(
                 onClick = {
-                    TripHistoryRecorder.recordHandoffAsync(
+                    HandoffDecisionRecorder.recordHandoffAsync(
                         scope = scope,
                         context = context,
                         origin = fromLatLng,

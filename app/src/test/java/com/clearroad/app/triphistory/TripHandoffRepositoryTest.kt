@@ -199,13 +199,13 @@ class TripHandoffRepositoryTest {
             originKey = originKey,
             destinationKey = destinationKey,
             mode = mode,
-            viewedRouteIndex = 1,
+            handoffCandidateRouteIndex = 1,
             marshioRecommendedRouteIndex = 1,
             googleDefaultRouteIndex = 0,
-            chosenRouteIdentityKey = "chosen",
-            chosenDurationSeconds = 720,
-            chosenHasSalik = true,
-            chosenTollAed = 8.0,
+            handoffCandidateRouteIdentityKey = "handoff-candidate",
+            handoffCandidateDurationSeconds = 720,
+            handoffCandidateHasSalik = true,
+            handoffCandidateTollAed = 8.0,
             baselineRouteIdentityKey = "baseline",
             baselineDurationSeconds = 900,
             baselineHasSalik = false,
@@ -225,12 +225,12 @@ class TripHandoffRepositoryTest {
                     ),
                     TripHandoffAlternativeUiModel(
                         routeIndex = 1,
-                        routeIdentityKey = "chosen",
+                        routeIdentityKey = "handoff-candidate",
                         durationSeconds = 720,
                         hasSalik = true,
                         tollAed = 8.0,
                         roleFlags =
-                            TripDecisionAlternativeRole.CHOSEN or
+                            TripDecisionAlternativeRole.HANDOFF_CANDIDATE or
                                 TripDecisionAlternativeRole.MARSHIO_RECOMMENDED,
                     ),
                 ),

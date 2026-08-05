@@ -57,7 +57,7 @@ class TripDecisionSnapshotBuilderTest {
         assertEquals("google-default", snapshot.baselineRouteIdentityKey)
         assertEquals(900, snapshot.baselineDurationSeconds)
         assertEquals(180, snapshot.timeDeltaVsBaselineSeconds)
-        assertEquals("salik-faster", snapshot.chosenRouteIdentityKey)
+        assertEquals("salik-faster", snapshot.handoffCandidateRouteIdentityKey)
     }
 
     @Test
@@ -90,7 +90,7 @@ class TripDecisionSnapshotBuilderTest {
     }
 
     @Test
-    fun build_alternativeRoleFlagsMarkChosenBaselineAndRecommended() {
+    fun build_alternativeRoleFlagsMarkHandoffCandidateBaselineAndRecommended() {
         val routes =
             listOf(
                 route(durationSeconds = 900),
@@ -113,20 +113,20 @@ class TripDecisionSnapshotBuilderTest {
             )!!
 
         val baselineAlt = snapshot.alternatives[0]
-        val chosenAlt = snapshot.alternatives[1]
+        val handoffCandidateAlt = snapshot.alternatives[1]
 
         assertEquals(
             TripDecisionAlternativeRole.GOOGLE_DEFAULT,
             baselineAlt.roleFlags,
         )
         assertEquals(
-            TripDecisionAlternativeRole.CHOSEN or TripDecisionAlternativeRole.MARSHIO_RECOMMENDED,
-            chosenAlt.roleFlags,
+            TripDecisionAlternativeRole.HANDOFF_CANDIDATE or TripDecisionAlternativeRole.MARSHIO_RECOMMENDED,
+            handoffCandidateAlt.roleFlags,
         )
     }
 
     @Test
-    fun build_viewedRouteIndexFollowsDetailRouteIndex() {
+    fun build_handoffCandidateRouteIndexFollowsDetailRouteIndex() {
         val routes =
             listOf(
                 route(durationSeconds = 900),
@@ -148,9 +148,9 @@ class TripDecisionSnapshotBuilderTest {
                 ),
             )!!
 
-        assertEquals(0, snapshot.viewedRouteIndex)
+        assertEquals(0, snapshot.handoffCandidateRouteIndex)
         assertEquals(1, snapshot.marshioRecommendedRouteIndex)
-        assertEquals("baseline", snapshot.chosenRouteIdentityKey)
+        assertEquals("baseline", snapshot.handoffCandidateRouteIdentityKey)
     }
 
     private fun input(

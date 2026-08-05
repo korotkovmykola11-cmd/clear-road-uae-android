@@ -19,6 +19,9 @@ import kotlin.math.abs
 internal object RouteDetailsComparisonPresentation {
 
     private const val GOOGLE_DEFAULT_INDEX = 0
+    /** Shown on Route Details when Google vs MARSHIO disagree — comparisons use the current API snapshot. */
+    internal const val CURRENT_ESTIMATES_CONTEXT =
+        "Based on current route estimates at decision time."
     private const val DISTANCE_DELTA_THRESHOLD_METERS = 100
     private const val TIME_DELTA_THRESHOLD_SECONDS = 60
     /** Up to 2 min ETA gap treated as a tradeoff, not a clear Google win. */
@@ -217,14 +220,14 @@ internal object RouteDetailsComparisonPresentation {
             PreferenceMode.NO_TOLLS -> {
                 when {
                     marshioClearlyFaster ->
-                        "MARSHIO recommends this route because it is ${formatMinutes(facts.marshioFasterSeconds)} faster " +
+                        "MARSHIO recommends this route because it would be ~${formatMinutes(facts.marshioFasterSeconds)} faster " +
                             "and matches your No tolls preference."
                     marshioClearlySlower && hasCompensatingBenefit(facts) ->
                         buildHonestTradeoffOneLiner(facts, modeSuffix = "Matches your No tolls preference.")
                     hasSalikWin ->
-                        "MARSHIO recommends this route because it avoids Salik on Google's default."
+                        "MARSHIO recommends this route because it would avoid Salik on Google's default."
                     hasDistanceWin ->
-                        "MARSHIO recommends this route because it is ${formatHumanDistance(facts.distanceSavedMeters)} shorter " +
+                        "MARSHIO recommends this route because it would be ~${formatHumanDistance(facts.distanceSavedMeters)} shorter " +
                             "and matches your No tolls preference."
                     else ->
                         "MARSHIO selected a different route to match your No tolls preference — compare both below."
@@ -233,32 +236,32 @@ internal object RouteDetailsComparisonPresentation {
             PreferenceMode.CALM -> {
                 when {
                     marshioClearlyFaster ->
-                        "MARSHIO recommends this route because it is ${formatMinutes(facts.marshioFasterSeconds)} faster " +
-                            "with less traffic slowdown."
+                        "MARSHIO recommends this route because it would be ~${formatMinutes(facts.marshioFasterSeconds)} faster " +
+                            "with less predicted traffic slowdown."
                     marshioClearlySlower && hasCompensatingBenefit(facts) ->
                         buildHonestTradeoffOneLiner(facts, modeSuffix = "Matches your Calm preference.")
                     hasTrafficWin ->
-                        "MARSHIO recommends this route because it has ${formatMinutes(facts.trafficDelaySavedSeconds!!)} less traffic delay."
+                        "MARSHIO recommends this route because it would have ~${formatMinutes(facts.trafficDelaySavedSeconds!!)} less predicted traffic delay."
                     hasDistanceWin && smallTimeGap ->
-                        "MARSHIO recommends this route because it saves ${formatHumanDistance(facts.distanceSavedMeters)} " +
-                            "with no meaningful time difference."
+                        "MARSHIO recommends this route because it would save ~${formatHumanDistance(facts.distanceSavedMeters)} " +
+                            "with no meaningful time difference on current estimates."
                     else ->
-                        "MARSHIO selected a calmer route — compare traffic delay on both options below."
+                        "MARSHIO selected a calmer route — compare predicted traffic delay on both options below."
                 }
             }
             PreferenceMode.FASTEST -> {
                 when {
                     marshioClearlyFaster ->
-                        "MARSHIO recommends this route because it is ${formatMinutes(facts.marshioFasterSeconds)} faster " +
-                            "than Google's default."
+                        "MARSHIO recommends this route because it would be ~${formatMinutes(facts.marshioFasterSeconds)} faster " +
+                            "than Google's default on current estimates."
                     marshioClearlySlower && hasCompensatingBenefit(facts) ->
                         buildHonestTradeoffOneLiner(facts)
                     marshioClearlySlower ->
-                        "Google's default is ${formatMinutes(facts.marshioSlowerSeconds)} faster — " +
+                        "Google's default would be ~${formatMinutes(facts.marshioSlowerSeconds)} faster on current estimates — " +
                             "MARSHIO picked a different route; compare both before you drive."
                     hasDistanceWin ->
-                        "MARSHIO recommends this route because it saves ${formatHumanDistance(facts.distanceSavedMeters)} " +
-                            "with no meaningful time difference."
+                        "MARSHIO recommends this route because it would save ~${formatHumanDistance(facts.distanceSavedMeters)} " +
+                            "with no meaningful time difference on current estimates."
                     else ->
                         buildHonestTradeoffOneLiner(facts).takeIf { it.isNotBlank() }
                             ?: "MARSHIO selected a different route from Google's default — compare both below."
@@ -274,21 +277,21 @@ internal object RouteDetailsComparisonPresentation {
         val reasons = mutableListOf<String>()
 
         if (facts.marshioFasterSeconds >= TIME_DELTA_THRESHOLD_SECONDS) {
-            reasons += "${formatMinutes(facts.marshioFasterSeconds)} faster than Google's default"
+            reasons += "Would be ~${formatMinutes(facts.marshioFasterSeconds)} faster than Google's default"
         }
 
         if (facts.distanceSavedMeters >= DISTANCE_DELTA_THRESHOLD_METERS) {
-            reasons += "Saves ${formatHumanDistance(facts.distanceSavedMeters)}"
+            reasons += "Would save ~${formatHumanDistance(facts.distanceSavedMeters)} vs Google's default"
         }
 
         facts.trafficDelaySavedSeconds?.let { saved ->
             if (saved >= TIME_DELTA_THRESHOLD_SECONDS) {
-                reasons += "${formatMinutes(saved)} less traffic delay"
+                reasons += "~${formatMinutes(saved)} less predicted traffic delay"
             }
         }
 
         if (facts.salikSavedAed > 0) {
-            reasons += "${facts.salikSavedAed} AED less Salik"
+            reasons += "~${facts.salikSavedAed} AED less Salik vs Google's default"
         }
 
         if (
@@ -343,12 +346,12 @@ internal object RouteDetailsComparisonPresentation {
         val marshioBenefit =
             when {
                 facts.distanceSavedMeters >= DISTANCE_DELTA_THRESHOLD_METERS ->
-                    "MARSHIO selected the shorter route (${formatHumanDistance(facts.distanceSavedMeters)} less)."
+                    "MARSHIO's pick would be ~${formatHumanDistance(facts.distanceSavedMeters)} shorter."
                 facts.salikSavedAed > 0 ->
-                    "MARSHIO avoids ${facts.salikSavedAed} AED Salik."
+                    "MARSHIO's pick would avoid ~${facts.salikSavedAed} AED Salik."
                 facts.trafficDelaySavedSeconds != null &&
                     facts.trafficDelaySavedSeconds >= TIME_DELTA_THRESHOLD_SECONDS ->
-                    "MARSHIO has ${formatMinutes(facts.trafficDelaySavedSeconds)} less traffic delay."
+                    "MARSHIO's pick would have ~${formatMinutes(facts.trafficDelaySavedSeconds)} less predicted traffic delay."
                 else ->
                     "MARSHIO selected a different route."
             }

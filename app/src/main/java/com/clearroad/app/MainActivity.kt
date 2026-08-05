@@ -61,10 +61,10 @@ import com.clearroad.app.legacy.MarshallRecommendationBanner
 import com.clearroad.app.legacy.RouteDecisionEngine
 import com.clearroad.app.legacy.buildMarshallRecommendationBannerUiModel
 import com.clearroad.app.ui.theme.ClearRoad2Theme
-import com.clearroad.app.triphistory.TripHistoryInsight
+import com.clearroad.app.triphistory.DecisionHistoryInsight
 import com.clearroad.app.triphistory.TripHistoryRepository
 import com.clearroad.app.triphistory.buildTripHistoryEntry
-import com.clearroad.app.ui.model.TripHistoryInsightUiModel
+import com.clearroad.app.ui.model.DecisionHistoryInsightUiModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
@@ -298,7 +298,7 @@ fun ClearRoadScreen(
     var directionsLoading by remember { mutableStateOf(false) }
     var detailsRouteIndex by remember { mutableStateOf<Int?>(null) }
     var showRouteInputs by remember { mutableStateOf(false) }
-    var tripHistoryInsight by remember { mutableStateOf<TripHistoryInsightUiModel?>(null) }
+    var decisionHistoryInsight by remember { mutableStateOf<DecisionHistoryInsightUiModel?>(null) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -371,7 +371,7 @@ fun ClearRoadScreen(
         selectedFromLatLng,
         selectedToLatLng,
     ) {
-        tripHistoryInsight = null
+        decisionHistoryInsight = null
         if (directionsStatus != "OK") return@LaunchedEffect
         val from = selectedFromLatLng ?: return@LaunchedEffect
         val to = selectedToLatLng ?: return@LaunchedEffect
@@ -382,10 +382,10 @@ fun ClearRoadScreen(
         val repository = TripHistoryRepository.get(context)
         val prior = repository.priorTripsForOdMode(from, to, selectedMode)
         val todaySnapshot = buildTripHistoryEntry(from, to, route, selectedMode)
-        val insight = TripHistoryInsight.compute(prior, todaySnapshot)
-        tripHistoryInsight =
+        val insight = DecisionHistoryInsight.compute(prior, todaySnapshot)
+        decisionHistoryInsight =
             insight?.let { result ->
-                TripHistoryInsightUiModel(
+                DecisionHistoryInsightUiModel(
                     durationLine = result.durationLine,
                     salikLine = result.salikLine,
                 )
@@ -850,7 +850,7 @@ fun ClearRoadScreen(
                             toLatLng = selectedToLatLng,
                             useLegacyHomeFallback =
                                 !ArchitectureValidation.RECOMMENDATION_ONLY_HOME,
-                            tripHistoryInsight = tripHistoryInsight,
+                            decisionHistoryInsight = decisionHistoryInsight,
                         ),
                     )
                 ModalBottomSheet(

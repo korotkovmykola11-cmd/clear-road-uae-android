@@ -115,9 +115,9 @@ internal fun RouteDetailsScreen(
             model = model,
             cardBorder = cardBorder,
         )
-        model.tripHistoryInsight?.lines?.takeIf { it.isNotEmpty() }?.let { lines ->
+        model.decisionHistoryInsight?.lines?.takeIf { it.isNotEmpty() }?.let { lines ->
             Spacer(modifier = Modifier.height(12.dp))
-            RouteDetailsTripHistoryCard(
+            RouteDetailsDecisionHistoryCard(
                 lines = lines,
                 cardBorder = cardBorder,
             )
@@ -272,6 +272,14 @@ private fun RouteDetailsGoogleMarshioBlock(
         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
         color = ClearRoadColors.RoadGrey,
     )
+    if (decision.state == GoogleMarshioDecisionState.DISAGREES) {
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = RouteDetailsComparisonPresentation.CURRENT_ESTIMATES_CONTEXT,
+            style = MaterialTheme.typography.bodyMedium,
+            color = ClearRoadColors.RoadGreyMuted,
+        )
+    }
     Spacer(modifier = Modifier.height(14.dp))
 
     when (decision.state) {
@@ -611,7 +619,7 @@ private fun RouteDetailsTripCard(
 }
 
 @Composable
-private fun RouteDetailsTripHistoryCard(
+private fun RouteDetailsDecisionHistoryCard(
     lines: List<String>,
     cardBorder: BorderStroke,
 ) {
@@ -627,7 +635,7 @@ private fun RouteDetailsTripHistoryCard(
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
             Text(
-                text = "Your usual pattern for this trip",
+                text = "Your usual handoff pattern for this trip",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = ClearRoadColors.RoadGreyMuted,
             )

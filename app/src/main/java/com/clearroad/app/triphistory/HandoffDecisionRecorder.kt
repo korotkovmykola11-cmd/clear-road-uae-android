@@ -7,12 +7,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Records a trip when the user explicitly starts navigation (Google Maps / Waze handoff).
+ * Records the decision context when navigation handoff is initiated (user taps
+ * Google Maps / Waze on Route Details).
  *
- * Persists v1 legacy summary and optional v2 decision snapshot via [TripHandoffRepository]
- * (single dedup gate + Room transaction).
+ * Persists v1 legacy summary (`trip_history`) and optional v2 decision snapshot via
+ * [TripHandoffRepository] (single dedup gate + Room transaction).
  */
-object TripHistoryRecorder {
+object HandoffDecisionRecorder {
 
     fun recordHandoffAsync(
         scope: CoroutineScope,

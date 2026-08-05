@@ -73,9 +73,9 @@ internal object DetailsExplanationPolicy {
                 }
             when {
                 savedMinutes != null && savedMinutes >= 2 ->
-                    append(" It saves about $savedMinutes minutes compared with the next option.")
+                    append(" MARSHIO's pick would save ~$savedMinutes min compared with the next option.")
                 savedMinutes == 1 ->
-                    append(" It saves about a minute compared with the next option.")
+                    append(" MARSHIO's pick would save ~1 min compared with the next option.")
                 else ->
                     append(" It is the quickest option among these routes.")
             }

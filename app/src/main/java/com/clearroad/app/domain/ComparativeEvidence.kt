@@ -352,14 +352,14 @@ internal object ComparativeEvidence {
         }
         if (alternativeAed < selectedAed) {
             val saved = selectedAed - alternativeAed
-            if (saved > 0) return "saves $saved AED Salik"
+            if (saved > 0) return "estimated to save $saved AED in Salik"
         }
 
         val selectedCount = presentationTollCount(selected)
         val alternativeCount = presentationTollCount(alternative)
         return when {
             alternativeCount > selectedCount -> "more Salik"
-            alternativeCount < selectedCount -> "saves Salik"
+            alternativeCount < selectedCount -> "estimated to avoid Salik"
             else -> null
         }
     }

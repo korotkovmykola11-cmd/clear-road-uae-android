@@ -14,11 +14,11 @@ internal val MIGRATION_1_2 =
                     originKey TEXT NOT NULL,
                     destinationKey TEXT NOT NULL,
                     mode TEXT NOT NULL,
-                    viewedRouteIndex INTEGER NOT NULL,
-                    chosenRouteIdentityKey TEXT NOT NULL,
-                    chosenDurationSeconds INTEGER NOT NULL,
-                    chosenHasSalik INTEGER NOT NULL,
-                    chosenTollAed REAL,
+                    handoffCandidateRouteIndex INTEGER NOT NULL,
+                    handoffCandidateRouteIdentityKey TEXT NOT NULL,
+                    handoffCandidateDurationSeconds INTEGER NOT NULL,
+                    handoffCandidateHasSalik INTEGER NOT NULL,
+                    handoffCandidateTollAed REAL,
                     marshioRecommendedRouteIndex INTEGER NOT NULL,
                     googleDefaultRouteIndex INTEGER NOT NULL,
                     baselineRouteIdentityKey TEXT NOT NULL,
@@ -45,8 +45,8 @@ internal val MIGRATION_1_2 =
             )
             db.execSQL(
                 """
-                CREATE INDEX IF NOT EXISTS index_trip_decision_snapshots_chosenRouteIdentityKey
-                ON trip_decision_snapshots (chosenRouteIdentityKey)
+                CREATE INDEX IF NOT EXISTS index_trip_decision_snapshots_handoffCandidateRouteIdentityKey
+                ON trip_decision_snapshots (handoffCandidateRouteIdentityKey)
                 """.trimIndent(),
             )
             db.execSQL(

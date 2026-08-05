@@ -38,7 +38,7 @@ class DetailsExplanationPolicyTest {
             )
         assertEquals("Quickest option", details.title)
         assertTrue(details.why.contains("quickest practical option"))
-        assertTrue(details.why.contains("5 minutes"))
+        assertTrue(details.why.contains("would save ~5 min"))
         assertTrue(details.why.contains(home.narrative).not())
     }
 

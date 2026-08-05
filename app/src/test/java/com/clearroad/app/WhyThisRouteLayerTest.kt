@@ -37,7 +37,7 @@ class WhyThisRouteLayerTest {
             )
         assertEquals("Quickest option", copy.title)
         assertTrue(copy.why.contains("quickest practical option"))
-        assertTrue(copy.why.contains("7 minutes"))
+        assertTrue(copy.why.contains("would save ~7 min"))
     }
 
     @Test

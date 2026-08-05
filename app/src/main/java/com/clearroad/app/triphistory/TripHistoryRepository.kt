@@ -7,14 +7,20 @@ import com.google.android.gms.maps.model.LatLng
 import java.util.concurrent.TimeUnit
 
 /**
- * On-device trip history (SQLite via Room). Data never leaves the device.
+ * On-device Decision History (SQLite via Room, legacy v1 table `trip_history`).
  *
- * Trips are recorded on navigation handoff (Google Maps / Waze), not on every route fetch.
- * At most one row per **originKey + destinationKey + mode** within [HANDOFF_DEDUP_WINDOW_MS].
+ * Data is stored locally in the app database. Android backup is currently enabled
+ * (`allowBackup=true`) and backup inclusion is not explicitly restricted in
+ * `res/xml/backup_rules.xml` or `res/xml/data_extraction_rules.xml`; see
+ * `docs/google-maps-tos-audit.md`.
+ *
+ * Records the decision context when navigation handoff is initiated (user taps
+ * Google Maps / Waze on Route Details), not on every route fetch. At most one row per
+ * **originKey + destinationKey + mode** within [HANDOFF_DEDUP_WINDOW_MS].
  *
  * Median / insight queries are scoped to originKey + destinationKey + [PreferenceMode].
  *
- * TODO: Settings — add "Clear trip history" action for user privacy.
+ * TODO: Settings — add "Clear decision history" action for user privacy.
  */
 class TripHistoryRepository internal constructor(
     private val dao: TripHistoryDao,

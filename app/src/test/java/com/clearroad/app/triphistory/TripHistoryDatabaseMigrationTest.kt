@@ -60,11 +60,11 @@ class TripHistoryDatabaseMigrationTest {
                     originKey = "origin_v1",
                     destinationKey = "dest_v1",
                     mode = PreferenceMode.FASTEST.name,
-                    viewedRouteIndex = 0,
-                    chosenRouteIdentityKey = "chosen",
-                    chosenDurationSeconds = 620,
-                    chosenHasSalik = false,
-                    chosenTollAed = null,
+                    handoffCandidateRouteIndex = 0,
+                    handoffCandidateRouteIdentityKey = "handoff-candidate",
+                    handoffCandidateDurationSeconds = 620,
+                    handoffCandidateHasSalik = false,
+                    handoffCandidateTollAed = null,
                     marshioRecommendedRouteIndex = 0,
                     googleDefaultRouteIndex = 0,
                     baselineRouteIdentityKey = "baseline",
@@ -81,11 +81,11 @@ class TripHistoryDatabaseMigrationTest {
                 TripDecisionAlternativeEntity(
                     snapshotId = snapshotId,
                     routeIndex = 0,
-                    routeIdentityKey = "chosen",
+                    routeIdentityKey = "handoff-candidate",
                     durationSeconds = 620,
                     hasSalik = false,
                     tollAed = null,
-                    roleFlags = TripDecisionAlternativeRole.CHOSEN,
+                    roleFlags = TripDecisionAlternativeRole.HANDOFF_CANDIDATE,
                 ),
             ),
         )
@@ -95,7 +95,7 @@ class TripHistoryDatabaseMigrationTest {
 
         assertTrue(indexExists("index_trip_decision_snapshots_originKey_destinationKey_mode"))
         assertTrue(indexExists("index_trip_decision_snapshots_timestamp"))
-        assertTrue(indexExists("index_trip_decision_snapshots_chosenRouteIdentityKey"))
+        assertTrue(indexExists("index_trip_decision_snapshots_handoffCandidateRouteIdentityKey"))
         assertTrue(indexExists("index_trip_decision_alternatives_snapshotId"))
     }
 
@@ -116,11 +116,11 @@ class TripHistoryDatabaseMigrationTest {
                     originKey = "origin_v1",
                     destinationKey = "dest_v1",
                     mode = PreferenceMode.FASTEST.name,
-                    viewedRouteIndex = 0,
-                    chosenRouteIdentityKey = "chosen",
-                    chosenDurationSeconds = 620,
-                    chosenHasSalik = false,
-                    chosenTollAed = null,
+                    handoffCandidateRouteIndex = 0,
+                    handoffCandidateRouteIdentityKey = "handoff-candidate",
+                    handoffCandidateDurationSeconds = 620,
+                    handoffCandidateHasSalik = false,
+                    handoffCandidateTollAed = null,
                     marshioRecommendedRouteIndex = 0,
                     googleDefaultRouteIndex = 0,
                     baselineRouteIdentityKey = "baseline",
@@ -137,11 +137,11 @@ class TripHistoryDatabaseMigrationTest {
                 TripDecisionAlternativeEntity(
                     snapshotId = snapshotId,
                     routeIndex = 0,
-                    routeIdentityKey = "chosen",
+                    routeIdentityKey = "handoff-candidate",
                     durationSeconds = 620,
                     hasSalik = false,
                     tollAed = null,
-                    roleFlags = TripDecisionAlternativeRole.CHOSEN,
+                    roleFlags = TripDecisionAlternativeRole.HANDOFF_CANDIDATE,
                 ),
             ),
         )

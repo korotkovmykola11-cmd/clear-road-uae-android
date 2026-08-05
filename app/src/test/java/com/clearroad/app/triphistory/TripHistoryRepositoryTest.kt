@@ -199,10 +199,10 @@ class TripHistoryRepositoryTest {
 
         val prior = repository.priorTripsForOdMode(origin, destination, mode)
         val today = entry(timestamp = fixedNow, durationSeconds = 620, hasSalik = false)
-        val insight = TripHistoryInsight.compute(prior, today)
+        val insight = DecisionHistoryInsight.compute(prior, today)
 
         assertEquals(3, prior.size)
-        assertEquals("Typical time for this trip", insight?.durationLine)
+        assertEquals("Typical handoff pattern for this trip", insight?.durationLine)
         assertNull(insight?.salikLine)
     }
 

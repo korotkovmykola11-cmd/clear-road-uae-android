@@ -175,13 +175,13 @@ data class RouteDetailsUiModel(
     val showRouteIntelligenceSection: Boolean = false,
     val routeIntelligenceUnavailableReason: String? = null,
     val driveWeather: DriveWeatherUiModel? = null,
-    /** Local on-device pattern insight; hidden when null (< 3 prior trips). */
-    val tripHistoryInsight: TripHistoryInsightUiModel? = null,
+    /** Local on-device Decision History pattern insight; hidden when null (< 3 prior handoffs). */
+    val decisionHistoryInsight: DecisionHistoryInsightUiModel? = null,
     /** Compact v2 decision snapshot for handoff persistence; built at assembly time. */
     val handoffSnapshot: com.clearroad.app.triphistory.TripHandoffSnapshotUiModel? = null,
 )
 
-data class TripHistoryInsightUiModel(
+data class DecisionHistoryInsightUiModel(
     val durationLine: String?,
     val salikLine: String?,
 ) {

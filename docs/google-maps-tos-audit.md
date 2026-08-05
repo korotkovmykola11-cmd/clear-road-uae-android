@@ -372,15 +372,15 @@ Additive local persistence of per-handoff decision snapshots alongside legacy `t
 
 | Table | Purpose |
 |-------|---------|
-| `trip_decision_snapshots` | One row per handoff: chosen route (what was displayed on Route Details at handoff) vs baseline counterfactual (Google default, index 0); materialized duration/toll deltas and Salik counterfactual metrics at write time |
-| `trip_decision_alternatives` | Complete alternative set at handoff (1:N, FK cascade delete on snapshot); role flags for chosen route, Google default, and MARSHIO recommendation |
+| `trip_decision_snapshots` | One row per handoff: **handoff candidate** route (what was displayed on Route Details when the user tapped handoff — not a confirmed Google/Waze navigation choice) vs baseline counterfactual (Google default, index 0); materialized duration/toll deltas and Salik counterfactual metrics at write time |
+| `trip_decision_alternatives` | Complete alternative set at handoff (1:N, FK cascade delete on snapshot); role flags for handoff candidate, Google default, and MARSHIO recommendation |
 
 **What is stored** (Repository evidence: `TripDecisionSnapshotEntity.kt`, `TripDecisionAlternativeEntity.kt`, `TripHandoffSnapshotUiModel.kt`):
 
 - Normalized corridor **identity keys** (`stableKey` from `RouteIdentity`; `primaryName` / disambiguator **not** persisted)
 - Numeric decision metrics: `durationSeconds`, `tollAed`, `hasSalik`, `timeDeltaVsBaselineSeconds`, `bestNoSalikDurationSeconds`, `salikTimeDeltaSeconds`
 - Route **index** and **role flags** per alternative at handoff
-- Chosen vs baseline relationship (viewed route index, Google default index 0, MARSHIO recommended index)
+- Handoff candidate vs baseline relationship (`handoffCandidateRouteIndex`, Google default index 0, MARSHIO recommended index). Handoff candidate = route on screen at handoff tap, not confirmed navigation.
 - Grid-snapped **originKey** + **destinationKey** (same ~500 m coordinate-derived keys as v1)
 - **PreferenceMode**, handoff **timestamp**
 
@@ -393,7 +393,7 @@ Additive local persistence of per-handoff decision snapshots alongside legacy `t
 - Google-generated prose or HTML/text instructions
 - `primaryName` (deferred; MVP uses `stableKey` + disambiguator at assembly time only)
 
-**Write path:** `RouteDetailsHandoffFooter` → `TripHistoryRecorder` → `TripHandoffRepository.recordHandoff()` — v1 + v2 dual-write in one Room transaction; shared **5 h** dedup gate (checks latest v1 row; suppresses both v1 and v2). Retention: **30 days** + max **50**/O-D+mode on both v1 and v2 tables.
+**Write path:** `RouteDetailsHandoffFooter` → `HandoffDecisionRecorder` → `TripHandoffRepository.recordHandoff()` — v1 + v2 dual-write in one Room transaction; shared **5 h** dedup gate (checks latest v1 row; suppresses both v1 and v2). Retention: **30 days** + max **50**/O-D+mode on both v1 and v2 tables.
 
 **Insight logic:** Historical Alternative Preference and Salik v2 recommendation UI are **not implemented** in this schema commit — persistence only.
 

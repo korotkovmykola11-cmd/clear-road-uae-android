@@ -6,14 +6,14 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class TripHistoryInsightTest {
+class DecisionHistoryInsightTest {
 
     @Test
     fun compute_returnsNull_whenFewerThanThreePriorTrips() {
         val prior = listOf(trip(durationSeconds = 600), trip(durationSeconds = 620))
         val today = trip(durationSeconds = 900)
 
-        assertNull(TripHistoryInsight.compute(prior, today))
+        assertNull(DecisionHistoryInsight.compute(prior, today))
     }
 
     @Test
@@ -26,9 +26,9 @@ class TripHistoryInsightTest {
             )
         val today = trip(durationSeconds = 650)
 
-        val result = TripHistoryInsight.compute(prior, today)!!
+        val result = DecisionHistoryInsight.compute(prior, today)!!
 
-        assertEquals("Typical time for this trip", result.durationLine)
+        assertEquals("Typical handoff pattern for this trip", result.durationLine)
         assertNull(result.salikLine)
     }
 
@@ -42,9 +42,12 @@ class TripHistoryInsightTest {
             )
         val today = trip(durationSeconds = 780)
 
-        val result = TripHistoryInsight.compute(prior, today)!!
+        val result = DecisionHistoryInsight.compute(prior, today)!!
 
-        assertEquals("Today is 3 min slower than usual for this trip", result.durationLine)
+        assertEquals(
+            "This option looks ~3 min slower than your usual handoff pattern",
+            result.durationLine,
+        )
     }
 
     @Test
@@ -57,9 +60,12 @@ class TripHistoryInsightTest {
             )
         val today = trip(durationSeconds = 900)
 
-        val result = TripHistoryInsight.compute(prior, today)!!
+        val result = DecisionHistoryInsight.compute(prior, today)!!
 
-        assertEquals("Today is 5 min faster than usual for this trip", result.durationLine)
+        assertEquals(
+            "This option looks ~5 min faster than your usual handoff pattern",
+            result.durationLine,
+        )
     }
 
     @Test
@@ -72,10 +78,10 @@ class TripHistoryInsightTest {
             )
         val today = trip(durationSeconds = 615, hasSalik = true)
 
-        val result = TripHistoryInsight.compute(prior, today)!!
+        val result = DecisionHistoryInsight.compute(prior, today)!!
 
         assertEquals(
-            "Usually no Salik on this trip, but today's option includes it",
+            "Your usual handoff pattern skips Salik; this option would include it",
             result.salikLine,
         )
     }
@@ -90,10 +96,10 @@ class TripHistoryInsightTest {
             )
         val today = trip(durationSeconds = 615, hasSalik = false)
 
-        val result = TripHistoryInsight.compute(prior, today)!!
+        val result = DecisionHistoryInsight.compute(prior, today)!!
 
         assertEquals(
-            "Usually includes Salik on this trip, but today's option has none",
+            "Your usual handoff pattern includes Salik; this option would skip it",
             result.salikLine,
         )
     }
@@ -107,7 +113,7 @@ class TripHistoryInsightTest {
                 trip(durationSeconds = 500),
             )
 
-        assertEquals(300, TripHistoryInsight.medianDurationSeconds(trips))
+        assertEquals(300, DecisionHistoryInsight.medianDurationSeconds(trips))
     }
 
     @Test
@@ -120,7 +126,7 @@ class TripHistoryInsightTest {
                 trip(durationSeconds = 660),
             )
 
-        assertEquals(630, TripHistoryInsight.medianDurationSeconds(trips))
+        assertEquals(630, DecisionHistoryInsight.medianDurationSeconds(trips))
     }
 
     @Test
@@ -131,11 +137,11 @@ class TripHistoryInsightTest {
                 trip(durationSeconds = 1000),
                 trip(durationSeconds = 1000),
             )
-        val atThreshold = (1000 * (1 + TripHistoryInsight.DURATION_DEVIATION_RATIO)).toInt()
+        val atThreshold = (1000 * (1 + DecisionHistoryInsight.DURATION_DEVIATION_RATIO)).toInt()
 
-        val line = TripHistoryInsight.buildDurationLine(prior, atThreshold)
+        val line = DecisionHistoryInsight.buildDurationLine(prior, atThreshold)
 
-        assertEquals("Typical time for this trip", line)
+        assertEquals("Typical handoff pattern for this trip", line)
     }
 
     @Test
@@ -146,11 +152,11 @@ class TripHistoryInsightTest {
                 trip(durationSeconds = 1000),
                 trip(durationSeconds = 1000),
             )
-        val aboveThreshold = (1000 * (1 + TripHistoryInsight.DURATION_DEVIATION_RATIO)).toInt() + 1
+        val aboveThreshold = (1000 * (1 + DecisionHistoryInsight.DURATION_DEVIATION_RATIO)).toInt() + 1
 
-        val line = TripHistoryInsight.buildDurationLine(prior, aboveThreshold)
+        val line = DecisionHistoryInsight.buildDurationLine(prior, aboveThreshold)
 
-        assertTrue(line.contains("slower than usual for this trip"))
+        assertTrue(line.contains("slower than your usual handoff pattern"))
     }
 
     @Test
@@ -163,8 +169,8 @@ class TripHistoryInsightTest {
                 trip(durationSeconds = 630, hasSalik = false),
             )
 
-        assertNull(TripHistoryInsight.buildSalikLine(prior, todayHasSalik = true))
-        assertNull(TripHistoryInsight.buildSalikLine(prior, todayHasSalik = false))
+        assertNull(DecisionHistoryInsight.buildSalikLine(prior, todayHasSalik = true))
+        assertNull(DecisionHistoryInsight.buildSalikLine(prior, todayHasSalik = false))
     }
 
     private fun trip(

@@ -16,18 +16,18 @@ internal object TripDecisionSnapshotBuilder {
         val to = input.toLatLng ?: return null
         if (input.identities.size != input.routes.size) return null
 
-        val viewedRouteIndex = input.detailRouteIndex.coerceIn(0, input.routes.lastIndex)
+        val handoffCandidateRouteIndex = input.detailRouteIndex.coerceIn(0, input.routes.lastIndex)
         val marshioRecommendedRouteIndex =
             input.recommendedRouteIndex.coerceIn(0, input.routes.lastIndex)
         val googleDefaultRouteIndex =
             GOOGLE_DEFAULT_ROUTE_INDEX.coerceIn(0, input.routes.lastIndex)
 
-        val chosenRoute = input.routes[viewedRouteIndex]
-        val chosenIdentity = input.identities[viewedRouteIndex]
+        val handoffCandidateRoute = input.routes[handoffCandidateRouteIndex]
+        val handoffCandidateIdentity = input.identities[handoffCandidateRouteIndex]
         val baselineRoute = input.routes[googleDefaultRouteIndex]
         val baselineIdentity = input.identities[googleDefaultRouteIndex]
 
-        val chosenHasSalik = hasSalik(chosenRoute)
+        val handoffCandidateHasSalik = hasSalik(handoffCandidateRoute)
         val baselineHasSalik = hasSalik(baselineRoute)
         val bestNoSalikDurationSeconds =
             input.routes
@@ -35,8 +35,8 @@ internal object TripDecisionSnapshotBuilder {
                 .minOfOrNull { it.durationSeconds.coerceAtLeast(0) }
 
         val salikTimeDeltaSeconds =
-            if (chosenHasSalik && bestNoSalikDurationSeconds != null) {
-                bestNoSalikDurationSeconds - chosenRoute.durationSeconds.coerceAtLeast(0)
+            if (handoffCandidateHasSalik && bestNoSalikDurationSeconds != null) {
+                bestNoSalikDurationSeconds - handoffCandidateRoute.durationSeconds.coerceAtLeast(0)
             } else {
                 null
             }
@@ -56,7 +56,7 @@ internal object TripDecisionSnapshotBuilder {
                     roleFlags =
                         buildTripDecisionAlternativeRoleFlags(
                             routeIndex = routeIndex,
-                            viewedRouteIndex = viewedRouteIndex,
+                            handoffCandidateRouteIndex = handoffCandidateRouteIndex,
                             googleDefaultRouteIndex = googleDefaultRouteIndex,
                             marshioRecommendedRouteIndex = marshioRecommendedRouteIndex,
                         ),
@@ -68,20 +68,20 @@ internal object TripDecisionSnapshotBuilder {
             originKey = originKey,
             destinationKey = destinationKey,
             mode = input.mode,
-            viewedRouteIndex = viewedRouteIndex,
+            handoffCandidateRouteIndex = handoffCandidateRouteIndex,
             marshioRecommendedRouteIndex = marshioRecommendedRouteIndex,
             googleDefaultRouteIndex = googleDefaultRouteIndex,
-            chosenRouteIdentityKey = chosenIdentity.stableKey,
-            chosenDurationSeconds = chosenRoute.durationSeconds.coerceAtLeast(0),
-            chosenHasSalik = chosenHasSalik,
-            chosenTollAed = tollAed(chosenRoute),
+            handoffCandidateRouteIdentityKey = handoffCandidateIdentity.stableKey,
+            handoffCandidateDurationSeconds = handoffCandidateRoute.durationSeconds.coerceAtLeast(0),
+            handoffCandidateHasSalik = handoffCandidateHasSalik,
+            handoffCandidateTollAed = tollAed(handoffCandidateRoute),
             baselineRouteIdentityKey = baselineIdentity.stableKey,
             baselineDurationSeconds = baselineRoute.durationSeconds.coerceAtLeast(0),
             baselineHasSalik = baselineHasSalik,
             baselineTollAed = tollAed(baselineRoute),
             timeDeltaVsBaselineSeconds =
                 baselineRoute.durationSeconds.coerceAtLeast(0) -
-                    chosenRoute.durationSeconds.coerceAtLeast(0),
+                    handoffCandidateRoute.durationSeconds.coerceAtLeast(0),
             bestNoSalikDurationSeconds = bestNoSalikDurationSeconds,
             salikTimeDeltaSeconds = salikTimeDeltaSeconds,
             alternatives = alternatives,
