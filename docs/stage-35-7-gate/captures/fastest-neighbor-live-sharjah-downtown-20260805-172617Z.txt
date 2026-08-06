@@ -1,0 +1,57 @@
+================================================================================
+FASTEST DIAGNOSTIC CAPTURE
+caseId=live-sharjah-downtown mode=FASTEST capturedUtc=2026-08-05T17:26:17Z
+origin=Sharjah (25.338715, 55.420114) dest=Downtown Dubai (25.1976146, 55.2743122)
+================================================================================
+
+--- RAW ROUTE ORDER / LABELS ---
+  Legacy Directions (3 routes):
+    [0] summary=E11 corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+    [1] summary=Sheikh Mohammed Bin Zayed Rd/E311 corridor=E311 identity=E311 (MBZ Road) stable=E311
+    [2] summary=Sheikh Mohammed Bin Zayed Rd/E311 and Ras Al Khor Rd/E44 corridor=E311 identity=E311 (MBZ Road) stable=E311
+  Routes V2 computeRoutes (3 routes):
+    [0] summary=إ11 corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+    [1] summary=شارع الشيخ محمد بن زايد/إ311 corridor=E311 identity=E311 (MBZ Road) stable=E311
+    [2] summary=إ11 وشارع المركز المالي corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+
+--- ROUTE BREAKDOWN (indices 0..1, both APIs) ---
+
+  === Legacy ===
+  route[0] corridor=E11 geom=37a20956 identity=Sheikh Zayed Road (E11)
+    duration=1900s (32 mins) static/base=1852s traffic=1900s trafficDelta=48s distance=29813m toll=0aed totalCost=7.00
+    FASTEST score=33.586 (durationMin=31 distKm=29.81 toll=0 totalCost=7.00)
+  route[1] corridor=E311 geom=c281bc8a identity=E311 (MBZ Road)
+    duration=1929s (32 mins) static/base=1985s traffic=1929s trafficDelta=0s distance=33103m toll=0aed totalCost=8.00
+    FASTEST score=34.905 (durationMin=32 distKm=33.10 toll=0 totalCost=8.00)
+  → pickRecommendedRouteIndex(FASTEST)=route[0] corridor=E11
+
+  === V2 ===
+  route[0] corridor=E11 geom=105433bd identity=Sheikh Zayed Road (E11)
+    duration=2156s (36 mins) static/base=1795s traffic=2156s trafficDelta=361s distance=27703m toll=0aed totalCost=6.00
+    FASTEST score=37.319 (durationMin=35 distKm=27.70 toll=0 totalCost=6.00)
+  route[1] corridor=E311 geom=aeef1cff identity=E311 (MBZ Road)
+    duration=1886s (32 mins) static/base=1901s traffic=1886s trafficDelta=0s distance=33060m toll=0aed totalCost=8.00
+    FASTEST score=33.905 (durationMin=31 distKm=33.06 toll=0 totalCost=8.00)
+  → pickRecommendedRouteIndex(FASTEST)=route[1] corridor=E311
+
+--- FASTEST WINNER SELECTION ---
+Legacy pickRecommendedRouteIndex(FASTEST)=route[0]
+V2 pickRecommendedRouteIndex(FASTEST)=route[1]
+Legacy winner corridor=E11 geom=37a20956 dur=1900s dist=29813m toll=0
+V2 winner corridor=E311 geom=aeef1cff dur=1886s dist=33060m toll=0
+
+Winner geometry overlap: 3% valid=true classification=EXPLAINABLE_DIFFERENCE
+
+Why APIs differ:
+  Legacy FASTEST=route[0] E11 traffic=1900s score=33.586
+  V2 FASTEST=route[1] E311 traffic=1886s score=33.905
+  Corridor fork: Legacy prefers E11, V2 prefers E311 (traffic delta Legacy-V2 on winners: 14s)
+  Index mismatch at same API ordering — compare pairwise geometry table above to see which Legacy alt matches which V2 alt.
+
+
+--- PAIRWISE GEOMETRY (Legacy alt ↔ V2 alt, ≥70%) ---
+  Legacy[0] E11 ↔ V2[0] E11 shared=93%
+  Legacy[1] E311 ↔ V2[1] E311 shared=99%
+
+--- BASELINE REFERENCE (docs/stage-c-baseline.md §12) ---
+Historical Legacy FASTEST: idx=0 E311 (geom b607eee9); Legacy CALM: idx=1 E11 (cross-mode fork documented).

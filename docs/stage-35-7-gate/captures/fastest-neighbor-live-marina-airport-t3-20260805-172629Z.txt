@@ -1,0 +1,57 @@
+================================================================================
+FASTEST DIAGNOSTIC CAPTURE
+caseId=live-marina-airport-t3 mode=FASTEST capturedUtc=2026-08-05T17:26:29Z
+origin=Dubai Marina (25.0784811, 55.1375463) dest=Airport T3 (25.2584301, 55.3698345)
+================================================================================
+
+--- RAW ROUTE ORDER / LABELS ---
+  Legacy Directions (3 routes):
+    [0] summary=E11 corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+    [1] summary=Al Marsa St and E11 corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+    [2] summary=Sheikh Zayed Rd/E11 corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+  Routes V2 computeRoutes (3 routes):
+    [0] summary=إ11 corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+    [1] summary=شارع الشيخ زايد/إ11 corridor=E11 identity=Sheikh Zayed Road (E11) stable=E11
+    [2] summary=شارع الخيل/إ44 corridor=E44 identity=Sheikh Zayed Road (E11) stable=E11
+
+--- ROUTE BREAKDOWN (indices 0..1, both APIs) ---
+
+  === Legacy ===
+  route[0] corridor=E11 geom=01dcd179 identity=Sheikh Zayed Road (E11)
+    duration=2150s (36 mins) static/base=2170s traffic=2150s trafficDelta=0s distance=38510m toll=0aed totalCost=9.00
+    FASTEST score=38.327 (durationMin=35 distKm=38.51 toll=0 totalCost=9.00)
+  route[1] corridor=E11 geom=7920cc14 identity=Sheikh Zayed Road (E11)
+    duration=2420s (40 mins) static/base=2465s traffic=2420s trafficDelta=0s distance=38558m toll=0aed totalCost=9.00
+    FASTEST score=43.323 (durationMin=40 distKm=38.56 toll=0 totalCost=9.00)
+  → pickRecommendedRouteIndex(FASTEST)=route[0] corridor=E11
+
+  === V2 ===
+  route[0] corridor=E11 geom=4017db5f identity=Sheikh Zayed Road (E11)
+    duration=2177s (37 mins) static/base=2161s traffic=2177s trafficDelta=16s distance=38395m toll=0aed totalCost=9.00
+    FASTEST score=39.320 (durationMin=36 distKm=38.40 toll=0 totalCost=9.00)
+  route[1] corridor=E11 geom=0d930e25 identity=Sheikh Zayed Road (E11)
+    duration=2439s (41 mins) static/base=2446s traffic=2439s trafficDelta=0s distance=41036m toll=0aed totalCost=10.00
+    FASTEST score=43.602 (durationMin=40 distKm=41.04 toll=0 totalCost=10.00)
+  → pickRecommendedRouteIndex(FASTEST)=route[0] corridor=E11
+
+--- FASTEST WINNER SELECTION ---
+Legacy pickRecommendedRouteIndex(FASTEST)=route[0]
+V2 pickRecommendedRouteIndex(FASTEST)=route[0]
+Legacy winner corridor=E11 geom=01dcd179 dur=2150s dist=38510m toll=0
+V2 winner corridor=E11 geom=4017db5f dur=2177s dist=38395m toll=0
+
+Winner geometry overlap: 98% valid=true classification=SAME_CORRIDOR
+
+Why APIs differ:
+  Legacy FASTEST=route[0] E11 traffic=2150s score=38.327
+  V2 FASTEST=route[0] E11 traffic=2177s score=39.320
+
+
+--- PAIRWISE GEOMETRY (Legacy alt ↔ V2 alt, ≥70%) ---
+  Legacy[0] E11 ↔ V2[0] E11 shared=98%
+  Legacy[0] E11 ↔ V2[1] E11 shared=71%
+  Legacy[1] E11 ↔ V2[0] E11 shared=90%
+  Legacy[2] E11 ↔ V2[0] E11 shared=83%
+
+--- BASELINE REFERENCE (docs/stage-c-baseline.md §12) ---
+Historical Legacy FASTEST: idx=0 E311 (geom b607eee9); Legacy CALM: idx=1 E11 (cross-mode fork documented).

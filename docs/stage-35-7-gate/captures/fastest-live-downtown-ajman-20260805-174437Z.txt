@@ -1,0 +1,70 @@
+================================================================================
+FASTEST DIAGNOSTIC CAPTURE
+caseId=live-downtown-ajman mode=FASTEST capturedUtc=2026-08-05T17:44:37Z
+origin=Downtown Dubai (25.1976146, 55.2743122) dest=Ajman (25.4051615, 55.5135881)
+================================================================================
+
+--- RAW ROUTE LABELS (from provider JSON) ---
+
+  provider=Legacy Directions (3 routes)
+  [0] provider=Legacy Directions routeLabels=ABSENT identityKey=E311 corridor=E311 duration=2834s static=2542s trafficDelta=292s distance=46623m geom=db982b02
+  [1] provider=Legacy Directions routeLabels=ABSENT identityKey=E11 corridor=E11 duration=2821s static=2668s trafficDelta=153s distance=47941m geom=53278404
+  [2] **WINNER** provider=Legacy Directions routeLabels=ABSENT identityKey=E11 corridor=E11 duration=2802s static=2510s trafficDelta=292s distance=42122m geom=d72ebbd4
+
+  provider=Routes V2 computeRoutes (3 routes)
+  [0] provider=Routes V2 computeRoutes routeLabels=[DEFAULT_ROUTE] identityKey=E11 corridor=E311 duration=2839s static=2535s trafficDelta=304s distance=46511m geom=a1ce154e
+  [1] provider=Routes V2 computeRoutes routeLabels=[DEFAULT_ROUTE_ALTERNATE] identityKey=E11 corridor=E11 duration=2827s static=2661s trafficDelta=166s distance=47827m geom=3fe3a5e3
+  [2] **WINNER** provider=Routes V2 computeRoutes routeLabels=[DEFAULT_ROUTE_ALTERNATE] identityKey=E11 corridor=E11 duration=2824s static=2510s trafficDelta=314s distance=42119m geom=c8ac5bcf
+
+--- FULL ROUTE SET BREAKDOWN (all indices, winner marked) ---
+
+  === Legacy (winner=route[2]) ===
+  route[0] corridor=E311 geom=db982b02 identityKey=E311 identity=E311 (MBZ Road)
+  route[0]  duration=2834s (47 mins) static=2542s traffic=2834s trafficDelta=292s distance=46623m toll=0aed
+  route[0]  FASTEST score=51.028 (durationMin=47 distKm=46.62 totalCost=11.00)
+  route[1] corridor=E11 geom=53278404 identityKey=E11 identity=Sheikh Zayed Road (E11)
+  route[1]  duration=2821s (47 mins) static=2668s traffic=2821s trafficDelta=153s distance=47941m toll=0aed
+  route[1]  FASTEST score=51.094 (durationMin=47 distKm=47.94 totalCost=11.00)
+  route[2] **WINNER** corridor=E11 geom=d72ebbd4 identityKey=E11 identity=Sheikh Zayed Road (E11)
+  route[2]  duration=2802s (47 mins) static=2510s traffic=2802s trafficDelta=292s distance=42122m toll=0aed
+  route[2]  FASTEST score=49.650 (durationMin=46 distKm=42.12 totalCost=10.00)
+
+  === V2 (winner=route[2]) ===
+  route[0] corridor=E311 geom=a1ce154e identityKey=E11 identity=Sheikh Zayed Road (E11)
+  route[0]  duration=2839s (48 mins) static=2535s traffic=2839s trafficDelta=304s distance=46511m toll=0aed
+  route[0]  FASTEST score=51.022 (durationMin=47 distKm=46.51 totalCost=11.00)
+  route[1] corridor=E11 geom=3fe3a5e3 identityKey=E11 identity=Sheikh Zayed Road (E11)
+  route[1]  duration=2827s (48 mins) static=2661s traffic=2827s trafficDelta=166s distance=47827m toll=0aed
+  route[1]  FASTEST score=51.088 (durationMin=47 distKm=47.83 totalCost=11.00)
+  route[2] **WINNER** corridor=E11 geom=c8ac5bcf identityKey=E11 identity=Sheikh Zayed Road (E11)
+  route[2]  duration=2824s (48 mins) static=2510s traffic=2824s trafficDelta=314s distance=42119m toll=0aed
+  route[2]  FASTEST score=50.649 (durationMin=47 distKm=42.12 totalCost=10.00)
+
+--- ACTUAL WINNER CROSS-API COMPARISON ---
+  Legacy winner route[2]:
+    **WINNER** corridor=E11 geom=d72ebbd4 identityKey=E11 identity=Sheikh Zayed Road (E11)
+     duration=2802s (47 mins) static=2510s traffic=2802s trafficDelta=292s distance=42122m toll=0aed
+     FASTEST score=49.650 (durationMin=46 distKm=42.12 totalCost=10.00)
+  V2 winner route[2]:
+    **WINNER** corridor=E11 geom=c8ac5bcf identityKey=E11 identity=Sheikh Zayed Road (E11)
+     duration=2824s (48 mins) static=2510s traffic=2824s trafficDelta=314s distance=42119m toll=0aed
+     FASTEST score=50.649 (durationMin=47 distKm=42.12 totalCost=10.00)
+  identityKey match=true (Legacy=E11 V2=E11)
+  corridor fork=false (Legacy=E11 V2=E11) index fork=false winner traffic delta=-22s
+  FASTEST score Legacy=49.650 V2=50.649
+
+--- FASTEST WINNER SELECTION (gate snapshot) ---
+Legacy pickRecommendedRouteIndex(FASTEST)=route[2]
+V2 pickRecommendedRouteIndex(FASTEST)=route[2]
+Legacy winner corridor=E11 geom=d72ebbd4 dur=2802s dist=42122m toll=0
+V2 winner corridor=E11 geom=c8ac5bcf dur=2824s dist=42119m toll=0
+
+Winner-to-winner geometry overlap: 100% valid=true classification=SAME_CORRIDOR
+
+--- PAIRWISE GEOMETRY (Legacy alt ↔ V2 alt, ≥70%) ---
+  Legacy[0] E311 ↔ V2[0] E311 shared=99%
+  Legacy[1] E11 ↔ V2[1] E11 shared=99%
+  Legacy[2] E11 ↔ V2[2] E11 shared=100%
+
+--- BASELINE REFERENCE (docs/stage-c-baseline.md §12) ---
+Historical Legacy FASTEST: idx=0 E311 (geom b607eee9); Legacy CALM: idx=1 E11 (cross-mode fork documented).
